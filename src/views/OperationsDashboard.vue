@@ -1,14 +1,14 @@
 <template>
-  <div class="dashboard-container" :class="{ 'sidebar-open': isSidebarOpen }">
-    <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
+  <div :class="['dashboard-container', { 'theme-light': isLightTheme }]">
+    <div v-if="sidebarOpen" class="sidebar-backdrop" @click="closeSidebarUi"></div>
     <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside :class="['sidebar', { open: sidebarOpen }]">
       <div class="sidebar-header">
         <h2>Operations</h2>
         <p>{{ authStore.user?.full_name }}</p>
         <span class="role-badge">{{ authStore.user?.role }}</span>
       </div>
-      <nav class="sidebar-nav">
+      <nav class="sidebar-nav" @click="closeSidebarUi">
         <a :class="['nav-item', { active: activeSection === 'dashboard' }]" @click="activeSection = 'dashboard'">
           <span>📊</span> Dashboard
         </a>
@@ -39,7 +39,56 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
-      <button class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
+
+      <header class="director-topbar">
+        <div class="topbar-search-wrap">
+          <button class="sidebar-toggle" @click="toggleSidebarUi" aria-label="Toggle menu">☰</button>
+          <input
+            v-model="topSearch"
+            type="text"
+            class="topbar-search"
+            placeholder="Search students, batches, teachers..."
+            @keyup.enter="applyTopSearch"
+          />
+          <button class="btn-secondary" @click="applyTopSearch">Search</button>
+        </div>
+        <div class="topbar-actions">
+          <button
+            class="topbar-icon-btn theme-toggle-btn"
+            :title="isLightTheme ? 'Switch to dark theme' : 'Switch to light theme'"
+            @click="toggleTheme"
+          >
+            {{ isLightTheme ? '🌙' : '☀️' }}
+          </button>
+          <div class="notification-wrap">
+            <button class="topbar-icon-btn" title="Notifications" @click="toggleNotifications">🔔</button>
+            <span v-if="notificationItems.length" class="notif-count">{{ notificationItems.length > 9 ? '9+' : notificationItems.length }}</span>
+            <div v-if="showNotifications" class="notification-panel">
+              <div class="notification-head">
+                <strong>Notifications</strong>
+                <button class="btn-link" @click="showNotifications = false">Close</button>
+              </div>
+              <div v-if="notificationItems.length === 0" class="notification-empty">No new alerts.</div>
+              <div v-else class="notification-list">
+                <button
+                  v-for="item in notificationItems"
+                  :key="item.id"
+                  class="notification-item"
+                  @click="goToNotificationTarget(item.section)"
+                >
+                  <span class="notification-title">{{ item.title }}</span>
+                  <span class="notification-meta">{{ item.meta }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <button class="topbar-icon-btn" title="Shortcuts">⚡</button>
+          <div class="topbar-profile">
+            <span class="profile-dot"></span>
+            <span>{{ authStore.user?.full_name || 'Director' }}</span>
+          </div>
+        </div>
+      </header>
 
       <!-- ── DASHBOARD VIEW ── -->
       <template v-if="activeSection === 'dashboard'">
@@ -80,15 +129,70 @@
           <div class="dash-stat-card orange">
             <div class="stat-icon">⚠️</div>
             <div class="stat-content">
-              <h3>Outstanding</h3>
+              <h3>Pending Fees</h3>
               <p class="stat-number">₹{{ dashboardStats.totalOutstanding.toLocaleString() }}</p>
               <span class="stat-detail">{{ dashboardStats.studentsWithOutstanding }} students</span>
+            </div>
+          </div>
+
+          <div class="dash-stat-card cyan">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <h3>Attendance %</h3>
+              <p class="stat-number">{{ dashboardStats.attendancePercentage }}%</p>
+              <span class="stat-detail">institution average</span>
             </div>
           </div>
         </div>
 
         <!-- Dashboard Grid -->
         <div class="dashboard-grid">
+          <div class="dashboard-card full-width">
+            <div class="card-header">
+              <h3>📈 Trend Analytics</h3>
+            </div>
+            <div class="analytics-grid">
+              <div class="mini-chart-card">
+                <h4>Revenue Trend (Last 6 Months)</h4>
+                <div class="bars-wrap">
+                  <div v-for="item in revenueTrend" :key="`rev-${item.month}`" class="bar-item">
+                    <div class="bar-track">
+                      <div class="bar-fill revenue" :style="{ height: `${getBarHeight(item.value, revenueTrendMax)}%` }"></div>
+                    </div>
+                    <span class="bar-label">{{ item.month }}</span>
+                    <span class="bar-value">₹{{ formatCompactNumber(item.value) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mini-chart-card">
+                <h4>Attendance Trend (Last 6 Months)</h4>
+                <div class="bars-wrap">
+                  <div v-for="item in attendanceTrend" :key="`att-${item.month}`" class="bar-item">
+                    <div class="bar-track">
+                      <div class="bar-fill attendance" :style="{ height: `${getBarHeight(item.value, 100)}%` }"></div>
+                    </div>
+                    <span class="bar-label">{{ item.month }}</span>
+                    <span class="bar-value">{{ item.value }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mini-chart-card">
+                <h4>Batch Distribution</h4>
+                <div class="distribution-list">
+                  <div v-for="item in batchDistribution" :key="`dist-${item.name}`" class="distribution-row">
+                    <span class="dist-name">{{ item.name }}</span>
+                    <div class="dist-track">
+                      <div class="dist-fill" :style="{ width: `${getBarHeight(item.count, batchDistributionMax)}%` }"></div>
+                    </div>
+                    <span class="dist-value">{{ item.count }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Recent Fee Payments -->
           <div class="dashboard-card">
             <div class="card-header">
@@ -177,6 +281,74 @@
                     {{ batch.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>⏳ Upcoming Items</h3>
+              <button @click="activeSection = 'reports'" class="view-all-btn">Open Calendar →</button>
+            </div>
+            <div v-if="upcomingItems.length === 0" class="empty-state">No upcoming items for next 30 days.</div>
+            <div v-else class="activity-list">
+              <div v-for="item in upcomingItems" :key="item.id" class="activity-item">
+                <div class="activity-info">
+                  <strong>{{ item.title }}</strong>
+                  <span class="activity-detail">{{ item.typeLabel }} • {{ item.batchName }}</span>
+                </div>
+                <div class="activity-meta">
+                  <span class="activity-time">{{ item.when }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>🚨 Director Risk Radar</h3>
+              <button @click="activeSection = 'students'" class="view-all-btn">Review Students →</button>
+            </div>
+            <div v-if="riskSummaryLoading" class="empty-state">Computing risk summary...</div>
+            <div v-else-if="riskSummaryError" class="state-msg error">{{ riskSummaryError }}</div>
+            <div v-else class="risk-wrap">
+              <div class="risk-summary-pills">
+                <span class="risk-pill">At Risk: {{ riskSummary.summary.students_at_risk }}</span>
+                <span class="risk-pill">Fee: {{ riskSummary.summary.fee_attention_count }}</span>
+                <span class="risk-pill">Attendance: {{ riskSummary.summary.attendance_attention_count }}</span>
+                <span class="risk-pill">Scores: {{ riskSummary.summary.score_attention_count }}</span>
+              </div>
+              <div v-if="riskSummary.top_risks.length === 0" class="empty-state">No high-risk students detected.</div>
+              <div v-else class="activity-list">
+                <div v-for="item in riskSummary.top_risks.slice(0, 4)" :key="`risk-${item.student_id}`" class="activity-item">
+                  <div class="activity-info">
+                    <strong>{{ item.student_name }}</strong>
+                    <span class="activity-detail">{{ item.batch_name }} • {{ item.reasons.slice(0, 2).join(', ') }}</span>
+                  </div>
+                  <div class="activity-meta">
+                    <span class="risk-score">Risk {{ item.risk_score }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h3>🧠 Smart Nudges</h3>
+              <button @click="loadSmartNudges" class="view-all-btn" :disabled="nudgesLoading">Refresh →</button>
+            </div>
+            <div v-if="nudgesLoading" class="empty-state">Generating nudges...</div>
+            <div v-else-if="nudgesError" class="state-msg error">{{ nudgesError }}</div>
+            <div v-else-if="smartNudges.length === 0" class="empty-state">No nudges available.</div>
+            <div v-else class="nudge-list">
+              <div v-for="(nudge, idx) in smartNudges.slice(0, 5)" :key="`nudge-${idx}`" class="nudge-item">
+                <div>
+                  <span :class="['severity-chip', `sev-${nudge.severity}`]">{{ nudge.severity }}</span>
+                  <strong class="nudge-title">{{ nudge.title }}</strong>
+                  <p class="nudge-meta">{{ nudge.message }}</p>
+                </div>
+                <button class="btn-secondary" @click="goToNotificationTarget(nudge.target_section)">Open</button>
               </div>
             </div>
           </div>
@@ -418,12 +590,32 @@
           <div>
             <h1>Student Management</h1>
             <p class="breadcrumb">Home / Students</p>
+            <div class="entity-stats-row">
+              <span class="entity-stat-pill">Total: {{ studentStats.total }}</span>
+              <span class="entity-stat-pill success">Active: {{ studentStats.active }}</span>
+              <span class="entity-stat-pill muted">Inactive: {{ studentStats.inactive }}</span>
+            </div>
           </div>
-          <button class="btn-primary" @click="openCreateStudentModal">+ Register Student</button>
+          <div class="header-actions">
+            <label class="btn-secondary file-btn">
+              Bulk Student CSV
+              <input type="file" accept=".csv" @change="onBulkStudentsFileChange" />
+            </label>
+            <button class="btn-secondary" @click="uploadBulkStudents" :disabled="bulkStudentsUploading || !bulkStudentsFile">
+              {{ bulkStudentsUploading ? 'Uploading…' : 'Upload CSV' }}
+            </button>
+            <button class="btn-primary" @click="openCreateStudentModal">+ Register Student</button>
+          </div>
         </header>
 
+        <div v-if="bulkStudentsResult" class="state-msg" style="margin-bottom: 10px;">
+          CSV Result: {{ bulkStudentsResult.summary?.created || 0 }} created, {{ bulkStudentsResult.summary?.failed || 0 }} failed.
+        </div>
+
         <!-- Loading / Error -->
-        <div v-if="studentLoading" class="state-msg">Loading students…</div>
+        <div v-if="studentLoading" class="entity-skeleton-wrap">
+          <div v-for="i in 5" :key="`student-skeleton-${i}`" class="entity-skeleton-row"></div>
+        </div>
         <div v-else-if="studentError" class="state-msg error">{{ studentError }}</div>
 
         <!-- Table -->
@@ -438,6 +630,18 @@
                 @input="handleStudentSearch"
               />
             </div>
+            <select v-model="studentStatusFilter" class="form-select compact-select">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <select v-model="studentSortBy" class="form-select compact-select">
+              <option value="name">Sort: Name</option>
+              <option value="enrollment">Sort: Enrollment</option>
+              <option value="id">Sort: ID</option>
+            </select>
+            <button class="btn-secondary" @click="toggleStudentSortOrder">{{ studentSortOrder === 'asc' ? 'Asc' : 'Desc' }}</button>
+            <button class="btn-secondary" v-if="studentSearchQuery" @click="studentSearchQuery = ''">Clear</button>
             <span class="table-count">{{ filteredStudents.length }} student{{ filteredStudents.length !== 1 ? 's' : '' }}</span>
             <button class="btn-refresh" @click="() => loadStudents()">↺ Refresh</button>
           </div>
@@ -498,13 +702,18 @@
           <div>
             <h1>Teacher Management</h1>
             <p class="breadcrumb">Home / Teachers</p>
+            <div class="entity-stats-row">
+              <span class="entity-stat-pill">Total: {{ teacherStats.total }}</span>
+              <span class="entity-stat-pill success">Active: {{ teacherStats.active }}</span>
+              <span class="entity-stat-pill muted">Inactive: {{ teacherStats.inactive }}</span>
+            </div>
           </div>
           <button class="btn-primary" @click="openCreateTeacherModal">+ Register Teacher</button>
         </header>
 
         <!-- Search Bar -->
         <div class="content-section">
-          <div class="search-bar">
+          <div class="search-bar entity-search-bar">
             <input 
               v-model="teacherSearchQuery" 
               type="text" 
@@ -518,12 +727,25 @@
         </div>
 
         <!-- Loading / Error -->
-        <div v-if="teacherLoading" class="state-msg">Loading teachers…</div>
+        <div v-if="teacherLoading" class="entity-skeleton-wrap">
+          <div v-for="i in 5" :key="`teacher-skeleton-${i}`" class="entity-skeleton-row"></div>
+        </div>
         <div v-else-if="teacherError" class="state-msg error">{{ teacherError }}</div>
 
         <!-- Table -->
         <div v-else class="content-section no-pad">
           <div class="table-toolbar">
+            <select v-model="teacherStatusFilter" class="form-select compact-select">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <select v-model="teacherSortBy" class="form-select compact-select">
+              <option value="name">Sort: Name</option>
+              <option value="hire">Sort: Hire Date</option>
+              <option value="id">Sort: ID</option>
+            </select>
+            <button class="btn-secondary" @click="toggleTeacherSortOrder">{{ teacherSortOrder === 'asc' ? 'Asc' : 'Desc' }}</button>
             <span class="table-count">{{ filteredTeachers.length }} teacher{{ filteredTeachers.length !== 1 ? 's' : '' }}</span>
             <button class="btn-refresh" @click="() => loadTeachers()">↺ Refresh</button>
           </div>
@@ -583,8 +805,21 @@
             <h1>User Management</h1>
             <p class="breadcrumb">Home / Users</p>
           </div>
-          <button class="btn-primary" @click="openCreateUserModal">+ Register User</button>
+          <div class="header-actions">
+            <label class="btn-secondary file-btn">
+              Bulk User CSV
+              <input type="file" accept=".csv" @change="onBulkUsersFileChange" />
+            </label>
+            <button class="btn-secondary" @click="uploadBulkUsers" :disabled="bulkUsersUploading || !bulkUsersFile">
+              {{ bulkUsersUploading ? 'Uploading…' : 'Upload CSV' }}
+            </button>
+            <button class="btn-primary" @click="openCreateUserModal">+ Register User</button>
+          </div>
         </header>
+
+        <div v-if="bulkUsersResult" class="state-msg" style="margin-bottom: 10px;">
+          CSV Result: {{ bulkUsersResult.summary?.created || 0 }} created, {{ bulkUsersResult.summary?.failed || 0 }} failed.
+        </div>
 
         <!-- Loading / Error -->
         <div v-if="userLoading" class="state-msg">Loading users…</div>
@@ -927,8 +1162,129 @@
         </div>
       </template>
       <template v-if="activeSection === 'reports'">
-        <header class="content-header"><h1>Reports</h1><p class="breadcrumb">Home / Reports</p></header>
-        <div class="content-section"><p style="color:#888">Reports coming soon.</p></div>
+        <header class="content-header row-between">
+          <div>
+            <h1>Reports & Exports</h1>
+            <p class="breadcrumb">Home / Reports</p>
+          </div>
+          <button class="btn-secondary" @click="loadCalendarEvents" :disabled="calendarLoading">
+            {{ calendarLoading ? 'Refreshing...' : 'Refresh Calendar' }}
+          </button>
+        </header>
+
+        <div class="content-section">
+          <h2 style="margin-bottom: 12px;">Professional Export Center</h2>
+          <div class="reports-export-grid">
+            <button class="export-card" @click="downloadResultsExcel" :disabled="exportingResults">
+              <strong>Results Excel</strong>
+              <span>{{ exportingResults ? 'Preparing file...' : 'Download test and score workbook' }}</span>
+            </button>
+            <button class="export-card" @click="downloadRevenuePdf" :disabled="exportingRevenue">
+              <strong>Revenue PDF</strong>
+              <span>{{ exportingRevenue ? 'Preparing file...' : 'Download management revenue report' }}</span>
+            </button>
+          </div>
+          <p v-if="reportsMessage" class="state-msg" style="margin-top: 12px;">{{ reportsMessage }}</p>
+          <p v-if="reportsError" class="state-msg error" style="margin-top: 12px;">{{ reportsError }}</p>
+        </div>
+
+        <div class="content-section">
+          <div class="row-between" style="margin-bottom: 12px;">
+            <div>
+              <h2 style="margin: 0;">Calendar / Schedule API</h2>
+              <p class="calendar-helper-line">Shows Test dates, Quiz schedules, and Batch Class windows for the selected date range.</p>
+            </div>
+            <div class="calendar-filters">
+              <input v-model="calendarStartDate" type="date" class="form-input" />
+              <input v-model="calendarEndDate" type="date" class="form-input" />
+              <button class="btn-primary" @click="loadCalendarEvents" :disabled="calendarLoading">Apply</button>
+            </div>
+          </div>
+
+          <div v-if="calendarLoading" class="state-msg">Loading calendar events...</div>
+          <div v-else-if="calendarError" class="state-msg error">{{ calendarError }}</div>
+          <div v-else-if="calendarEvents.length === 0" class="empty-state">No calendar events in this date window.</div>
+          <div v-else class="calendar-shell">
+            <div class="calendar-toolbar">
+              <div>
+                <h3 class="calendar-title">{{ calendarTitle }}</h3>
+                <p class="event-sub">{{ calendarEvents.length }} total events in selected window</p>
+                <div class="calendar-legend" v-if="calendarEvents.length">
+                  <span class="legend-pill legend-test">Tests: {{ calendarTypeSummary.test }}</span>
+                  <span class="legend-pill legend-quiz">Quizzes: {{ calendarTypeSummary.quiz }}</span>
+                  <span class="legend-pill legend-class">Classes: {{ calendarTypeSummary.class }}</span>
+                </div>
+              </div>
+              <div class="calendar-nav">
+                <button class="btn-secondary" @click="goToPreviousMonth">Prev</button>
+                <button class="btn-secondary" @click="goToCurrentMonth">Today</button>
+                <button class="btn-secondary" @click="goToNextMonth">Next</button>
+              </div>
+            </div>
+
+            <div class="month-grid-wrap">
+              <div class="weekday-row">
+                <div v-for="day in weekDays" :key="day" class="weekday-cell">{{ day }}</div>
+              </div>
+
+              <div class="month-grid">
+                <button
+                  v-for="cell in calendarMonthCells"
+                  :key="cell.dateKey"
+                  class="day-cell"
+                  :class="{
+                    'muted': !cell.isCurrentMonth,
+                    'today': cell.isToday,
+                    'selected': selectedCalendarDateKey === cell.dateKey
+                  }"
+                  @click="selectedCalendarDateKey = cell.dateKey"
+                >
+                  <div class="day-cell-head">
+                    <span>{{ cell.day }}</span>
+                    <span v-if="cell.events.length" class="day-dot"></span>
+                  </div>
+                  <div class="day-events">
+                    <span
+                      v-for="event in cell.events.slice(0, 2)"
+                      :key="event.id"
+                      :class="['event-chip', getEventTypeClass(event.type)]"
+                    >
+                      {{ event.title }}
+                    </span>
+                    <button
+                      v-if="cell.events.length > 2"
+                      class="event-more-btn"
+                      @click.stop="showMoreEventsForDate(cell.dateKey)"
+                    >
+                      +{{ cell.events.length - 2 }} more
+                    </button>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div id="selected-day-events" class="selected-day-panel">
+              <div class="row-between" style="margin-bottom: 8px;">
+                <h4 style="margin: 0;">Selected Date: {{ formatCalendarDate(selectedCalendarDateKey) }}</h4>
+                <span class="event-sub">{{ selectedDayEvents.length }} scheduled item(s)</span>
+              </div>
+              <div v-if="selectedDayEvents.length === 0" class="empty-state">No Tests, Quizzes, or Classes scheduled for this date.</div>
+              <div v-else class="calendar-event-list">
+                <div v-for="event in selectedDayEvents" :key="event.id" class="calendar-event-card">
+                  <div>
+                    <p class="event-type">{{ event.type.replace('_', ' ') }}</p>
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-sub">{{ event.batch_name || 'General' }}</p>
+                  </div>
+                  <div class="event-time">
+                    <strong>{{ formatCalendarDate(event.start) }}</strong>
+                    <span>{{ formatCalendarTime(event.start, event.end, event.all_day) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </template>
     </main>
 
@@ -1176,6 +1532,22 @@
 
           <!-- User Selection (only for create) -->
           <div v-if="!isEditingStudent" class="form-field">
+            <div class="segmented-toggle">
+              <button
+                type="button"
+                :class="['seg-btn', { active: registrationTarget === 'student' }]"
+                @click="setRegistrationTarget('student')"
+              >
+                Student
+              </button>
+              <button
+                type="button"
+                :class="['seg-btn', { active: registrationTarget === 'teacher' }]"
+                @click="setRegistrationTarget('teacher')"
+              >
+                Teacher
+              </button>
+            </div>
             <label>Select User Account <span class="req">*</span></label>
             <select v-model.number="studentForm.user_id" class="form-select">
               <option value="">-- Select a user --</option>
@@ -1183,7 +1555,8 @@
                 {{ user.full_name }} ({{ user.email }})
               </option>
             </select>
-            <span class="field-hint">Select a user with 'student' role to create their student profile</span>
+            <span class="field-hint" v-if="registrationTarget === 'student'">Select a user with 'student' role to create their student profile</span>
+            <span class="field-hint" v-else>Select a user with 'coach' role to create their teacher profile</span>
           </div>
 
           <div class="form-grid">
@@ -1191,7 +1564,7 @@
               <label>Phone Number</label>
               <input v-model="studentForm.phone_number" type="text" placeholder="e.g. 9999999999" maxlength="20" />
             </div>
-            <div class="form-field">
+            <div class="form-field" v-if="registrationTarget === 'student' || isEditingStudent">
               <label>Batch</label>
               <select v-model.number="studentForm.batch_id" class="form-select">
                 <option :value="null">-- No batch assigned --</option>
@@ -1200,23 +1573,23 @@
                 </option>
               </select>
             </div>
-            <div class="form-field">
+            <div class="form-field" v-if="registrationTarget === 'student' || isEditingStudent">
               <label>Date of Birth</label>
               <input v-model="studentForm.date_of_birth" type="date" />
             </div>
             <div class="form-field">
-              <label>Enrollment Date</label>
+              <label>{{ registrationTarget === 'teacher' && !isEditingStudent ? 'Hire Date' : 'Enrollment Date' }}</label>
               <input v-model="studentForm.enrollment_date" type="date" />
             </div>
-            <div class="form-field">
+            <div class="form-field" v-if="registrationTarget === 'student' || isEditingStudent">
               <label>Discount Percent (%)</label>
               <input v-model.number="studentForm.discount_percent" type="number" min="0" max="100" step="0.01" placeholder="e.g. 10.5" />
             </div>
           </div>
 
           <div class="form-field">
-            <label>Address</label>
-            <textarea v-model="studentForm.address" placeholder="Enter student address" rows="2" class="form-textarea"></textarea>
+            <label>{{ registrationTarget === 'teacher' && !isEditingStudent ? 'Specialization' : 'Address' }}</label>
+            <textarea v-model="studentForm.address" :placeholder="registrationTarget === 'teacher' && !isEditingStudent ? 'e.g. Mathematics, Physics' : 'Enter student address'" rows="2" class="form-textarea"></textarea>
           </div>
 
           <div class="form-field toggle-field">
@@ -1234,7 +1607,7 @@
           <button class="btn-cancel" @click="closeStudentModal" :disabled="saving">Cancel</button>
           <button class="btn-save" @click="saveStudent" :disabled="saving">
             <span v-if="saving" class="mini-spinner"></span>
-            {{ saving ? 'Saving…' : (isEditingStudent ? 'Update Student' : 'Register Student') }}
+            {{ saving ? 'Saving…' : (isEditingStudent ? 'Update Student' : (registrationTarget === 'teacher' ? 'Register Teacher' : 'Register Student')) }}
           </button>
         </div>
       </div>
@@ -1620,7 +1993,7 @@
                 <div class="info-item" v-if="selectedTeacherProfile.batches?.length">
                   <label>Assigned Batches:</label>
                   <span>
-                    <span v-for="(batch, idx) in selectedTeacherProfile.batches" :key="batch.id" class="badge badge-blue" style="margin-right: 4px;">
+                    <span v-for="batch in selectedTeacherProfile.batches" :key="batch.id" class="badge badge-blue" style="margin-right: 4px;">
                       {{ batch.batch_name }} ({{ batch.year }})
                     </span>
                   </span>
@@ -2052,13 +2425,25 @@ import { aiService } from '@/services/ai'
 
 const router = useRouter()
 const authStore = useAuthStore()
-
-const isSidebarOpen = ref(false)
-const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
-const closeSidebar = () => { isSidebarOpen.value = false }
+const THEME_STORAGE_KEY = 'ops_dashboard_theme'
 
 // ── Section nav ──────────────────────────────────────────────────────────────
 const activeSection = ref('dashboard')
+const sidebarOpen = ref(false)
+const isLightTheme = ref(true)
+
+function toggleTheme() {
+  isLightTheme.value = !isLightTheme.value
+  localStorage.setItem(THEME_STORAGE_KEY, isLightTheme.value ? 'light' : 'dark')
+}
+
+function toggleSidebarUi() {
+  sidebarOpen.value = !sidebarOpen.value
+}
+
+function closeSidebarUi() {
+  sidebarOpen.value = false
+}
 
 // ── Stats ────────────────────────────────────────────────────────────────────
 const stats = ref({ totalStudents: 0, activeBatches: 0, pendingFees: 0, collections: 0 })
@@ -2489,8 +2874,19 @@ const dashboardStats = ref({
   studentsWithOutstanding: 0,
   expectedRevenue: 0,
   totalReceived: 0,
-  thisMonthSalaries: 0
+  thisMonthSalaries: 0,
+  attendancePercentage: 0
 })
+
+const topSearch = ref('')
+const showNotifications = ref(false)
+const revenueTrend = ref<Array<{ month: string; value: number }>>([])
+const attendanceTrend = ref<Array<{ month: string; value: number }>>([])
+const batchDistribution = ref<Array<{ name: string; count: number }>>([])
+const upcomingItems = ref<Array<{ id: string; title: string; typeLabel: string; batchName: string; when: string }>>([])
+
+const revenueTrendMax = computed(() => Math.max(...revenueTrend.value.map(item => item.value), 1))
+const batchDistributionMax = computed(() => Math.max(...batchDistribution.value.map(item => item.count), 1))
 
 const recentFeePayments = ref<any[]>([])
 const recentSalaryPayments = ref<any[]>([])
@@ -2503,6 +2899,297 @@ const opsAiError = ref<string | null>(null)
 const feeRiskInsights = ref<any | null>(null)
 const feeRiskLoading = ref(false)
 const feeRiskError = ref<string | null>(null)
+const riskSummaryLoading = ref(false)
+const riskSummaryError = ref<string | null>(null)
+const nudgesLoading = ref(false)
+const nudgesError = ref<string | null>(null)
+
+type RiskSummary = {
+  summary: {
+    students_at_risk: number
+    fee_attention_count: number
+    attendance_attention_count: number
+    score_attention_count: number
+  }
+  top_risks: Array<{
+    student_id: number
+    student_name: string
+    batch_name: string
+    risk_score: number
+    reasons: string[]
+  }>
+}
+
+type SmartNudge = {
+  severity: 'high' | 'medium' | 'low'
+  title: string
+  message: string
+  target_section: string
+}
+
+const riskSummary = ref<RiskSummary>({
+  summary: {
+    students_at_risk: 0,
+    fee_attention_count: 0,
+    attendance_attention_count: 0,
+    score_attention_count: 0,
+  },
+  top_risks: [],
+})
+const smartNudges = ref<SmartNudge[]>([])
+
+const notificationItems = computed(() => {
+  const items: Array<{ id: string; title: string; meta: string; section: string }> = []
+
+  if (dashboardStats.value.studentsWithOutstanding > 0) {
+    items.push({
+      id: 'outstanding',
+      title: `${dashboardStats.value.studentsWithOutstanding} students have pending dues`,
+      meta: `Outstanding: ₹${Math.max(0, dashboardStats.value.totalOutstanding).toLocaleString()}`,
+      section: 'fees',
+    })
+  }
+
+  upcomingItems.value.slice(0, 4).forEach((item) => {
+    items.push({
+      id: `upcoming-${item.id}`,
+      title: item.title,
+      meta: `${item.batchName} • ${item.when}`,
+      section: 'reports',
+    })
+  })
+
+  return items
+})
+
+const exportingResults = ref(false)
+const exportingRevenue = ref(false)
+const reportsMessage = ref<string | null>(null)
+const reportsError = ref<string | null>(null)
+
+interface CalendarEvent {
+  id: string
+  type: string
+  title: string
+  start: string
+  end: string
+  all_day: boolean
+  batch_id: number | null
+  batch_name: string | null
+}
+
+const calendarEvents = ref<CalendarEvent[]>([])
+const calendarLoading = ref(false)
+const calendarError = ref<string | null>(null)
+const calendarViewDate = ref(new Date())
+const selectedCalendarDateKey = ref<string>(new Date().toISOString().slice(0, 10))
+const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+function formatInputDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function getMonthBounds(baseDate: Date): { start: string; end: string } {
+  const year = baseDate.getFullYear()
+  const month = baseDate.getMonth()
+  const start = new Date(year, month, 1)
+  const end = new Date(year, month + 1, 0)
+  return {
+    start: formatInputDate(start),
+    end: formatInputDate(end),
+  }
+}
+
+const initialMonthBounds = getMonthBounds(calendarViewDate.value)
+const calendarStartDate = ref<string>(initialMonthBounds.start)
+const calendarEndDate = ref<string>(initialMonthBounds.end)
+
+const calendarTitle = computed(() => {
+  return calendarViewDate.value.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+})
+
+const eventsByDate = computed(() => {
+  const grouped = new Map<string, CalendarEvent[]>()
+  for (const event of calendarEvents.value) {
+    const key = event.start ? formatInputDate(new Date(event.start)) : ''
+    if (!key) continue
+    const existing = grouped.get(key) || []
+    existing.push(event)
+    grouped.set(key, existing)
+  }
+  return grouped
+})
+
+const calendarMonthCells = computed(() => {
+  const year = calendarViewDate.value.getFullYear()
+  const month = calendarViewDate.value.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const gridStart = new Date(firstDay)
+  gridStart.setDate(firstDay.getDate() - firstDay.getDay())
+
+  const cells: Array<{
+    dateKey: string
+    day: number
+    isCurrentMonth: boolean
+    isToday: boolean
+    events: CalendarEvent[]
+  }> = []
+
+  const todayKey = formatInputDate(new Date())
+
+  for (let i = 0; i < 42; i += 1) {
+    const current = new Date(gridStart)
+    current.setDate(gridStart.getDate() + i)
+    const dateKey = formatInputDate(current)
+
+    cells.push({
+      dateKey,
+      day: current.getDate(),
+      isCurrentMonth: current.getMonth() === month,
+      isToday: dateKey === todayKey,
+      events: eventsByDate.value.get(dateKey) || [],
+    })
+  }
+
+  return cells
+})
+
+const selectedDayEvents = computed(() => {
+  return eventsByDate.value.get(selectedCalendarDateKey.value) || []
+})
+
+const calendarTypeSummary = computed(() => {
+  const summary = { test: 0, quiz: 0, class: 0 }
+  for (const event of calendarEvents.value) {
+    if (event.type === 'test') summary.test += 1
+    else if (event.type === 'quiz') summary.quiz += 1
+    else summary.class += 1
+  }
+  return summary
+})
+
+function syncCalendarRangeToMonth() {
+  const bounds = getMonthBounds(calendarViewDate.value)
+  calendarStartDate.value = bounds.start
+  calendarEndDate.value = bounds.end
+}
+
+async function goToPreviousMonth() {
+  calendarViewDate.value = new Date(calendarViewDate.value.getFullYear(), calendarViewDate.value.getMonth() - 1, 1)
+  syncCalendarRangeToMonth()
+  await loadCalendarEvents()
+}
+
+async function goToNextMonth() {
+  calendarViewDate.value = new Date(calendarViewDate.value.getFullYear(), calendarViewDate.value.getMonth() + 1, 1)
+  syncCalendarRangeToMonth()
+  await loadCalendarEvents()
+}
+
+async function goToCurrentMonth() {
+  calendarViewDate.value = new Date()
+  selectedCalendarDateKey.value = formatInputDate(new Date())
+  syncCalendarRangeToMonth()
+  await loadCalendarEvents()
+}
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
+async function downloadResultsExcel() {
+  exportingResults.value = true
+  reportsError.value = null
+  reportsMessage.value = null
+  try {
+    const res = await apiClient.get('/reports/export/results.xlsx', {
+      responseType: 'blob',
+    })
+    triggerDownload(res.data, `results_export_${Date.now()}.xlsx`)
+    reportsMessage.value = 'Results Excel exported successfully.'
+  } catch (error: any) {
+    reportsError.value = error?.response?.data?.message || 'Failed to export results Excel'
+  } finally {
+    exportingResults.value = false
+  }
+}
+
+async function downloadRevenuePdf() {
+  exportingRevenue.value = true
+  reportsError.value = null
+  reportsMessage.value = null
+  try {
+    const currentYear = new Date().getFullYear()
+    const res = await apiClient.get('/reports/export/revenue.pdf', {
+      responseType: 'blob',
+      params: { year: currentYear },
+    })
+    triggerDownload(res.data, `revenue_report_${currentYear}.pdf`)
+    reportsMessage.value = 'Revenue PDF exported successfully.'
+  } catch (error: any) {
+    reportsError.value = error?.response?.data?.message || 'Failed to export revenue PDF'
+  } finally {
+    exportingRevenue.value = false
+  }
+}
+
+function formatCalendarDate(raw: string): string {
+  if (!raw) return 'N/A'
+  return new Date(raw).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function showMoreEventsForDate(dateKey: string) {
+  selectedCalendarDateKey.value = dateKey
+  const panel = document.getElementById('selected-day-events')
+  if (panel) {
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+}
+
+function formatCalendarTime(start: string, end: string, allDay: boolean): string {
+  if (allDay) return 'All day'
+  const startText = new Date(start).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+  const endText = end ? new Date(end).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : ''
+  return endText ? `${startText} - ${endText}` : startText
+}
+
+function getEventTypeClass(type: string): string {
+  if (type === 'test') return 'chip-test'
+  if (type === 'quiz') return 'chip-quiz'
+  return 'chip-class'
+}
+
+async function loadCalendarEvents() {
+  calendarLoading.value = true
+  calendarError.value = null
+  try {
+    const res = await apiClient.get('/calendar/events', {
+      params: {
+        start_date: calendarStartDate.value,
+        end_date: calendarEndDate.value,
+      },
+    })
+    calendarEvents.value = res?.data?.data?.events || []
+    if (!eventsByDate.value.has(selectedCalendarDateKey.value)) {
+      selectedCalendarDateKey.value = calendarStartDate.value
+    }
+  } catch (error: any) {
+    calendarError.value = error?.response?.data?.message || 'Failed to load calendar events'
+    calendarEvents.value = []
+  } finally {
+    calendarLoading.value = false
+  }
+}
 
 function formatRiskItem(risk: any): string {
   if (typeof risk === 'string') return risk
@@ -2519,6 +3206,56 @@ function formatActionItem(action: any): string {
   const owner = action.owner ? `Owner: ${action.owner}` : ''
   const timeframe = action.timeframe ? `Timeline: ${action.timeframe}` : ''
   return [title, owner, timeframe].filter(Boolean).join(' | ')
+}
+
+function getBarHeight(value: number, max: number): number {
+  if (!max || max <= 0) return 8
+  return Math.max(8, Math.round((value / max) * 100))
+}
+
+function formatCompactNumber(value: number): string {
+  if (value >= 10000000) return `${(value / 10000000).toFixed(1)}Cr`
+  if (value >= 100000) return `${(value / 100000).toFixed(1)}L`
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`
+  return value.toString()
+}
+
+function applyTopSearch() {
+  const query = topSearch.value.trim()
+  if (!query) return
+
+  if (activeSection.value === 'students') {
+    studentSearchQuery.value = query
+    handleStudentSearch()
+    return
+  }
+
+  if (activeSection.value === 'teachers') {
+    teacherSearchQuery.value = query
+    searchTeachers()
+    return
+  }
+
+  if (activeSection.value === 'batches') {
+    batchSearchQuery.value = query
+    return
+  }
+
+  if (activeSection.value === 'users') {
+    activeSection.value = 'students'
+    studentSearchQuery.value = query
+    handleStudentSearch()
+    return
+  }
+}
+
+function toggleNotifications() {
+  showNotifications.value = !showNotifications.value
+}
+
+function goToNotificationTarget(section: string) {
+  activeSection.value = section
+  showNotifications.value = false
 }
 
 async function loadOpsAiInsights(year: number) {
@@ -2556,9 +3293,55 @@ async function loadFeeRiskPrediction(year: number) {
   }
 }
 
+async function loadRiskSummary() {
+  riskSummaryLoading.value = true
+  riskSummaryError.value = null
+  try {
+    const response = await apiClient.get('/reports/risk-summary', {
+      params: { days: 30 },
+    })
+    const data = response?.data?.data
+    riskSummary.value = {
+      summary: {
+        students_at_risk: Number(data?.summary?.students_at_risk || 0),
+        fee_attention_count: Number(data?.summary?.fee_attention_count || 0),
+        attendance_attention_count: Number(data?.summary?.attendance_attention_count || 0),
+        score_attention_count: Number(data?.summary?.score_attention_count || 0),
+      },
+      top_risks: Array.isArray(data?.top_risks) ? data.top_risks : [],
+    }
+  } catch (error: any) {
+    riskSummaryError.value = error?.response?.data?.message || 'Failed to load risk summary'
+    riskSummary.value.top_risks = []
+  } finally {
+    riskSummaryLoading.value = false
+  }
+}
+
+async function loadSmartNudges() {
+  nudgesLoading.value = true
+  nudgesError.value = null
+  try {
+    const response = await apiClient.get('/reports/smart-nudges', {
+      params: { limit: 8 },
+    })
+    smartNudges.value = Array.isArray(response?.data?.data?.nudges) ? response.data.data.nudges : []
+  } catch (error: any) {
+    nudgesError.value = error?.response?.data?.message || 'Failed to load smart nudges'
+    smartNudges.value = []
+  } finally {
+    nudgesLoading.value = false
+  }
+}
+
 async function loadDashboardData() {
   dashboardLoading.value = true
   try {
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const calendarStart = formatInputDate(now)
+    const calendarEnd = formatInputDate(new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30))
+
     // Load all dashboard data in parallel
     const [
       studentsRes,
@@ -2567,7 +3350,12 @@ async function loadDashboardData() {
       salariesRes,
       recentFeesRes,
       recentSalariesRes,
-      teachersRes
+      teachersRes,
+      revenueTrendRes,
+      attendanceTrendRes,
+      upcomingEventsRes,
+      riskSummaryRes,
+      nudgesRes,
     ] = await Promise.all([
       apiClient.get('/students?page=1&per_page=100'),
       apiClient.get('/batches?page=1&per_page=100'),
@@ -2575,7 +3363,12 @@ async function loadDashboardData() {
       apiClient.get('/salaries?page=1&per_page=100'),
       apiClient.get('/fee-payments?last_n=5'),
       apiClient.get('/salaries?last_n=5'),
-      apiClient.get('/teachers?page=1&per_page=100')
+      apiClient.get('/teachers?page=1&per_page=100'),
+      apiClient.get(`/reports/revenue-by-month?year=${currentYear}`),
+      apiClient.get(`/reports/monthly-attendance?year=${currentYear}`),
+      apiClient.get(`/calendar/events?start_date=${calendarStart}&end_date=${calendarEnd}`),
+      apiClient.get('/reports/risk-summary?days=30'),
+      apiClient.get('/reports/smart-nudges?limit=8'),
     ])
 
     const unwrap = (res: any) => res?.data?.data ?? res?.data ?? {}
@@ -2587,6 +3380,11 @@ async function loadDashboardData() {
     const recentFeesData = unwrap(recentFeesRes)
     const recentSalariesData = unwrap(recentSalariesRes)
     const teachersData = unwrap(teachersRes)
+    const revenueTrendData = unwrap(revenueTrendRes)
+    const attendanceTrendData = unwrap(attendanceTrendRes)
+    const upcomingEventsData = unwrap(upcomingEventsRes)
+    const riskSummaryData = unwrap(riskSummaryRes)
+    const nudgesData = unwrap(nudgesRes)
 
     const students = studentsData.students || []
     const batches = batchesData.batches || []
@@ -2624,9 +3422,7 @@ async function loadDashboardData() {
     }).length
 
     // This month's revenue (current month payments)
-    const now = new Date()
     const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
     dashboardStats.value.thisMonthRevenue = allFees.filter((f: any) => {
       const paymentDate = new Date(f.payment_date)
       return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear
@@ -2674,8 +3470,64 @@ async function loadDashboardData() {
       .sort((a: any, b: any) => b.student_count - a.student_count)
       .slice(0, 5)
 
+    const monthlyRevenue = revenueTrendData.monthly_revenue || []
+    revenueTrend.value = monthlyRevenue
+      .slice(-6)
+      .map((item: any) => ({ month: (item.month || '').slice(5), value: Number(item.revenue || 0) }))
+
+    const monthlyAttendance = attendanceTrendData.monthly_attendance || []
+    attendanceTrend.value = monthlyAttendance
+      .slice(-6)
+      .map((item: any) => ({ month: (item.month || '').slice(5), value: Number(item.attendance_percentage || 0) }))
+
+    if (attendanceTrend.value.length > 0) {
+      const avg = attendanceTrend.value.reduce((sum, item) => sum + item.value, 0) / attendanceTrend.value.length
+      dashboardStats.value.attendancePercentage = Number(avg.toFixed(1))
+    } else {
+      dashboardStats.value.attendancePercentage = 0
+    }
+
+    const batchCounts = new Map<string, number>()
+    students.forEach((student: any) => {
+      const name = student.batch?.batch_name || 'Unassigned'
+      batchCounts.set(name, (batchCounts.get(name) || 0) + 1)
+    })
+    batchDistribution.value = Array.from(batchCounts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+
+    upcomingItems.value = (upcomingEventsData.events || [])
+      .slice(0, 7)
+      .map((event: any) => ({
+        id: event.id,
+        title: event.title,
+        typeLabel: event.type?.replace('_', ' ') || 'event',
+        batchName: event.batch_name || 'General',
+        when: formatCalendarDate(event.start),
+      }))
+
+    riskSummary.value = {
+      summary: {
+        students_at_risk: Number(riskSummaryData?.summary?.students_at_risk || 0),
+        fee_attention_count: Number(riskSummaryData?.summary?.fee_attention_count || 0),
+        attendance_attention_count: Number(riskSummaryData?.summary?.attendance_attention_count || 0),
+        score_attention_count: Number(riskSummaryData?.summary?.score_attention_count || 0),
+      },
+      top_risks: Array.isArray(riskSummaryData?.top_risks) ? riskSummaryData.top_risks : [],
+    }
+    smartNudges.value = Array.isArray(nudgesData?.nudges) ? nudgesData.nudges : []
+    riskSummaryError.value = null
+    nudgesError.value = null
+
   } catch (error: any) {
     console.error('Failed to load dashboard data:', error)
+    if (!riskSummary.value.top_risks.length) {
+      riskSummaryError.value = 'Unable to fetch risk summary right now'
+    }
+    if (!smartNudges.value.length) {
+      nudgesError.value = 'Unable to fetch smart nudges right now'
+    }
   } finally {
     dashboardLoading.value = false
   }
@@ -2833,20 +3685,59 @@ const teacherCurrentPage = ref(1)
 const teacherTotalPages = ref(1)
 const teacherPerPage = 20
 const teacherSearchQuery = ref('')
+const teacherStatusFilter = ref<'all' | 'active' | 'inactive'>('all')
+const teacherSortBy = ref<'name' | 'hire' | 'id'>('name')
+const teacherSortOrder = ref<'asc' | 'desc'>('asc')
 
 // Computed filtered teachers
 const filteredTeachers = computed(() => {
-  if (!teacherSearchQuery.value.trim()) {
-    return teachers.value
-  }
   const query = teacherSearchQuery.value.toLowerCase().trim()
-  return teachers.value.filter(t => 
-    String(t.id).includes(query) ||
-    t.user?.full_name?.toLowerCase().includes(query) ||
-    t.user?.email?.toLowerCase().includes(query) ||
-    t.phone_number?.toLowerCase().includes(query) ||
-    t.specialization?.toLowerCase().includes(query)
-  )
+  const filtered = teachers.value.filter((t) => {
+    const statusMatch =
+      teacherStatusFilter.value === 'all' ||
+      (teacherStatusFilter.value === 'active' ? t.is_active : !t.is_active)
+
+    if (!statusMatch) return false
+
+    if (!query) return true
+
+    return (
+      String(t.id).includes(query) ||
+      t.user?.full_name?.toLowerCase().includes(query) ||
+      t.user?.email?.toLowerCase().includes(query) ||
+      t.phone_number?.toLowerCase().includes(query) ||
+      t.specialization?.toLowerCase().includes(query)
+    )
+  })
+
+  const sorted = [...filtered].sort((a, b) => {
+    let left: string | number = ''
+    let right: string | number = ''
+
+    if (teacherSortBy.value === 'id') {
+      left = a.id
+      right = b.id
+    } else if (teacherSortBy.value === 'hire') {
+      left = a.hire_date ? new Date(a.hire_date).getTime() : 0
+      right = b.hire_date ? new Date(b.hire_date).getTime() : 0
+    } else {
+      left = (a.user?.full_name || '').toLowerCase()
+      right = (b.user?.full_name || '').toLowerCase()
+    }
+
+    if (left < right) return teacherSortOrder.value === 'asc' ? -1 : 1
+    if (left > right) return teacherSortOrder.value === 'asc' ? 1 : -1
+    return 0
+  })
+
+  return sorted
+})
+
+const teacherStats = computed(() => {
+  const total = teachers.value.length
+  const active = teachers.value.filter((t) => t.is_active).length
+  const inactive = total - active
+  return { total, active, inactive }
 })
 
 function searchTeachers() {
@@ -2855,6 +3746,10 @@ function searchTeachers() {
 
 function clearTeacherSearch() {
   teacherSearchQuery.value = ''
+}
+
+function toggleTeacherSortOrder() {
+  teacherSortOrder.value = teacherSortOrder.value === 'asc' ? 'desc' : 'asc'
 }
 
 async function loadTeachers(page = 1) {
@@ -3015,6 +3910,9 @@ async function deleteTeacher() {
 const users = ref<UserType[]>([])
 const userLoading = ref(false)
 const userError = ref<string | null>(null)
+const bulkUsersFile = ref<File | null>(null)
+const bulkUsersUploading = ref(false)
+const bulkUsersResult = ref<any | null>(null)
 
 // Filter to show only student, parent, coach roles
 const filteredUsers = computed(() => {
@@ -3031,6 +3929,30 @@ async function loadUsers() {
     userError.value = err?.response?.data?.message ?? 'Failed to load users'
   } finally {
     userLoading.value = false
+  }
+}
+
+function onBulkUsersFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  bulkUsersFile.value = target.files?.[0] || null
+}
+
+async function uploadBulkUsers() {
+  if (!bulkUsersFile.value) {
+    alert('Please choose a CSV file first')
+    return
+  }
+
+  bulkUsersUploading.value = true
+  try {
+    const result = await userService.bulkUpload(bulkUsersFile.value)
+    bulkUsersResult.value = result.data
+    await loadUsers()
+    alert(`Bulk user upload completed. Created: ${result.data?.summary?.created || 0}, Failed: ${result.data?.summary?.failed || 0}`)
+  } catch (err: any) {
+    alert(err?.response?.data?.message ?? 'Bulk user upload failed')
+  } finally {
+    bulkUsersUploading.value = false
   }
 }
 
@@ -3176,29 +4098,69 @@ const studentCurrentPage = ref(1)
 const studentTotalPages = ref(1)
 const studentPerPage = 20
 const studentSearchQuery = ref('')
+const studentStatusFilter = ref<'all' | 'active' | 'inactive'>('all')
+const studentSortBy = ref<'name' | 'enrollment' | 'id'>('name')
+const studentSortOrder = ref<'asc' | 'desc'>('asc')
 
 // Filtered students based on search query
 const filteredStudents = computed(() => {
-  if (!studentSearchQuery.value.trim()) {
-    return students.value
-  }
-  
   const query = studentSearchQuery.value.toLowerCase().trim()
-  return students.value.filter(student => {
+  const filtered = students.value.filter(student => {
+    const statusMatch =
+      studentStatusFilter.value === 'all' ||
+      (studentStatusFilter.value === 'active' ? student.is_active : !student.is_active)
+
+    if (!statusMatch) return false
+
     const id = student.id.toString()
     const name = student.user?.full_name?.toLowerCase() || ''
     const email = student.user?.email?.toLowerCase() || ''
     const phone = student.phone_number?.toLowerCase() || ''
-    
+
+    if (!query) return true
+
     return id.includes(query) || 
            name.includes(query) || 
            email.includes(query) || 
            phone.includes(query)
   })
+
+  const sorted = [...filtered].sort((a, b) => {
+    let left: string | number = ''
+    let right: string | number = ''
+
+    if (studentSortBy.value === 'id') {
+      left = a.id
+      right = b.id
+    } else if (studentSortBy.value === 'enrollment') {
+      left = a.enrollment_date ? new Date(a.enrollment_date).getTime() : 0
+      right = b.enrollment_date ? new Date(b.enrollment_date).getTime() : 0
+    } else {
+      left = (a.user?.full_name || '').toLowerCase()
+      right = (b.user?.full_name || '').toLowerCase()
+    }
+
+    if (left < right) return studentSortOrder.value === 'asc' ? -1 : 1
+    if (left > right) return studentSortOrder.value === 'asc' ? 1 : -1
+    return 0
+  })
+
+  return sorted
+})
+
+const studentStats = computed(() => {
+  const total = students.value.length
+  const active = students.value.filter((s) => s.is_active).length
+  const inactive = total - active
+  return { total, active, inactive }
 })
 
 function handleStudentSearch() {
   // Search is handled by computed property
+}
+
+function toggleStudentSortOrder() {
+  studentSortOrder.value = studentSortOrder.value === 'asc' ? 'desc' : 'asc'
 }
 
 async function loadStudents(page = 1) {
@@ -3226,6 +4188,10 @@ const showStudentModal = ref(false)
 const isEditingStudent = ref(false)
 const editingStudentId = ref<number | null>(null)
 const studentModalError = ref<string | null>(null)
+const registrationTarget = ref<'student' | 'teacher'>('student')
+const bulkStudentsFile = ref<File | null>(null)
+const bulkStudentsUploading = ref(false)
+const bulkStudentsResult = ref<any | null>(null)
 
 interface User {
   id: number
@@ -3249,17 +4215,28 @@ const emptyStudentForm = () => ({
 
 const studentForm = ref(emptyStudentForm())
 
+function setRegistrationTarget(target: 'student' | 'teacher') {
+  registrationTarget.value = target
+  studentForm.value.user_id = null
+  loadStudentUsers()
+}
+
 async function loadStudentUsers() {
   try {
     const res = await authService.getRegisteredUsers()
     const allUsers = res.data.users || []
-    
-    // Get list of user_ids that already have student profiles
-    const existingStudentUserIds = new Set(students.value.map(s => s.user_id))
-    
-    // Filter to show only student users who DON'T have a student profile yet
-    studentUsers.value = allUsers.filter((u: User) => 
-      u.role.toLowerCase() === 'student' && !existingStudentUserIds.has(u.id)
+
+    if (registrationTarget.value === 'student') {
+      const existingStudentUserIds = new Set(students.value.map(s => s.user_id))
+      studentUsers.value = allUsers.filter((u: User) =>
+        u.role.toLowerCase() === 'student' && !existingStudentUserIds.has(u.id)
+      )
+      return
+    }
+
+    const existingTeacherUserIds = new Set(teachers.value.map(t => t.user_id))
+    studentUsers.value = allUsers.filter((u: User) =>
+      u.role.toLowerCase() === 'coach' && !existingTeacherUserIds.has(u.id)
     )
   } catch (err: any) {
     console.error('Failed to load users with student role:', err)
@@ -3268,6 +4245,7 @@ async function loadStudentUsers() {
 
 async function openCreateStudentModal() {
   studentForm.value = emptyStudentForm()
+  registrationTarget.value = 'student'
   isEditingStudent.value = false
   editingStudentId.value = null
   studentModalError.value = null
@@ -3309,6 +4287,28 @@ async function saveStudent() {
     return
   }
 
+  if (!isEditingStudent.value && registrationTarget.value === 'teacher') {
+    saving.value = true
+    try {
+      await teacherService.create({
+        user_id: Number(studentForm.value.user_id),
+        phone_number: studentForm.value.phone_number || undefined,
+        hire_date: studentForm.value.enrollment_date || undefined,
+        specialization: studentForm.value.address || undefined,
+        is_active: studentForm.value.is_active,
+      })
+      closeStudentModal()
+      await loadTeachers(teacherCurrentPage.value)
+      alert('Teacher registered successfully')
+      return
+    } catch (err: any) {
+      studentModalError.value = err?.response?.data?.message ?? 'Failed to save teacher'
+      return
+    } finally {
+      saving.value = false
+    }
+  }
+
   const payload: any = {
     batch_id: studentForm.value.batch_id,
     phone_number: studentForm.value.phone_number || null,
@@ -3336,6 +4336,30 @@ async function saveStudent() {
     studentModalError.value = err?.response?.data?.message ?? 'Failed to save student'
   } finally {
     saving.value = false
+  }
+}
+
+function onBulkStudentsFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  bulkStudentsFile.value = target.files?.[0] || null
+}
+
+async function uploadBulkStudents() {
+  if (!bulkStudentsFile.value) {
+    alert('Please choose a CSV file first')
+    return
+  }
+
+  bulkStudentsUploading.value = true
+  try {
+    const result = await studentService.bulkUpload(bulkStudentsFile.value)
+    bulkStudentsResult.value = result.data
+    await loadStudents(studentCurrentPage.value)
+    alert(`Bulk student upload completed. Created: ${result.data?.summary?.created || 0}, Failed: ${result.data?.summary?.failed || 0}`)
+  } catch (err: any) {
+    alert(err?.response?.data?.message ?? 'Bulk student upload failed')
+  } finally {
+    bulkStudentsUploading.value = false
   }
 }
 
@@ -3839,7 +4863,17 @@ async function deleteSalary() {
 }
 
 onMounted(() => {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY)
+  if (savedTheme === 'dark') {
+    isLightTheme.value = false
+  } else {
+    isLightTheme.value = true
+  }
+
   loadBatches()
+  loadStudents()
+  loadTeachers()
+  loadUsers()
   // Load dashboard data immediately since dashboard is the default section
   if (activeSection.value === 'dashboard') {
     loadDashboardData()
@@ -3851,11 +4885,23 @@ watch(activeSection, (newSection) => {
   if (newSection === 'dashboard' && dashboardStats.value.totalStudents === 0) {
     loadDashboardData()
   }
+  if (newSection === 'students' && students.value.length === 0 && !studentLoading.value) {
+    loadStudents()
+  }
+  if (newSection === 'teachers' && teachers.value.length === 0 && !teacherLoading.value) {
+    loadTeachers()
+  }
+  if (newSection === 'users' && users.value.length === 0 && !userLoading.value) {
+    loadUsers()
+  }
   if (newSection === 'fees' && feePaymentsList.value.length === 0) {
     loadFeePaymentsList()
   }
   if (newSection === 'salary' && salaryPaymentsList.value.length === 0) {
     loadSalaryPaymentsList()
+  }
+  if (newSection === 'reports' && calendarEvents.value.length === 0) {
+    loadCalendarEvents()
   }
 })
 </script>
@@ -3863,6 +4909,172 @@ watch(activeSection, (newSection) => {
 <style scoped>
 /* ── Layout ── */
 .dashboard-container { display: flex; min-height: 100vh; background: var(--bg-page); }
+
+.director-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.topbar-search-wrap {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.topbar-search {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.topbar-search:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-wrap {
+  position: relative;
+}
+
+.notif-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #d32f2f;
+  color: #fff;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid #fff;
+}
+
+.notification-panel {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  width: 320px;
+  max-width: min(90vw, 320px);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-lg);
+  z-index: 40;
+}
+
+.notification-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.btn-link {
+  border: none;
+  background: transparent;
+  color: var(--brand-primary);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.notification-empty {
+  padding: 14px 12px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.notification-list {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.notification-item {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--border-light);
+  background: #fff;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: #f7fbff;
+}
+
+.notification-title {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.notification-meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.topbar-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: #fff;
+  cursor: pointer;
+}
+
+.topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: #fff;
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-success);
+}
 
 /* Operations accent */
 .sidebar {
@@ -3897,6 +5109,312 @@ watch(activeSection, (newSection) => {
 .feature-card h3 { margin: 0 0 6px; color: var(--text-primary); font-size: var(--font-size-md); }
 .feature-card p  { margin: 0; color: var(--text-muted); font-size: var(--font-size-sm); }
 
+.reports-export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.export-card {
+  border: 1px solid #d9e4f5;
+  background: linear-gradient(140deg, #ffffff 0%, #f6faff 100%);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.export-card strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.export-card span {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.export-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: #8fb4ec;
+}
+
+.export-card:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.calendar-filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.calendar-helper-line {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.calendar-event-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.calendar-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.calendar-title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.legend-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.legend-test {
+  background: #e8f3ff;
+  color: #0f4ea8;
+}
+
+.legend-quiz {
+  background: #f3eefe;
+  color: #6b3aa8;
+}
+
+.legend-class {
+  background: #e8faf4;
+  color: #1d7f5f;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.month-grid-wrap {
+  border: 1px solid #d9e4f5;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #fff;
+}
+
+.weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  background: #f5f9ff;
+  border-bottom: 1px solid #e1ebfa;
+}
+
+.weekday-cell {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b6486;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.day-cell {
+  border: 1px solid #eef3fb;
+  min-height: 112px;
+  padding: 8px;
+  text-align: left;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.day-cell:hover {
+  background: #f8fbff;
+}
+
+.day-cell.muted {
+  background: #fafcff;
+  color: #9bb0ce;
+}
+
+.day-cell.today {
+  border-color: #1f74ea;
+  background: linear-gradient(180deg, #eef5ff 0%, #ffffff 100%);
+  box-shadow: inset 0 0 0 1px rgba(31, 116, 234, 0.28);
+}
+
+.day-cell.selected {
+  background: #edf5ff;
+  border-color: #3c82e6;
+}
+
+.day-cell-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.day-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #1d6eea;
+}
+
+.day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.event-chip {
+  display: block;
+  font-size: 11px;
+  line-height: 1.3;
+  border-radius: 6px;
+  padding: 3px 6px;
+  color: #1f2a3d;
+  background: #edf3fe;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-test {
+  background: #e8f3ff;
+  color: #0f4ea8;
+}
+
+.chip-quiz {
+  background: #f3eefe;
+  color: #6b3aa8;
+}
+
+.chip-class {
+  background: #e8faf4;
+  color: #1d7f5f;
+}
+
+.event-more {
+  font-size: 11px;
+  color: #5b6f8f;
+}
+
+.event-more-btn {
+  font-size: 11px;
+  color: #1f5fc9;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.event-more-btn:hover {
+  color: #164da5;
+}
+
+.selected-day-panel {
+  border: 1px solid #d9e4f5;
+  border-radius: var(--radius-md);
+  background: #fff;
+  padding: 12px;
+}
+
+.calendar-event-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #d9e4f5;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.calendar-event-card h3 {
+  margin: 2px 0;
+  font-size: 15px;
+}
+
+.event-type {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.event-sub {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.event-time {
+  min-width: 180px;
+  text-align: right;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .weekday-row,
+  .month-grid {
+    grid-template-columns: repeat(7, minmax(44px, 1fr));
+  }
+
+  .day-cell {
+    min-height: 88px;
+    padding: 6px;
+  }
+
+  .calendar-event-card {
+    flex-direction: column;
+  }
+
+  .event-time {
+    min-width: auto;
+    text-align: left;
+  }
+}
+
 
 
 /* ── Table toolbar ── */
@@ -3904,6 +5422,7 @@ watch(activeSection, (newSection) => {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 14px 20px; border-bottom: 1px solid var(--border-light);
   background: var(--bg-card);
+  flex-wrap: wrap;
 }
 .search-box {
   flex: 1; max-width: 400px;
@@ -3922,6 +5441,91 @@ watch(activeSection, (newSection) => {
   border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; transition: background 0.2s;
 }
 .btn-refresh:hover { background: var(--bg-card-hover); }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.entity-stats-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.entity-stat-pill {
+  font-size: 12px;
+  border: 1px solid var(--border-light);
+  background: #f7faff;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.entity-stat-pill.success {
+  border-color: #9adbc0;
+  background: #ecfdf3;
+  color: #136f4f;
+}
+
+.entity-stat-pill.muted {
+  border-color: #d7dee9;
+  background: #f4f6fa;
+  color: #64748b;
+}
+
+.entity-search-bar {
+  align-items: center;
+  gap: 10px;
+}
+
+.entity-search-bar .search-input {
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+.compact-select {
+  min-width: 128px;
+  max-width: 165px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.entity-skeleton-wrap {
+  display: grid;
+  gap: 10px;
+  padding: 14px 20px 18px;
+}
+
+.entity-skeleton-row {
+  height: 52px;
+  border-radius: 10px;
+  border: 1px solid #e4ebf5;
+  background: linear-gradient(100deg, #f5f8fd 25%, #edf3fb 50%, #f5f8fd 75%);
+  background-size: 220% 100%;
+  animation: shimmer 1.2s ease infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+.file-btn {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.file-btn input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
 
 /* ── Table ── */
 .table-wrap { overflow-x: auto; }
@@ -4034,6 +5638,29 @@ watch(activeSection, (newSection) => {
 .form-textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
 .req { color: #ef4444; }
 .field-hint { font-size: 12px; color: var(--text-muted); margin-top: -2px; }
+
+.segmented-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.seg-btn {
+  border: none;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seg-btn.active {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+}
 
 /* toggle */
 .toggle-field { flex-direction: row; align-items: center; gap: 14px; margin-top: 4px; }
@@ -4499,6 +6126,7 @@ watch(activeSection, (newSection) => {
 .dash-stat-card.purple { border-left-color: #8b5cf6; }
 .dash-stat-card.green { border-left-color: var(--color-success); }
 .dash-stat-card.orange { border-left-color: var(--color-warning); }
+.dash-stat-card.cyan { border-left-color: #06b6d4; }
 
 .stat-icon {
   font-size: 32px;
@@ -4521,6 +6149,10 @@ watch(activeSection, (newSection) => {
 
 .dash-stat-card.orange .stat-icon {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+}
+
+.dash-stat-card.cyan .stat-icon {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.14), rgba(6, 182, 212, 0.06));
 }
 
 .stat-content {
@@ -4567,6 +6199,115 @@ watch(activeSection, (newSection) => {
   grid-column: 1 / -1;
 }
 
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.mini-chart-card {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 12px;
+  background: #fcfdff;
+}
+
+.mini-chart-card h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.bars-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-height: 130px;
+}
+
+.bar-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bar-track {
+  width: 100%;
+  height: 96px;
+  border-radius: 8px;
+  background: #eef4ff;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.bar-fill {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+}
+
+.bar-fill.revenue {
+  background: linear-gradient(180deg, #1f73e8 0%, #0f5bd6 100%);
+}
+
+.bar-fill.attendance {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+}
+
+.bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.bar-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.distribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.distribution-row {
+  display: grid;
+  grid-template-columns: minmax(88px, 1fr) 2fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.dist-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dist-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #e8eef8;
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+}
+
+.dist-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -4603,6 +6344,89 @@ watch(activeSection, (newSection) => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.risk-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.risk-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.risk-pill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  background: #f8fbff;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.risk-score {
+  font-size: 12px;
+  font-weight: 700;
+  color: #c62828;
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
+.nudge-list {
+  display: grid;
+  gap: 10px;
+}
+
+.nudge-item {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fff;
+}
+
+.severity-chip {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+
+.sev-high {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
+.sev-medium {
+  background: #fff8e1;
+  color: #8a6d1f;
+}
+
+.sev-low {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.nudge-title {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.nudge-meta {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .activity-item {
@@ -4833,43 +6657,675 @@ watch(activeSection, (newSection) => {
 }
 
 @media (max-width: 980px) {
+  .director-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-search-wrap {
+    width: 100%;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
   .ai-columns {
     grid-template-columns: 1fr;
   }
-  .dashboard-container { flex-direction: column; }
-  .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 30; }
-  .sidebar-open .sidebar { transform: translateX(0); }
-  .sidebar-nav { display: flex; flex-wrap: wrap; gap: 8px; }
-  .nav-item { flex: 1 1 160px; }
-  .main-content { margin-left: 0; padding: 16px; }
-  .content-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .dashboard-stats { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-  .dashboard-grid { grid-template-columns: 1fr; }
-  .mobile-menu-btn { display: inline-flex; }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-@media (max-width: 600px) {
-  .dashboard-stats { grid-template-columns: 1fr; }
-  .financial-overview { grid-template-columns: 1fr; }
-  .table-container { overflow-x: auto; }
-  .data-table { min-width: 640px; }
+@media (max-width: 680px) {
+  .topbar-search-wrap {
+    flex-direction: column;
+  }
+
+  .topbar-search-wrap .btn-secondary {
+    width: 100%;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card {
+    padding: 16px;
+  }
 }
 
-.mobile-menu-btn {
+/* ── Premium Dark SaaS Theme Overrides (UI-only) ── */
+.dashboard-container {
+  background:
+    radial-gradient(900px 520px at -10% -15%, rgba(59, 130, 246, 0.18), transparent 55%),
+    radial-gradient(820px 460px at 110% 0%, rgba(20, 184, 166, 0.16), transparent 52%),
+    linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
+  color: #d7e2f2;
+}
+
+.main-content {
+  max-width: 1680px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 252px;
+  min-width: 252px;
+  border-right: 1px solid rgba(148, 163, 184, 0.2);
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.76) 100%),
+    radial-gradient(220px 140px at 10% 0%, rgba(56, 189, 248, 0.2), transparent 75%);
+  backdrop-filter: blur(18px);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+  z-index: 45;
+}
+
+.sidebar-header {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.sidebar-header h2,
+.sidebar-header p,
+.role-badge {
+  color: #e8f0fc;
+}
+
+.role-badge {
+  background: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(96, 165, 250, 0.42);
+}
+
+.nav-item {
+  border-left: 3px solid transparent;
+  border-radius: 10px;
+  margin: 3px 8px;
+  color: #b8c5d9;
+  transition: all 180ms ease;
+}
+
+.nav-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #eef5ff;
+}
+
+.nav-item.active {
+  color: #f7fbff;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0.05));
+  border-left-color: #60a5fa;
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.28), 0 0 18px rgba(56, 189, 248, 0.15);
+}
+
+.btn-logout {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  color: #e2e8f0;
+}
+
+.director-topbar {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.76) 0%, rgba(15, 23, 42, 0.6) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.38);
+}
+
+.sidebar-toggle {
   display: none;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-card);
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
-  margin-bottom: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+  color: #dbeafe;
+  cursor: pointer;
 }
+
+.theme-toggle-btn {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.topbar-search,
+.topbar-icon-btn,
+.topbar-profile,
+.notification-panel,
+.notification-item,
+.notification-head {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #d7e2f2;
+}
+
+.topbar-search::placeholder,
+.notification-meta,
+.topbar-profile {
+  color: #94a3b8;
+}
+
+.topbar-search:focus {
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18), 0 0 24px rgba(59, 130, 246, 0.18);
+}
+
+.dashboard-card,
+.content-section,
+.modal,
+.summary-card,
+.mini-chart-card,
+.profile-section,
+.finance-card,
+.status-card,
+.nudge-item,
+.activity-item,
+.export-card,
+.calendar-event-card,
+.selected-day-panel,
+.month-grid-wrap,
+.teacher-select-list,
+.connect-parent-form,
+.parent-card {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.58) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+}
+
+.content-header h1,
+.card-header h3,
+.stat-number,
+.activity-info strong,
+.finance-value,
+.summary-value,
+.nudge-title,
+.ai-headline {
+  color: #f1f5ff;
+}
+
+.breadcrumb,
+.stat-detail,
+.activity-detail,
+.metric-label,
+.event-sub,
+.dist-name,
+.bar-label,
+.bar-value,
+.table-count,
+.summary-label,
+.detail-item label,
+.form-field label,
+.field-hint,
+.empty-state,
+.state-msg {
+  color: #97a8c1;
+}
+
+.dash-stat-card {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left-width: 4px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.66));
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.42);
+}
+
+.dash-stat-card:hover,
+.dashboard-card:hover,
+.summary-card:hover,
+.action-btn:hover,
+.export-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(2, 6, 23, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
+}
+
+.card-header,
+.table-toolbar,
+.modal-header,
+.modal-footer,
+.notification-head,
+.weekday-row {
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.btn-primary,
+.btn-save,
+.action-btn.primary {
+  background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:hover,
+.btn-save:hover,
+.action-btn.primary:hover {
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.5);
+}
+
+.btn-secondary,
+.btn-cancel,
+.btn-refresh,
+.topbar-icon-btn,
+.modal-close,
+.seg-btn,
+.view-all-btn,
+.btn-link {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  color: #d7e2f2;
+}
+
+.form-input,
+.form-select,
+.search-input,
+.form-field input[type=text],
+.form-field input[type=number],
+.form-field input[type=date],
+.form-field select,
+.form-field textarea,
+.form-textarea,
+.connect-parent-form .form-input,
+.topbar-search {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  color: #e2e8f0;
+}
+
+.form-input:focus,
+.form-select:focus,
+.search-input:focus,
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus,
+.form-textarea:focus,
+.connect-parent-form .form-input:focus {
+  border-color: rgba(56, 189, 248, 0.82);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
+}
+
+.table-wrap {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  overflow: auto;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.data-table {
+  min-width: 900px;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(30, 41, 59, 0.9);
+  color: #9eb2cb;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.data-table td {
+  color: #d5e2f4;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.data-table tbody tr:nth-child(even) {
+  background: rgba(15, 23, 42, 0.24);
+}
+
+.data-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.modal-overlay {
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(7px);
+  animation: fadeIn 180ms ease;
+}
+
+.modal {
+  animation: popIn 220ms ease;
+}
+
+.badge,
+.batch-status,
+.risk-pill,
+.legend-pill,
+.severity-chip {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.badge-green,
+.batch-status.active,
+.sev-low,
+.legend-class {
+  background: rgba(34, 197, 94, 0.18);
+  color: #86efac;
+}
+
+.badge-blue,
+.legend-test,
+.risk-score {
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+}
+
+.badge-purple,
+.legend-quiz {
+  background: rgba(139, 92, 246, 0.2);
+  color: #d8b4fe;
+}
+
+.badge-grey,
+.batch-status.inactive,
+.sev-medium {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+}
+
+.state-msg.error,
+.delete-warn,
+.sev-high {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fda4af;
+  border-color: rgba(248, 113, 113, 0.36);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  z-index: 20;
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    display: block;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.64);
+    backdrop-filter: blur(3px);
+    z-index: 34;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-105%);
+    transition: transform 220ms ease;
+    z-index: 40;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+
+  .dashboard-stats,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-overview {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* ── Light Theme Overrides ── */
+.dashboard-container.theme-light {
+  background:
+    radial-gradient(900px 520px at -10% -15%, rgba(37, 99, 235, 0.2), transparent 55%),
+    radial-gradient(820px 460px at 110% 0%, rgba(13, 148, 136, 0.18), transparent 52%),
+    linear-gradient(180deg, #e9f1ff 0%, #dde8f8 100%);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .sidebar {
+  border-right-color: rgba(100, 116, 139, 0.35);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.88) 100%),
+    radial-gradient(220px 140px at 10% 0%, rgba(37, 99, 235, 0.14), transparent 75%);
+}
+
+.dashboard-container.theme-light .sidebar-header h2,
+.dashboard-container.theme-light .sidebar-header p {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .role-badge {
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(37, 99, 235, 0.28);
+  color: #1d4ed8;
+}
+
+.dashboard-container.theme-light .nav-item {
+  color: #334155;
+}
+
+.dashboard-container.theme-light .nav-item:hover {
+  background: rgba(37, 99, 235, 0.12);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .nav-item.active {
+  color: #0f172a;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.22), rgba(37, 99, 235, 0.08));
+  border-left-color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.24), 0 0 16px rgba(37, 99, 235, 0.14);
+}
+
+.dashboard-container.theme-light .director-topbar,
+.dashboard-container.theme-light .dashboard-card,
+.dashboard-container.theme-light .content-section,
+.dashboard-container.theme-light .modal,
+.dashboard-container.theme-light .summary-card,
+.dashboard-container.theme-light .mini-chart-card,
+.dashboard-container.theme-light .profile-section,
+.dashboard-container.theme-light .finance-card,
+.dashboard-container.theme-light .status-card,
+.dashboard-container.theme-light .nudge-item,
+.dashboard-container.theme-light .activity-item,
+.dashboard-container.theme-light .export-card,
+.dashboard-container.theme-light .calendar-event-card,
+.dashboard-container.theme-light .selected-day-panel,
+.dashboard-container.theme-light .month-grid-wrap,
+.dashboard-container.theme-light .teacher-select-list,
+.dashboard-container.theme-light .connect-parent-form,
+.dashboard-container.theme-light .parent-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.82) 100%);
+  border-color: rgba(100, 116, 139, 0.28);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.14);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .dash-stat-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.9));
+  border-color: rgba(100, 116, 139, 0.3);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.dashboard-container.theme-light .dash-stat-card:hover,
+.dashboard-container.theme-light .dashboard-card:hover,
+.dashboard-container.theme-light .summary-card:hover,
+.dashboard-container.theme-light .action-btn:hover,
+.dashboard-container.theme-light .export-card:hover:not(:disabled) {
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.dashboard-container.theme-light .content-header h1,
+.dashboard-container.theme-light .card-header h3,
+.dashboard-container.theme-light .stat-number,
+.dashboard-container.theme-light .activity-info strong,
+.dashboard-container.theme-light .finance-value,
+.dashboard-container.theme-light .summary-value,
+.dashboard-container.theme-light .nudge-title,
+.dashboard-container.theme-light .ai-headline {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .breadcrumb,
+.dashboard-container.theme-light .stat-detail,
+.dashboard-container.theme-light .activity-detail,
+.dashboard-container.theme-light .metric-label,
+.dashboard-container.theme-light .event-sub,
+.dashboard-container.theme-light .dist-name,
+.dashboard-container.theme-light .bar-label,
+.dashboard-container.theme-light .bar-value,
+.dashboard-container.theme-light .table-count,
+.dashboard-container.theme-light .summary-label,
+.dashboard-container.theme-light .detail-item label,
+.dashboard-container.theme-light .form-field label,
+.dashboard-container.theme-light .field-hint,
+.dashboard-container.theme-light .empty-state,
+.dashboard-container.theme-light .state-msg,
+.dashboard-container.theme-light .topbar-profile,
+.dashboard-container.theme-light .notification-meta,
+.dashboard-container.theme-light .topbar-search::placeholder {
+  color: #475569;
+}
+
+.dashboard-container.theme-light .topbar-search,
+.dashboard-container.theme-light .topbar-icon-btn,
+.dashboard-container.theme-light .topbar-profile,
+.dashboard-container.theme-light .notification-panel,
+.dashboard-container.theme-light .notification-item,
+.dashboard-container.theme-light .notification-head,
+.dashboard-container.theme-light .form-input,
+.dashboard-container.theme-light .form-select,
+.dashboard-container.theme-light .search-input,
+.dashboard-container.theme-light .form-field input[type=text],
+.dashboard-container.theme-light .form-field input[type=number],
+.dashboard-container.theme-light .form-field input[type=date],
+.dashboard-container.theme-light .form-field select,
+.dashboard-container.theme-light .form-field textarea,
+.dashboard-container.theme-light .form-textarea,
+.dashboard-container.theme-light .connect-parent-form .form-input {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(100, 116, 139, 0.35);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .topbar-search:focus,
+.dashboard-container.theme-light .form-input:focus,
+.dashboard-container.theme-light .form-select:focus,
+.dashboard-container.theme-light .search-input:focus,
+.dashboard-container.theme-light .form-field input:focus,
+.dashboard-container.theme-light .form-field select:focus,
+.dashboard-container.theme-light .form-field textarea:focus,
+.dashboard-container.theme-light .form-textarea:focus {
+  border-color: rgba(37, 99, 235, 0.6);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.dashboard-container.theme-light .btn-secondary,
+.dashboard-container.theme-light .btn-cancel,
+.dashboard-container.theme-light .btn-refresh,
+.dashboard-container.theme-light .modal-close,
+.dashboard-container.theme-light .seg-btn,
+.dashboard-container.theme-light .view-all-btn,
+.dashboard-container.theme-light .btn-link,
+.dashboard-container.theme-light .btn-logout {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(100, 116, 139, 0.4);
+  color: #1e293b;
+}
+
+.dashboard-container.theme-light .table-wrap {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(100, 116, 139, 0.28);
+}
+
+.dashboard-container.theme-light .data-table th {
+  background: rgba(226, 232, 240, 0.96);
+  color: #1e293b;
+  border-bottom-color: rgba(100, 116, 139, 0.38);
+}
+
+.dashboard-container.theme-light .data-table td {
+  color: #0f172a;
+  border-bottom-color: rgba(100, 116, 139, 0.22);
+}
+
+.dashboard-container.theme-light .data-table tbody tr:nth-child(even) {
+  background: rgba(226, 232, 240, 0.4);
+}
+
+.dashboard-container.theme-light .data-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.dashboard-container.theme-light .modal-overlay {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+.dashboard-container.theme-light .risk-pill,
+.dashboard-container.theme-light .legend-pill,
+.dashboard-container.theme-light .severity-chip,
+.dashboard-container.theme-light .batch-status,
+.dashboard-container.theme-light .badge {
+  border-width: 1px;
+  border-style: solid;
+  font-weight: 700;
+}
+
+.dashboard-container.theme-light .risk-pill,
+.dashboard-container.theme-light .risk-score,
+.dashboard-container.theme-light .badge-blue,
+.dashboard-container.theme-light .legend-test {
+  background: rgba(37, 99, 235, 0.18);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+.dashboard-container.theme-light .batch-status.active,
+.dashboard-container.theme-light .badge-green,
+.dashboard-container.theme-light .sev-low,
+.dashboard-container.theme-light .legend-class {
+  background: rgba(16, 185, 129, 0.2);
+  color: #047857;
+  border-color: rgba(5, 150, 105, 0.38);
+}
+
+.dashboard-container.theme-light .batch-status.inactive,
+.dashboard-container.theme-light .badge-grey,
+.dashboard-container.theme-light .sev-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #b45309;
+  border-color: rgba(217, 119, 6, 0.36);
+}
+
+.dashboard-container.theme-light .sev-high,
+.dashboard-container.theme-light .state-msg.error,
+.dashboard-container.theme-light .delete-warn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.38);
 }
 </style>

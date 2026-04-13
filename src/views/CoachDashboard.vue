@@ -611,6 +611,62 @@
             </div>
 
             <div class="section-divider"></div>
+            <div v-if="quizViewBatchId" class="section-card" style="margin-bottom: 14px;">
+              <div class="section-header">
+                <h2>📊 Quiz Reports & Rankings</h2>
+                <button class="btn-secondary" @click="quizViewBatchId && loadQuizPerformance(quizViewBatchId)">Refresh</button>
+              </div>
+              <p v-if="quizPerformanceError" class="muted-note" style="margin-bottom: 10px; color: var(--color-warning);">
+                {{ quizPerformanceError }}
+              </p>
+              <div class="stats-grid" style="margin-top: 8px;">
+                <div class="stat-card" style="--accent:#667eea">
+                  <div class="stat-info">
+                    <h3>Total Quizzes</h3>
+                    <p class="stat-value">{{ quizPerformance.summary?.total_quizzes || 0 }}</p>
+                  </div>
+                </div>
+                <div class="stat-card" style="--accent:#43e97b">
+                  <div class="stat-info">
+                    <h3>Total Submissions</h3>
+                    <p class="stat-value">{{ quizPerformance.summary?.total_submissions || 0 }}</p>
+                  </div>
+                </div>
+                <div class="stat-card" style="--accent:#4facfe">
+                  <div class="stat-info">
+                    <h3>Avg Submission Rate</h3>
+                    <p class="stat-value">{{ quizPerformance.summary?.average_submission_rate || 0 }}%</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-wrap" style="margin-top: 10px;">
+                <table class="students-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Student</th>
+                      <th>Attempts</th>
+                      <th>Avg Score</th>
+                      <th>Best Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="(quizPerformance.rankings || []).length === 0">
+                      <td colspan="5">No ranking data yet.</td>
+                    </tr>
+                    <tr v-for="row in (quizPerformance.rankings || []).slice(0, 10)" :key="`rank-${row.student_id}`">
+                      <td>#{{ row.rank }}</td>
+                      <td>{{ row.student_name }}</td>
+                      <td>{{ row.attempted_quizzes }}</td>
+                      <td>{{ row.average_score }}</td>
+                      <td>{{ row.best_score }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
             <div v-if="loadingQuizzes" class="loading-state"><div class="spinner"></div></div>
             <div v-else-if="quizError" class="empty-state"><p>⚠️ {{ quizError }}</p></div>
             <div v-else class="quiz-list">
@@ -777,6 +833,20 @@ const quizViewBatchId = ref<number | null>(null)
 const quizzes = ref<Quiz[]>([])
 const loadingQuizzes = ref(false)
 const quizError = ref('')
+function emptyQuizPerformance() {
+  return {
+    summary: {
+      total_quizzes: 0,
+      total_submissions: 0,
+      average_submission_rate: 0,
+    },
+    rankings: [],
+    quiz_results: [],
+  }
+}
+
+const quizPerformance = ref<any>(emptyQuizPerformance())
+const quizPerformanceError = ref('')
 const quizDraft = ref<{ title: string; difficulty: string; questions: QuizQuestion[] } | null>(null)
 const quizForm = ref({ topic: '', instructions: '', difficulty: 'medium', question_count: 10, mode: 'practice' })
 const quizDescription = ref('')
@@ -889,10 +959,22 @@ async function loadQuizzes(batchId: number) {
   try {
     const res: any = await quizzesService.list(batchId)
     quizzes.value = res?.data?.data?.quizzes ?? res?.data?.quizzes ?? []
+    await loadQuizPerformance(batchId)
   } catch (err: any) {
     quizError.value = err?.response?.data?.message || 'Failed to load quizzes'
   } finally {
     loadingQuizzes.value = false
+  }
+}
+
+async function loadQuizPerformance(batchId: number) {
+  quizPerformanceError.value = ''
+  try {
+    const res: any = await apiClient.get(`/teacher/batches/${batchId}/quiz-performance`)
+    quizPerformance.value = res?.data?.data ?? emptyQuizPerformance()
+  } catch (err: any) {
+    quizPerformance.value = emptyQuizPerformance()
+    quizPerformanceError.value = err?.response?.data?.message || 'Could not load graded quiz reports right now.'
   }
 }
 

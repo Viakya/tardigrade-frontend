@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .noise-overlay {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.075) 0.7px, transparent 0.7px);
+    background-size: 4px 4px;
+  }
+}

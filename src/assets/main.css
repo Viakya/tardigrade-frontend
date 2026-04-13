@@ -1,7 +1,7 @@
 /* ─── Tardigrade Shared Component Styles ─── */
 
-/* Import Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
 
 /* ─── App Shell ─── */
 html, body {
@@ -23,7 +23,10 @@ a {
 .dashboard-container {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-page);
+  background:
+    radial-gradient(circle at 2% 0%, rgba(15, 91, 214, 0.08), transparent 38%),
+    radial-gradient(circle at 98% 8%, rgba(19, 163, 181, 0.08), transparent 42%),
+    var(--bg-page);
   font-family: var(--font-family);
 }
 
@@ -126,6 +129,15 @@ a {
   min-width: 0;
 }
 
+.main-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: #bfcee4;
+  border-radius: 999px;
+}
+
 .content-header {
   margin-bottom: var(--space-lg);
 }
@@ -215,6 +227,7 @@ a {
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(203, 213, 225, 0.55);
   margin-bottom: var(--space-lg);
 }
 
@@ -302,6 +315,15 @@ a {
   transition: opacity var(--transition-base), transform var(--transition-base);
 }
 
+.btn-primary,
+.btn-secondary,
+.btn-logout,
+.btn-refresh,
+.btn-link,
+.link-btn {
+  min-height: 38px;
+}
+
 .btn-primary:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
@@ -346,8 +368,103 @@ a {
 .link-btn:hover,
 .btn-link:hover,
 .view-all-btn:hover {
-  background: rgba(79, 70, 229, 0.06);
+  background: rgba(15, 91, 214, 0.08);
   text-decoration: none;
+}
+
+/* ─── Responsive SaaS Layout ─── */
+@media (max-width: 1200px) {
+  .main-content {
+    padding: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .dashboard-container {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding: 10px 0 12px;
+    backdrop-filter: blur(8px);
+  }
+
+  .sidebar-header {
+    padding: 0 14px 12px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    padding: 8px 10px;
+  }
+
+  .nav-item {
+    border-left: none;
+    border-radius: 10px;
+    white-space: nowrap;
+    padding: 10px 12px;
+  }
+
+  .nav-item.active {
+    border-left-color: transparent;
+  }
+
+  .btn-logout {
+    margin: 8px 12px 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .main-content {
+    padding: 14px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card,
+  .section-card,
+  .content-section {
+    padding: 14px;
+  }
+
+  .content-header h1 {
+    font-size: 20px;
+  }
+
+  .card-head,
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .table-wrap {
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .data-table th,
+  .students-table th,
+  .data-table td,
+  .students-table td {
+    padding: 10px 10px;
+    font-size: 12px;
+  }
 }
 
 /* ─── Badges ─── */

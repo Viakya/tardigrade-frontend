@@ -42,6 +42,38 @@ export interface Quiz {
   } | null
 }
 
+export interface QuizSubmissionReport {
+  quiz_id: number
+  quiz_title: string
+  mode: 'practice' | 'graded'
+  score: number
+  total_marks: number
+  percentage: number
+  attempted_answers: number
+  correct_answers: number
+  incorrect_answers: number
+  attempt_number: number
+  previous_attempt_score: number | null
+  current_attempt_score: number
+  question_feedback: Array<{
+    question_id: number
+    question: string
+    selected_option: string | null
+    correct_option: string
+    is_correct: boolean
+    marks_awarded: number
+    max_marks: number
+    explanation?: string | null
+  }>
+  ai_analysis?: {
+    source?: 'ai_model' | 'rule_based_fallback' | string
+    summary: string
+    strengths: string[]
+    weaknesses: string[]
+    suggestions: string[]
+  }
+}
+
 export const quizzesService = {
   generate(payload: {
     topic: string
@@ -93,7 +125,7 @@ export const quizzesService = {
     return apiClient.delete(`/quizzes/${quizId}`)
   },
 
-  submit(quizId: number, answers: Array<{ question_id: number; selected_option: string }>): Promise<ApiResponse<{ submission: any }>> {
+  submit(quizId: number, answers: Array<{ question_id: number; selected_option: string }>): Promise<ApiResponse<{ submission: any; report: QuizSubmissionReport }>> {
     return apiClient.post(`/quizzes/${quizId}/submit`, { answers })
   },
 }

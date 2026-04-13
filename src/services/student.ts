@@ -92,6 +92,17 @@ export const studentService = {
     return response.data
   },
 
+  async bulkUpload(file: File): Promise<ApiResponse<any>> {
+    const form = new FormData()
+    form.append('file', file)
+    const response = await apiClient.post<ApiResponse<any>>('/students/bulk', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  },
+
   async update(
     id: number,
     payload: UpdateStudentPayload

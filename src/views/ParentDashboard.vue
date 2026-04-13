@@ -1,6 +1,5 @@
 <template>
-  <div class="dashboard-container" :class="{ 'sidebar-open': isSidebarOpen }">
-    <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
+  <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -29,7 +28,6 @@
 
     <!-- Main Content -->
     <main class="main-content">
-      <button class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
       <!-- Loading State -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
@@ -318,6 +316,10 @@
           <span>Loading attendance...</span>
         </div>
 
+        <div v-else-if="attendanceError" class="empty-state">
+          <p>⚠️ {{ attendanceError }}</p>
+        </div>
+
         <div v-else-if="attendanceData">
           <!-- Attendance Summary -->
           <div class="attendance-summary">
@@ -359,6 +361,31 @@
             </p>
           </div>
 
+          <div class="trend-card">
+            <div class="trend-header">
+              <h3>📈 Attendance Trend</h3>
+              <div class="trend-pills">
+                <span class="trend-pill">Latest <strong>{{ attendanceTrend.latestLabel }}: {{ attendanceTrend.latest }}%</strong></span>
+                <span class="trend-pill">Best <strong>{{ attendanceTrend.bestLabel }}: {{ attendanceTrend.best }}%</strong></span>
+                <span :class="['trend-pill', 'momentum', { positive: attendanceTrend.momentum >= 0, negative: attendanceTrend.momentum < 0 }]">
+                  Momentum <strong>{{ attendanceTrend.momentum >= 0 ? '+' : '' }}{{ attendanceTrend.momentum }}%</strong>
+                </span>
+              </div>
+            </div>
+            <div class="trend-board">
+              <h4>Attendance %</h4>
+              <div class="trend-bars">
+                <div v-for="point in attendanceTrend.points" :key="`attendance-trend-${point.key}`" class="trend-col">
+                  <div class="trend-track">
+                    <div class="trend-bar attendance" :style="{ height: point.value + '%' }"></div>
+                  </div>
+                  <div class="trend-month">{{ point.label }}</div>
+                  <div class="trend-value">{{ point.value }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Attendance Table -->
           <div class="table-container">
             <table class="data-table">
@@ -386,6 +413,10 @@
               </tbody>
             </table>
           </div>
+        </div>
+
+        <div v-else class="empty-state">
+          <p>No attendance data found for this child.</p>
         </div>
       </template>
 
@@ -415,6 +446,10 @@
           <span>Loading quiz results...</span>
         </div>
 
+        <div v-else-if="quizError" class="empty-state">
+          <p>⚠️ {{ quizError }}</p>
+        </div>
+
         <div v-else-if="quizResults">
           <div class="test-summary">
             <div class="summary-card blue">
@@ -432,6 +467,31 @@
             <div class="summary-card orange">
               <h4>{{ quizResults.graded_average }}%</h4>
               <p>Graded Avg (Closed)</p>
+            </div>
+          </div>
+
+          <div class="trend-card">
+            <div class="trend-header">
+              <h3>📈 Quiz Performance Trend</h3>
+              <div class="trend-pills">
+                <span class="trend-pill">Latest <strong>{{ quizTrend.latestLabel }}: {{ quizTrend.latest }}%</strong></span>
+                <span class="trend-pill">Best <strong>{{ quizTrend.bestLabel }}: {{ quizTrend.best }}%</strong></span>
+                <span :class="['trend-pill', 'momentum', { positive: quizTrend.momentum >= 0, negative: quizTrend.momentum < 0 }]">
+                  Momentum <strong>{{ quizTrend.momentum >= 0 ? '+' : '' }}{{ quizTrend.momentum }}%</strong>
+                </span>
+              </div>
+            </div>
+            <div class="trend-board">
+              <h4>Quiz Score %</h4>
+              <div class="trend-bars">
+                <div v-for="point in quizTrend.points" :key="`quiz-trend-${point.key}`" class="trend-col">
+                  <div class="trend-track">
+                    <div class="trend-bar quiz" :style="{ height: point.value + '%' }"></div>
+                  </div>
+                  <div class="trend-month">{{ point.label }}</div>
+                  <div class="trend-value">{{ point.value }}%</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -495,6 +555,10 @@
             </div>
           </div>
         </div>
+
+        <div v-else class="empty-state">
+          <p>No quiz data found for this child yet.</p>
+        </div>
       </template>
 
       <!-- Fee Status Section -->
@@ -522,6 +586,10 @@
         <div v-else-if="loadingFees" class="loading-inline">
           <div class="spinner small"></div>
           <span>Loading fee information...</span>
+        </div>
+
+        <div v-else-if="feeError" class="empty-state">
+          <p>⚠️ {{ feeError }}</p>
         </div>
 
         <div v-else-if="feeData">
@@ -632,6 +700,10 @@
             </table>
           </div>
         </div>
+
+        <div v-else class="empty-state">
+          <p>No fee data found for this child yet.</p>
+        </div>
       </template>
 
       <!-- Child Details Modal -->
@@ -719,10 +791,6 @@ import { paymentsService } from '@/services/payments'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const isSidebarOpen = ref(false)
-const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
-const closeSidebar = () => { isSidebarOpen.value = false }
-
 // State
 const activeSection = ref('dashboard')
 const loading = ref(true)
@@ -737,16 +805,19 @@ const showChildModal = ref(false)
 // Attendance
 const loadingAttendance = ref(false)
 const attendanceData = ref<any>(null)
+const attendanceError = ref('')
 const attendanceDays = ref(30)
 
 // Quizzes
 const loadingQuizResults = ref(false)
 const quizResults = ref<any>(null)
+const quizError = ref('')
 
 
 // Fees
 const loadingFees = ref(false)
 const feeData = ref<any>(null)
+const feeError = ref('')
 const payAmountInput = ref('')
 const payAmountError = ref<string | null>(null)
 const paying = ref(false)
@@ -776,6 +847,105 @@ const showParentExplanations = computed(() =>
   showParentCorrectAnswers.value || (selectedQuiz.value?.mode === 'practice' && !!selectedQuiz.value?.student_submission)
 )
 
+type TrendPoint = { key: string; label: string; value: number }
+
+function getRecentMonthBuckets(count = 6) {
+  const buckets: Array<{ key: string; label: string }> = []
+  const now = new Date()
+  for (let i = count - 1; i >= 0; i -= 1) {
+    const dt = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`
+    const label = dt.toLocaleDateString('en-IN', { month: 'short' })
+    buckets.push({ key, label })
+  }
+  return buckets
+}
+
+function toMonthKey(dateValue: string | null | undefined) {
+  if (!dateValue) return null
+  const dt = new Date(dateValue)
+  if (Number.isNaN(dt.getTime())) return null
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`
+}
+
+function roundPercent(value: number) {
+  const safe = Number.isFinite(value) ? value : 0
+  return Math.max(0, Math.min(100, Math.round(safe)))
+}
+
+function buildTrend(points: TrendPoint[]) {
+  const fallback: TrendPoint = { key: 'na', label: 'N/A', value: 0 }
+  const safePoints = points.length ? points : [fallback]
+  const latestPoint = safePoints[safePoints.length - 1] ?? fallback
+  const bestPoint = safePoints.reduce((best, p) => (p.value > best.value ? p : best), safePoints[0] ?? fallback)
+  const prevPoint = safePoints.length > 1 ? (safePoints[safePoints.length - 2] ?? fallback) : (safePoints[0] ?? fallback)
+
+  return {
+    points: safePoints,
+    latest: latestPoint.value,
+    latestLabel: latestPoint.label,
+    best: bestPoint.value,
+    bestLabel: bestPoint.label,
+    momentum: latestPoint.value - prevPoint.value,
+  }
+}
+
+const quizTrend = computed(() => {
+  const buckets = getRecentMonthBuckets(6)
+  const grouped = new Map<string, number[]>()
+
+  for (const quiz of quizResults.value?.quizzes || []) {
+    const score = Number(quiz?.student_submission?.score)
+    if (!Number.isFinite(score)) continue
+
+    const total = Number(quiz?.total_marks || 100)
+    if (!Number.isFinite(total) || total <= 0) continue
+
+    const dateRef =
+      quiz?.student_submission?.submitted_at ||
+      quiz?.updated_at ||
+      quiz?.created_at ||
+      null
+    const monthKey = toMonthKey(dateRef)
+    if (!monthKey) continue
+
+    if (!grouped.has(monthKey)) grouped.set(monthKey, [])
+    grouped.get(monthKey)?.push((score / total) * 100)
+  }
+
+  const points = buckets.map(({ key, label }) => {
+    const values = grouped.get(key) || []
+    const avg = values.length ? values.reduce((s, n) => s + n, 0) / values.length : 0
+    return { key, label, value: roundPercent(avg) }
+  })
+
+  return buildTrend(points)
+})
+
+const attendanceTrend = computed(() => {
+  const buckets = getRecentMonthBuckets(6)
+  const grouped = new Map<string, { present: number; total: number }>()
+
+  for (const rec of attendanceData.value?.records || []) {
+    const monthKey = toMonthKey(rec?.date)
+    if (!monthKey) continue
+    if (!grouped.has(monthKey)) grouped.set(monthKey, { present: 0, total: 0 })
+
+    const slot = grouped.get(monthKey)
+    if (!slot) continue
+    slot.total += 1
+    if (rec?.status === 'present') slot.present += 1
+  }
+
+  const points = buckets.map(({ key, label }) => {
+    const slot = grouped.get(key)
+    const rate = slot && slot.total > 0 ? (slot.present / slot.total) * 100 : 0
+    return { key, label, value: roundPercent(rate) }
+  })
+
+  return buildTrend(points)
+})
+
 const feeRemaining = computed(() => Math.max(0, Number(feeData.value?.remaining || 0)))
 
 watch(feeRemaining, (val) => {
@@ -783,6 +953,13 @@ watch(feeRemaining, (val) => {
   if (!payAmountInput.value || current > val) {
     payAmountInput.value = val ? String(val) : ''
   }
+})
+
+watch([activeSection, selectedChildId], ([section, childId]) => {
+  if (!childId) return
+  if (section === 'results') loadQuizzesForChild()
+  if (section === 'attendance') loadAttendanceForChild()
+  if (section === 'fees') loadFeesForChild()
 })
 
 declare global {
@@ -855,9 +1032,11 @@ async function loadChildTeachers(child: any) {
 async function loadAttendanceForChild() {
   if (!selectedChildId.value) {
     attendanceData.value = null
+    attendanceError.value = ''
     return
   }
   loadingAttendance.value = true
+  attendanceError.value = ''
   try {
     const res = await apiClient.get(`/parents/children/${selectedChildId.value}/attendance`, {
       params: { days: attendanceDays.value }
@@ -866,6 +1045,7 @@ async function loadAttendanceForChild() {
   } catch (e: any) {
     console.error('Failed to load attendance:', e)
     attendanceData.value = null
+    attendanceError.value = e?.response?.data?.message || 'Failed to load attendance data'
   } finally {
     loadingAttendance.value = false
   }
@@ -875,15 +1055,18 @@ async function loadAttendanceForChild() {
 async function loadFeesForChild() {
   if (!selectedChildId.value) {
     feeData.value = null
+    feeError.value = ''
     return
   }
   loadingFees.value = true
+  feeError.value = ''
   try {
     const res = await apiClient.get(`/parents/children/${selectedChildId.value}/fees`)
     feeData.value = res.data.data.fees
   } catch (e: any) {
     console.error('Failed to load fees:', e)
     feeData.value = null
+    feeError.value = e?.response?.data?.message || 'Failed to load fee details'
   } finally {
     loadingFees.value = false
   }
@@ -996,15 +1179,18 @@ function loadChildFees(child: any) {
 async function loadQuizzesForChild() {
   if (!selectedChildId.value) {
     quizResults.value = null
+    quizError.value = ''
     return
   }
   loadingQuizResults.value = true
+  quizError.value = ''
   try {
     const res = await apiClient.get(`/parents/children/${selectedChildId.value}/quizzes`)
     quizResults.value = res.data.data.quiz_results
   } catch (e: any) {
     console.error('Failed to load quizzes:', e)
     quizResults.value = null
+    quizError.value = e?.response?.data?.message || 'Failed to load quiz results'
   } finally {
     loadingQuizResults.value = false
   }
@@ -1201,6 +1387,106 @@ function handleLogout() {
 .progress-fill.green { background: linear-gradient(90deg, var(--color-success), #34d399); }
 .progress-fill.orange { background: linear-gradient(90deg, var(--color-warning), #f97316); }
 .warning-text { margin-top: 12px; color: var(--color-warning); font-size: var(--font-size-base); }
+.trend-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.trend-header h3 {
+  margin: 0 0 12px;
+  color: var(--text-primary);
+  font-size: 22px;
+}
+.trend-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.trend-pill {
+  border: 1px solid #dbe2ea;
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: #64748b;
+  font-size: 14px;
+}
+.trend-pill strong {
+  color: #0f172a;
+  font-weight: 700;
+}
+.trend-pill.momentum {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+.trend-pill.momentum.negative {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.trend-board {
+  margin-top: 14px;
+  border: 1px solid #dbe2ea;
+  border-radius: 16px;
+  padding: 16px;
+}
+.trend-board h4 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 20px;
+}
+.trend-bars {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(88px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+.trend-col {
+  text-align: center;
+}
+.trend-track {
+  height: 190px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #cfd6de 0%, #e2e8f0 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+.trend-track::before {
+  content: '';
+  position: absolute;
+  top: 22%;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed #94a3b8;
+}
+.trend-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 12px 12px 10px 10px;
+  transition: height 0.35s ease;
+}
+.trend-bar.quiz {
+  background: linear-gradient(180deg, #22c55e 0%, #f59e0b 58%, #ef4444 100%);
+}
+.trend-bar.attendance {
+  background: linear-gradient(180deg, #10b981 0%, #84cc16 40%, #f59e0b 72%, #ef4444 100%);
+}
+.trend-month {
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 15px;
+}
+.trend-value {
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 700;
+}
 .table-container { background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
 .status-badge { display: inline-block; padding: 4px 12px; border-radius: var(--radius-full); font-size: 12px; font-weight: 600; }
 .status-badge.present { background: var(--color-success-light); color: #166534; }
@@ -1232,46 +1518,11 @@ function handleLogout() {
 .quiz-meta { margin-top: 8px; font-size: 12px; color: #64748b; display: flex; gap: 12px; flex-wrap: wrap; }
 .quiz-explanation { margin-top: 6px; font-size: 12px; color: #64748b; }
 @media (max-width: 768px) {
-  .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 30; }
-  .sidebar-open .sidebar { transform: translateX(0); }
+  .sidebar { width: 100%; height: auto; position: relative; }
   .main-content { margin-left: 0; }
-  .dashboard-container { flex-direction: column; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .children-grid { grid-template-columns: 1fr; }
-  .content-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .filter-bar { flex-direction: column; align-items: flex-start; }
-  .table-container { overflow-x: auto; }
-  .data-table { min-width: 640px; }
-  .mobile-menu-btn { display: inline-flex; }
-}
-
-@media (max-width: 600px) {
-  .stats-grid,
-  .children-grid,
-  .quick-actions,
-  .attendance-summary,
-  .fee-summary { grid-template-columns: 1fr; }
-  .child-header { flex-direction: column; align-items: flex-start; }
-  .detail-header { flex-direction: column; align-items: flex-start; }
-  .modal-stats { grid-template-columns: 1fr; }
-  .quiz-options { grid-template-columns: 1fr; }
-}
-
-.mobile-menu-btn {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-card);
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  z-index: 20;
+  .trend-bars { grid-template-columns: repeat(3, minmax(84px, 1fr)); }
+  .trend-value { font-size: 24px; }
 }
 </style>

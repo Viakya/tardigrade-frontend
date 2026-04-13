@@ -36,6 +36,17 @@ export const userService = {
     return response.data
   },
 
+  async bulkUpload(file: File): Promise<ApiResponse<any>> {
+    const form = new FormData()
+    form.append('file', file)
+    const response = await apiClient.post<ApiResponse<any>>('/auth/register/bulk', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return response.data
+  },
+
   async update(id: number, payload: UpdateUserPayload): Promise<ApiResponse<{ user: User }>> {
     const response = await apiClient.put<ApiResponse<{ user: User }>>(
       `/auth/users/${id}`,
