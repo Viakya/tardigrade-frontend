@@ -1098,7 +1098,8 @@ async function payRemainingFee() {
     const amount = resolvePayAmount()
     validatePayAmount(amount)
     const res: any = await paymentsService.createRazorpayOrder(Number(selectedChildId.value), amount)
-    const order = res?.data?.data?.order ?? res?.data?.order ?? res?.order
+  const order = res?.data?.data?.order ?? res?.data?.order ?? res?.order
+  const razorpayKeyId = res?.data?.data?.key_id ?? res?.data?.key_id ?? import.meta.env.VITE_RAZORPAY_KEY_ID
 
     if (!order) {
       throw new Error('Failed to create payment order')
@@ -1109,8 +1110,12 @@ async function payRemainingFee() {
       return
     }
 
+    if (!razorpayKeyId) {
+      throw new Error('Razorpay key is not configured')
+    }
+
     const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      key: razorpayKeyId,
       amount: order.amount,
       currency: order.currency || 'INR',
       name: 'Tardigrade Coaching',
@@ -1144,6 +1149,10 @@ async function payRemainingFee() {
     }
 
     const rzp = new window.Razorpay(options)
+    rzp.on('payment.failed', (response: any) => {
+      const reason = response?.error?.description || response?.error?.reason || 'Payment failed'
+      alert(reason)
+    })
     rzp.open()
   } catch (err) {
     console.error('Failed to start payment', err)

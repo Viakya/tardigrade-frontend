@@ -9,7 +9,7 @@ export interface RazorpayOrder {
 }
 
 export const paymentsService = {
-  createRazorpayOrder(studentId: number, amount: number): Promise<ApiResponse<{ order: RazorpayOrder }>> {
+  createRazorpayOrder(studentId: number, amount: number): Promise<ApiResponse<{ order: RazorpayOrder; key_id?: string }>> {
     return apiClient.post('/payments/razorpay/order', {
       student_id: studentId,
       amount,
