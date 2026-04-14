@@ -178,6 +178,7 @@
 
             <div v-if="isGoogleEnabled" class="google-wrap anim-up" style="--d:0.55s">
               <div ref="googleButtonRef" class="google-button"></div>
+              <p v-if="googleError" class="google-error">{{ googleError }}</p>
             </div>
 
             <div class="role-section anim-up" style="--d:0.55s">
@@ -223,7 +224,10 @@ const passFocused = ref(false)
 const googleButtonRef = ref<HTMLDivElement | null>(null)
 const shellRef = ref<HTMLDivElement | null>(null)
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
-const isGoogleEnabled = computed(() => !!googleClientId)
+const isGoogleEnabled = computed(() => !!googleClientId && googleClientId.trim().length > 0)
+const googleError = ref('')
+let googleRenderAttempted = false
+const GOOGLE_SCRIPT_ID = 'google-identity-script'
 
 /* ── Mouse tracking ── */
 const mousePos = reactive({ x: 0, y: 0 })
@@ -305,14 +309,58 @@ const handleGoogleCredential = async (response: { credential: string }) => {
   } catch { /* error in store */ }
 }
 
+async function ensureGoogleScript() {
+  if (typeof window === 'undefined') return
+  const existing = document.getElementById(GOOGLE_SCRIPT_ID) as HTMLScriptElement | null
+  if (existing) {
+    if ((window as any).google?.accounts?.id) return
+    await new Promise<void>((resolve, reject) => {
+      existing.addEventListener('load', () => resolve(), { once: true })
+      existing.addEventListener('error', () => reject(new Error('Google script failed to load')), { once: true })
+    })
+    return
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script')
+    script.id = GOOGLE_SCRIPT_ID
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.defer = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Google script failed to load'))
+    document.head.appendChild(script)
+  })
+}
+
+async function renderGoogleButton() {
+  if (!isGoogleEnabled.value || !googleButtonRef.value || googleRenderAttempted) return
+  googleRenderAttempted = true
+  googleError.value = ''
+  try {
+    await ensureGoogleScript()
+    const google = (window as any).google
+    if (!google?.accounts?.id) {
+      throw new Error('Google Identity Services unavailable')
+    }
+    google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential })
+    const buttonWidth = Math.min(360, googleButtonRef.value.clientWidth || 360)
+    google.accounts.id.renderButton(googleButtonRef.value, { theme: 'outline', size: 'large', width: buttonWidth })
+    google.accounts.id.prompt()
+  } catch (err) {
+    console.error('Failed to render Google sign-in button:', err)
+    googleError.value = 'Google Sign-In is temporarily unavailable. Please try again.'
+    googleRenderAttempted = false
+  }
+}
+
 onMounted(() => {
   void wakeupBackend()
-  if (!isGoogleEnabled.value || !googleButtonRef.value) return
-  const google = (window as any).google
-  if (!google?.accounts?.id) return
-  google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential })
-  const buttonWidth = Math.min(360, googleButtonRef.value.clientWidth || 360)
-  google.accounts.id.renderButton(googleButtonRef.value, { theme: 'outline', size: 'large', width: buttonWidth })
+  void renderGoogleButton()
+})
+
+onUnmounted(() => {
+  googleRenderAttempted = false
 })
 </script>
 
@@ -912,6 +960,13 @@ onMounted(() => {
 
 .input-glow {
   position: absolute;
+
+.google-error {
+  margin: 0;
+  font-size: 12px;
+  color: #fca5a5;
+  text-align: center;
+}
   inset: 0;
   background: radial-gradient(circle at 50% 120%, rgba(99, 102, 241, 0.1), transparent 60%);
   opacity: 0;
