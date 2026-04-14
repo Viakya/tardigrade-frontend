@@ -711,20 +711,8 @@
           <button class="btn-primary" @click="openCreateTeacherModal">+ Register Teacher</button>
         </header>
 
-        <!-- Search Bar -->
-        <div class="content-section">
-          <div class="search-bar entity-search-bar">
-            <input 
-              v-model="teacherSearchQuery" 
-              type="text" 
-              placeholder="Search by ID, name, email, phone, or specialization..."
-              @keyup.enter="searchTeachers"
-              class="search-input"
-            />
-            <button class="btn-primary" @click="searchTeachers">🔍 Search</button>
-            <button class="btn-secondary" @click="clearTeacherSearch" v-if="teacherSearchQuery">✕ Clear</button>
-          </div>
-        </div>
+
+
 
         <!-- Loading / Error -->
         <div v-if="teacherLoading" class="entity-skeleton-wrap">
@@ -735,6 +723,15 @@
         <!-- Table -->
         <div v-else class="content-section no-pad">
           <div class="table-toolbar">
+            <div class="search-box">
+              <input 
+                v-model="teacherSearchQuery" 
+                type="text" 
+                placeholder="Search by name, email, phone..." 
+                class="search-input"
+                @input="searchTeachers"
+              />
+            </div>
             <select v-model="teacherStatusFilter" class="form-select compact-select">
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -6892,6 +6889,33 @@ watch(activeSection, (newSection) => {
   border-color: rgba(148, 163, 184, 0.22);
 }
 
+/* Table toolbar and search elements: dark background */
+.table-toolbar {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.search-input,
+.search-box .search-input {
+  background: rgba(30, 41, 59, 0.85) !important;
+  border-color: rgba(148, 163, 184, 0.28);
+  color: #e2e8f0;
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+.compact-select {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(148, 163, 184, 0.28);
+  color: #e2e8f0;
+}
+
+.btn-refresh {
+  background: rgba(30, 41, 59, 0.65);
+  color: #d7e2f2;
+}
+
 .btn-primary,
 .btn-save,
 .action-btn.primary {
@@ -6977,6 +7001,341 @@ watch(activeSection, (newSection) => {
 
 .data-table tbody tr:hover {
   background: rgba(59, 130, 246, 0.16);
+}
+
+/* CRITICAL: Override global main.css rule that sets td bg to white on hover */
+.data-table tbody tr:hover td,
+.data-table tr:hover td {
+  background: transparent !important;
+}
+
+/* Override all scoped hover rules still using light CSS variables */
+.btn-refresh:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.btn-cancel:hover {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.modal-close:hover {
+  background: rgba(148, 163, 184, 0.18);
+  color: #f1f5ff;
+}
+
+.activity-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-left-color: #60a5fa;
+}
+
+.btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.parent-card:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+/* ── Dark Mode: Override elements still using light CSS variables ── */
+.data-table .bold {
+  color: #f1f5ff;
+}
+
+.clickable-name {
+  color: #60a5fa;
+}
+
+.clickable-name:hover {
+  color: #93c5fd;
+}
+
+.data-table tbody tr:hover td,
+.data-table tbody tr:hover .bold {
+  color: #f1f5ff;
+}
+
+.data-table tbody tr:hover .clickable-name {
+  color: #93c5fd;
+}
+
+/* Profile modal elements */
+.profile-section {
+  background: rgba(15, 23, 42, 0.78);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.profile-section h3 {
+  color: #f1f5ff;
+}
+
+.info-item label {
+  color: #97a8c1;
+}
+
+.info-item span {
+  color: #e2e8f0;
+}
+
+.fee-card {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.fee-card label {
+  color: #97a8c1;
+}
+
+.fee-value {
+  color: #e2e8f0;
+}
+
+.fee-value.big {
+  color: #60a5fa;
+}
+
+.fee-value.discount {
+  color: #86efac;
+}
+
+.fee-card.highlight {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.status-card {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.status-card.paid {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.status-card.pending {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.status-label {
+  color: #97a8c1;
+}
+
+.status-value {
+  color: #f1f5ff;
+}
+
+/* Modal overrides */
+.modal-header h2 {
+  color: #f1f5ff;
+}
+
+.modal-footer {
+  background: rgba(15, 23, 42, 0.5);
+  border-top-color: rgba(148, 163, 184, 0.22);
+}
+
+/* Pagination */
+.pagination {
+  background: rgba(15, 23, 42, 0.5);
+  border-top-color: rgba(148, 163, 184, 0.2);
+}
+
+.pagination span {
+  color: #97a8c1;
+}
+
+.pagination button {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #d7e2f2;
+}
+
+.pagination button:hover:not(:disabled) {
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #93c5fd;
+}
+
+.pagination button:disabled {
+  color: #475569;
+}
+
+/* Entity stat pills */
+.entity-stat-pill {
+  color: #d7e2f2;
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.entity-stat-pill.success {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.entity-stat-pill.muted {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+/* Toggle elements */
+.toggle-label {
+  color: #d7e2f2;
+}
+
+.toggle-hint {
+  color: #97a8c1;
+}
+
+/* Nudge meta */
+.nudge-meta {
+  color: #97a8c1;
+}
+
+/* Amount & activity hover */
+.amount-value {
+  color: #86efac;
+}
+
+.activity-time {
+  color: #97a8c1;
+}
+
+/* Empty row */
+.empty-row {
+  color: #97a8c1;
+}
+
+/* AI columns */
+.ai-column {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+.ai-column h5 {
+  color: #97a8c1;
+}
+
+.ai-list {
+  color: #d5e2f4;
+}
+
+/* Distribution values */
+.dist-value {
+  color: #e2e8f0;
+}
+
+/* Risk pills in risk radar */
+.risk-summary-pills .risk-pill {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Notification items */
+.notification-title {
+  color: #e2e8f0;
+}
+
+.notification-empty {
+  color: #97a8c1;
+}
+
+.notification-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+/* Metric values */
+.metric-value {
+  color: #f1f5ff;
+}
+
+.metric-value.green {
+  color: #86efac;
+}
+
+.metric-value.blue {
+  color: #93c5fd;
+}
+
+.metric-value.orange {
+  color: #fcd34d;
+}
+
+.metric-value.purple {
+  color: #d8b4fe;
+}
+
+.metric-value.red {
+  color: #fda4af;
+}
+
+/* Teacher select */
+.teacher-select-item {
+  color: #d7e2f2;
+}
+
+.teacher-select-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Delete button */
+.btn-cancel {
+  color: #d7e2f2;
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.8);
+  color: #fff;
+}
+
+/* Progress bar track */
+.progress-track,
+.progress-bar-track {
+  background: rgba(148, 163, 184, 0.18);
+}
+
+/* Section header in student profile */
+.section-header h3 {
+  color: #f1f5ff;
+}
+
+/* Batch status in batch table - force dark text override */
+.batch-status.active {
+  background: rgba(34, 197, 94, 0.18);
+  color: #86efac;
+}
+
+.batch-status.inactive {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+}
+
+/* btn-icon in dark mode */
+.btn-icon.edit {
+  background: rgba(59, 130, 246, 0.18);
+}
+
+.btn-icon.edit:hover {
+  background: rgba(59, 130, 246, 0.32);
+}
+
+.btn-icon.delete {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.btn-icon.delete:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+/* Activity item hover */
+.activity-item:hover .activity-info strong {
+  color: #f1f5ff;
+}
+
+.activity-item:hover .activity-detail {
+  color: #cbd5e1;
 }
 
 .modal-overlay {
@@ -7328,4 +7687,386 @@ watch(activeSection, (newSection) => {
   color: #b91c1c;
   border-color: rgba(220, 38, 38, 0.38);
 }
+
+/* ── Light Theme: Table hover text visibility ── */
+.dashboard-container.theme-light .data-table .bold {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .clickable-name {
+  color: #1d4ed8;
+}
+
+.dashboard-container.theme-light .clickable-name:hover {
+  color: #1e40af;
+}
+
+.dashboard-container.theme-light .data-table tbody tr:hover td {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .data-table tbody tr:hover .clickable-name {
+  color: #1d4ed8;
+}
+
+.dashboard-container.theme-light .data-table tbody tr:hover .badge-green {
+  color: #047857;
+}
+
+.dashboard-container.theme-light .data-table tbody tr:hover .badge-grey {
+  color: #b45309;
+}
+
+/* ── Light Theme: Activity items & hover ── */
+.dashboard-container.theme-light .activity-item {
+  background: rgba(241, 245, 249, 0.8);
+  border-left-color: rgba(100, 116, 139, 0.3);
+}
+
+.dashboard-container.theme-light .activity-item:hover {
+  background: rgba(37, 99, 235, 0.08);
+  border-left-color: #1d4ed8;
+}
+
+.dashboard-container.theme-light .activity-info strong {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .activity-detail {
+  color: #475569;
+}
+
+.dashboard-container.theme-light .amount-value {
+  color: #047857;
+}
+
+.dashboard-container.theme-light .activity-time {
+  color: #64748b;
+}
+
+/* ── Light Theme: Pagination ── */
+.dashboard-container.theme-light .pagination {
+  background: rgba(255, 255, 255, 0.9);
+  border-top-color: rgba(100, 116, 139, 0.25);
+}
+
+.dashboard-container.theme-light .pagination span {
+  color: #475569;
+}
+
+.dashboard-container.theme-light .pagination button {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(100, 116, 139, 0.35);
+  color: #1e293b;
+}
+
+.dashboard-container.theme-light .pagination button:disabled {
+  color: #94a3b8;
+}
+
+/* ── Light Theme: Profile sections & modals ── */
+.dashboard-container.theme-light .profile-section {
+  background: rgba(241, 245, 249, 0.7);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+
+.dashboard-container.theme-light .profile-section h3 {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .info-item label {
+  color: #64748b;
+}
+
+.dashboard-container.theme-light .info-item span {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .fee-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+
+.dashboard-container.theme-light .fee-card label {
+  color: #64748b;
+}
+
+.dashboard-container.theme-light .fee-value {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .fee-value.big {
+  color: #1d4ed8;
+}
+
+.dashboard-container.theme-light .fee-value.discount {
+  color: #047857;
+}
+
+.dashboard-container.theme-light .status-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+
+.dashboard-container.theme-light .status-card.paid {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.dashboard-container.theme-light .status-card.pending {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.dashboard-container.theme-light .status-label {
+  color: #64748b;
+}
+
+.dashboard-container.theme-light .status-value {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .modal-header h2 {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .modal-footer {
+  background: rgba(241, 245, 249, 0.8);
+  border-top-color: rgba(100, 116, 139, 0.25);
+}
+
+/* ── Light Theme: AI insights ── */
+.dashboard-container.theme-light .ai-column {
+  background: rgba(241, 245, 249, 0.7);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+
+.dashboard-container.theme-light .ai-column h5 {
+  color: #64748b;
+}
+
+.dashboard-container.theme-light .ai-list {
+  color: #1e293b;
+}
+
+/* ── Light Theme: Nudge items ── */
+.dashboard-container.theme-light .nudge-item {
+  background: rgba(241, 245, 249, 0.7);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+
+.dashboard-container.theme-light .nudge-title {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .nudge-meta {
+  color: #475569;
+}
+
+/* ── Light Theme: Financial metrics ── */
+.dashboard-container.theme-light .metric-value {
+  font-weight: 700;
+}
+
+.dashboard-container.theme-light .metric-value.green {
+  color: #047857;
+}
+
+.dashboard-container.theme-light .metric-value.blue {
+  color: #1d4ed8;
+}
+
+.dashboard-container.theme-light .metric-value.orange {
+  color: #b45309;
+}
+
+.dashboard-container.theme-light .metric-value.purple {
+  color: #7c3aed;
+}
+
+.dashboard-container.theme-light .metric-value.red {
+  color: #b91c1c;
+}
+
+.dashboard-container.theme-light .metric-label {
+  color: #475569;
+}
+
+/* ── Light Theme: Stat cards text ── */
+.dashboard-container.theme-light .stat-content h3 {
+  color: #475569;
+}
+
+.dashboard-container.theme-light .stat-number {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .stat-detail {
+  color: #64748b;
+}
+
+/* ── Light Theme: Buttons / Icon buttons ── */
+.dashboard-container.theme-light .btn-icon.edit {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.dashboard-container.theme-light .btn-icon.edit:hover {
+  background: rgba(59, 130, 246, 0.28);
+}
+
+.dashboard-container.theme-light .btn-icon.delete {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.dashboard-container.theme-light .btn-icon.delete:hover {
+  background: rgba(239, 68, 68, 0.24);
+}
+
+/* ── Light Theme: Entity stat pills ── */
+.dashboard-container.theme-light .entity-stat-pill {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+.dashboard-container.theme-light .entity-stat-pill.success {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+.dashboard-container.theme-light .entity-stat-pill.muted {
+  color: #64748b;
+  background: rgba(100, 116, 139, 0.1);
+  border-color: rgba(100, 116, 139, 0.25);
+}
+
+/* ── Light Theme: Batch status in activity items ── */
+.dashboard-container.theme-light .batch-status.active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+}
+
+.dashboard-container.theme-light .batch-status.inactive {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+/* ── Light Theme: Notification panel ── */
+.dashboard-container.theme-light .notification-title {
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .notification-empty {
+  color: #64748b;
+}
+
+.dashboard-container.theme-light .notification-item:hover {
+  background: rgba(37, 99, 235, 0.06);
+}
+
+/* ── Light Theme: Toggle & form elements ── */
+.dashboard-container.theme-light .toggle-label {
+  color: #334155;
+}
+
+.dashboard-container.theme-light .toggle-hint {
+  color: #64748b;
+}
+
+.dashboard-container.theme-light .btn-cancel {
+  color: #334155;
+}
+
+/* ── Light Theme: Empty rows in tables ── */
+.dashboard-container.theme-light .empty-row {
+  color: #64748b;
+}
+
+/* ── Light Theme: Distribution & bar chart labels ── */
+.dashboard-container.theme-light .dist-value {
+  color: #1e293b;
+}
+
+/* ── Light Theme: Risk radar ── */
+.dashboard-container.theme-light .risk-wrap {
+  color: #1e293b;
+}
+
+.dashboard-container.theme-light .risk-summary-pills .risk-pill {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+/* ── Light Theme: Teacher select items ── */
+.dashboard-container.theme-light .teacher-select-item {
+  color: #1e293b;
+}
+
+.dashboard-container.theme-light .teacher-select-item:hover {
+  background: rgba(37, 99, 235, 0.06);
+}
+
+/* ── Light Theme: Sidebar toggle (mobile) ── */
+.dashboard-container.theme-light .sidebar-toggle {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(100, 116, 139, 0.35);
+  color: #1e293b;
+}
+
+/* ── Light Theme: Hover overrides ── */
+.dashboard-container.theme-light .data-table tbody tr:hover td,
+.dashboard-container.theme-light .data-table tr:hover td {
+  background: transparent !important;
+}
+
+.dashboard-container.theme-light .btn-refresh:hover {
+  background: rgba(100, 116, 139, 0.12);
+}
+
+.dashboard-container.theme-light .btn-cancel:hover {
+  background: rgba(100, 116, 139, 0.08);
+}
+
+.dashboard-container.theme-light .modal-close:hover {
+  background: rgba(100, 116, 139, 0.12);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .btn-secondary:hover {
+  background: rgba(100, 116, 139, 0.08);
+}
+
+.dashboard-container.theme-light .parent-card:hover {
+  background: rgba(37, 99, 235, 0.05);
+}
+
+/* ── Light Theme: Search & toolbar overrides ── */
+.dashboard-container.theme-light .table-toolbar {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.dashboard-container.theme-light .search-input,
+.dashboard-container.theme-light .search-box .search-input {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(100, 116, 139, 0.35);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .search-input::placeholder {
+  color: #94a3b8;
+}
+
+.dashboard-container.theme-light .compact-select {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(100, 116, 139, 0.35);
+  color: #0f172a;
+}
+
+.dashboard-container.theme-light .btn-refresh {
+  background: rgba(241, 245, 249, 0.9);
+  color: #475569;
+}
+
 </style>

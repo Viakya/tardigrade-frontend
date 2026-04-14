@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-shell" :class="{ 'sidebar-open': isSidebarOpen }">
+  <div class="admin-shell" :class="{ 'sidebar-open': isSidebarOpen, 'theme-light': isLightTheme }">
     <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -31,6 +31,13 @@
           <p class="breadcrumb">Admin / Tables / {{ selectedTable?.name || '...' }}</p>
         </div>
         <div class="header-actions">
+          <button
+            class="theme-toggle-btn"
+            :title="isLightTheme ? 'Switch to dark theme' : 'Switch to light theme'"
+            @click="toggleTheme"
+          >
+            {{ isLightTheme ? '🌙' : '☀️' }}
+          </button>
           <button class="btn-secondary" @click="refreshRows" :disabled="loading">
             Refresh
           </button>
@@ -132,6 +139,13 @@ const authStore = useAuthStore()
 const isSidebarOpen = ref(false)
 const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
 const closeSidebar = () => { isSidebarOpen.value = false }
+
+const THEME_KEY = 'admin_dashboard_theme'
+const isLightTheme = ref(true)
+function toggleTheme() {
+  isLightTheme.value = !isLightTheme.value
+  localStorage.setItem(THEME_KEY, isLightTheme.value ? 'light' : 'dark')
+}
 
 const tables = ref<TableSchema[]>([])
 const selectedTableName = ref('')
@@ -363,6 +377,10 @@ watch(page, () => {
 })
 
 onMounted(async () => {
+  const saved = localStorage.getItem(THEME_KEY)
+  if (saved === 'dark') isLightTheme.value = false
+  else isLightTheme.value = true
+
   await loadTables()
   await loadRows()
 })
@@ -641,5 +659,201 @@ onMounted(async () => {
   inset: 0;
   background: rgba(15, 23, 42, 0.5);
   z-index: 20;
+}
+
+.theme-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-muted);
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--border-light);
+}
+
+/* ── Premium Dark SaaS Theme ── */
+.admin-shell:not(.theme-light) {
+  background:
+    radial-gradient(900px 520px at -10% -15%, rgba(59, 130, 246, 0.18), transparent 55%),
+    radial-gradient(820px 460px at 110% 0%, rgba(20, 184, 166, 0.16), transparent 52%),
+    linear-gradient(180deg, #0b1220 0%, #0a1020 100%);
+  color: #d7e2f2;
+}
+
+.admin-shell:not(.theme-light) .sidebar {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.78) 100%),
+    radial-gradient(220px 140px at 10% 0%, rgba(56, 189, 248, 0.2), transparent 75%);
+  border-right-color: rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(18px);
+}
+
+.admin-shell:not(.theme-light) .sidebar-header h2 {
+  color: #f1f5ff;
+}
+
+.admin-shell:not(.theme-light) .sidebar-header p {
+  color: #e2e8f0;
+}
+
+.admin-shell:not(.theme-light) .sidebar-header .muted {
+  color: #94a3b8;
+}
+
+.admin-shell:not(.theme-light) .nav-item {
+  color: #b8c5d9;
+  border-color: transparent;
+}
+
+.admin-shell:not(.theme-light) .nav-item:not(.active) {
+  color: #b8c5d9;
+}
+
+.admin-shell:not(.theme-light) .nav-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+  color: #eef5ff;
+}
+
+.admin-shell:not(.theme-light) .nav-item.active {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0.05));
+  border-color: #60a5fa;
+  color: #f7fbff;
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.28);
+}
+
+.admin-shell:not(.theme-light) .btn-logout {
+  background: rgba(239, 68, 68, 0.7);
+}
+
+.admin-shell:not(.theme-light) .content-header h1 {
+  color: #f1f5ff;
+}
+
+.admin-shell:not(.theme-light) .breadcrumb {
+  color: #97a8c1;
+}
+
+.admin-shell:not(.theme-light) .theme-toggle-btn {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #d7e2f2;
+}
+
+.admin-shell:not(.theme-light) .theme-toggle-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.admin-shell:not(.theme-light) .btn-primary {
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.admin-shell:not(.theme-light) .btn-secondary {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  color: #d7e2f2;
+}
+
+.admin-shell:not(.theme-light) .btn-secondary:hover {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.admin-shell:not(.theme-light) .btn-link {
+  color: #60a5fa;
+}
+
+.admin-shell:not(.theme-light) .btn-link.danger {
+  color: #fda4af;
+}
+
+.admin-shell:not(.theme-light) .error-alert {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(248, 113, 113, 0.36);
+  color: #fda4af;
+}
+
+.admin-shell:not(.theme-light) .loading-state,
+.admin-shell:not(.theme-light) .empty-state {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(148, 163, 184, 0.2);
+  color: #97a8c1;
+}
+
+.admin-shell:not(.theme-light) .table-wrapper {
+  background: rgba(15, 23, 42, 0.62);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.admin-shell:not(.theme-light) .data-table th {
+  background: rgba(30, 41, 59, 0.9);
+  color: #9eb2cb;
+  border-bottom-color: rgba(148, 163, 184, 0.24);
+}
+
+.admin-shell:not(.theme-light) .data-table td {
+  color: #d5e2f4;
+  border-bottom-color: rgba(148, 163, 184, 0.14);
+}
+
+.admin-shell:not(.theme-light) .data-table tbody tr:nth-child(even) {
+  background: rgba(15, 23, 42, 0.24);
+}
+
+.admin-shell:not(.theme-light) .data-table tbody tr:hover td {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.admin-shell:not(.theme-light) .pagination {
+  color: #97a8c1;
+}
+
+.admin-shell:not(.theme-light) .modal-backdrop {
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(7px);
+}
+
+.admin-shell:not(.theme-light) .modal-card {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.88));
+  border-color: rgba(148, 163, 184, 0.22);
+  box-shadow: 0 20px 50px rgba(2, 6, 23, 0.5);
+}
+
+.admin-shell:not(.theme-light) .modal-card header h3 {
+  color: #f1f5ff;
+}
+
+.admin-shell:not(.theme-light) .field label {
+  color: #97a8c1;
+}
+
+.admin-shell:not(.theme-light) .field input {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #e2e8f0;
+}
+
+.admin-shell:not(.theme-light) .field input:focus {
+  border-color: rgba(56, 189, 248, 0.82);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
+  outline: none;
+}
+
+.admin-shell:not(.theme-light) .pill {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+.admin-shell:not(.theme-light) .mobile-menu-btn {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #d7e2f2;
 }
 </style>
