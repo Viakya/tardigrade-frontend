@@ -10,11 +10,11 @@
 
     <!-- Stars -->
     <div class="stars">
-      <span v-for="i in 60" :key="i" class="star" :style="{
+      <span v-for="i in 28" :key="i" class="star" :style="{
         '--x': (Math.random() * 100) + '%',
         '--y': (Math.random() * 100) + '%',
         '--size': (1 + Math.random() * 2.5) + 'px',
-        '--dur': (2 + Math.random() * 4) + 's',
+        '--dur': (5 + Math.random() * 5) + 's',
         '--delay': (Math.random() * 4) + 's',
         '--brightness': (0.3 + Math.random() * 0.7)
       }"></span>
@@ -99,10 +99,10 @@
 
           <!-- Floating orbiting particles -->
           <div class="hero-particles">
-            <span v-for="i in 8" :key="i" class="h-particle" :style="{
-              '--angle': (i * 45) + 'deg',
-              '--dist': (80 + Math.random() * 60) + 'px',
-              '--speed': (12 + Math.random() * 10) + 's',
+            <span v-for="i in 5" :key="i" class="h-particle" :style="{
+              '--angle': (i * 72) + 'deg',
+              '--dist': (70 + Math.random() * 40) + 'px',
+              '--speed': (18 + Math.random() * 8) + 's',
               '--size': (3 + Math.random() * 4) + 'px',
               '--hue': (220 + Math.random() * 80)
             }"></span>
@@ -239,10 +239,11 @@ function onMouse(e: MouseEvent) {
   const rect = shellRef.value.getBoundingClientRect()
   mousePos.x = e.clientX - rect.left
   mousePos.y = e.clientY - rect.top
-  // STRONGER tilt: 5 degrees max
+  // Softer tilt for better stability and less motion
   const cx = rect.width / 2, cy = rect.height / 2
-  tilt.x = ((e.clientY - rect.top - cy) / cy) * -5
-  tilt.y = ((e.clientX - rect.left - cx) / cx) * 5
+  const maxTilt = 2.2
+  tilt.x = ((e.clientY - rect.top - cy) / cy) * -maxTilt
+  tilt.y = ((e.clientX - rect.left - cx) / cx) * maxTilt
 }
 
 function resetMouse() {
@@ -328,7 +329,7 @@ onMounted(() => {
   font-family: 'Inter', sans-serif;
   overflow: hidden;
   padding: 20px;
-  cursor: none;
+  cursor: auto;
 }
 
 /* ━━ Torch / flashlight cursor ━━━━━━━━━━━━━━━━━━━━ */
@@ -349,8 +350,9 @@ onMounted(() => {
   top: var(--ty);
   pointer-events: none;
   z-index: 1;
-  transition: left 0.08s ease-out, top 0.08s ease-out;
+  transition: left 0.16s ease-out, top 0.16s ease-out;
   mix-blend-mode: screen;
+  opacity: 0.75;
 }
 
 /* ━━ Aurora ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -371,7 +373,7 @@ onMounted(() => {
   top: -25%;
   left: -20%;
   background: radial-gradient(ellipse, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
-  animation: aurora-1 14s ease-in-out infinite;
+  animation: aurora-1 28s ease-in-out infinite;
 }
 
 .aurora__band--2 {
@@ -380,7 +382,7 @@ onMounted(() => {
   bottom: -15%;
   right: -15%;
   background: radial-gradient(ellipse, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
-  animation: aurora-2 17s ease-in-out infinite;
+  animation: aurora-2 32s ease-in-out infinite;
 }
 
 .aurora__band--3 {
@@ -389,23 +391,23 @@ onMounted(() => {
   top: 25%;
   left: 15%;
   background: radial-gradient(ellipse, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
-  animation: aurora-3 20s ease-in-out infinite;
+  animation: aurora-3 36s ease-in-out infinite;
 }
 
 @keyframes aurora-1 {
   0%, 100% { transform: translateX(0) translateY(0) scale(1); }
-  33% { transform: translateX(5%) translateY(-4%) scale(1.06); }
-  66% { transform: translateX(-4%) translateY(3%) scale(0.97); }
+  33% { transform: translateX(2%) translateY(-2%) scale(1.03); }
+  66% { transform: translateX(-2%) translateY(2%) scale(0.99); }
 }
 
 @keyframes aurora-2 {
   0%, 100% { transform: translateX(0) translateY(0) scale(1); }
-  50% { transform: translateX(-5%) translateY(-6%) scale(1.1); }
+  50% { transform: translateX(-2%) translateY(-2%) scale(1.04); }
 }
 
 @keyframes aurora-3 {
   0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
-  50% { transform: translateX(7%) translateY(4%) rotate(6deg); }
+  50% { transform: translateX(3%) translateY(2%) rotate(2deg); }
 }
 
 .noise {
@@ -431,8 +433,8 @@ onMounted(() => {
 }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: calc(var(--brightness) * 0.2); transform: scale(0.7); }
-  50% { opacity: var(--brightness); transform: scale(1.3); }
+  0%, 100% { opacity: calc(var(--brightness) * 0.35); transform: scale(0.9); }
+  50% { opacity: var(--brightness); transform: scale(1.08); }
 }
 
 /* ━━ Login shell — STRONGER tilt ━━━━━━━━━━━━━━━━━━ */
@@ -443,7 +445,7 @@ onMounted(() => {
   border-radius: 24px;
   padding: 1px;
   transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
-  transition: transform 0.1s ease-out;
+  transition: transform 0.2s ease-out;
   animation: shell-enter 1s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: auto;
 }
@@ -556,12 +558,12 @@ onMounted(() => {
   box-shadow:
     0 8px 30px rgba(99, 102, 241, 0.5),
     0 0 60px rgba(99, 102, 241, 0.15);
-  animation: logo-float 4s ease-in-out infinite;
+  animation: logo-float 7s ease-in-out infinite;
 }
 
 @keyframes logo-float {
   0%, 100% { transform: translateY(0); box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5), 0 0 60px rgba(99, 102, 241, 0.15); }
-  50% { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(99, 102, 241, 0.6), 0 0 80px rgba(99, 102, 241, 0.2); }
+  50% { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(99, 102, 241, 0.55), 0 0 72px rgba(99, 102, 241, 0.18); }
 }
 
 .logo-emoji { font-size: 38px; line-height: 1; }
@@ -619,12 +621,12 @@ onMounted(() => {
   height: 130px;
   transform-style: preserve-3d;
   transform: translate(-50%, -50%) rotateY(-25deg) rotateX(8deg);
-  animation: book-hover 5s ease-in-out infinite;
+  animation: book-hover 8s ease-in-out infinite;
 }
 
 @keyframes book-hover {
   0%, 100% { transform: translate(-50%, -50%) rotateY(-25deg) rotateX(8deg) translateY(0); }
-  50% { transform: translate(-50%, -50%) rotateY(-15deg) rotateX(5deg) translateY(-8px); }
+  50% { transform: translate(-50%, -50%) rotateY(-20deg) rotateX(6deg) translateY(-4px); }
 }
 
 .book-spine {
@@ -732,17 +734,17 @@ onMounted(() => {
   animation: float-orbit var(--speed, 8s) ease-in-out infinite;
 }
 
-.float-el--1 { top: 5%; left: 15%; --speed: 7s; animation-delay: 0s; }
-.float-el--2 { top: 0%; right: 20%; --speed: 9s; animation-delay: 1s; }
-.float-el--3 { bottom: 10%; right: 10%; --speed: 6s; animation-delay: 2s; }
-.float-el--4 { bottom: 5%; left: 20%; --speed: 10s; animation-delay: 0.5s; }
-.float-el--5 { top: 40%; right: 5%; --speed: 8s; animation-delay: 3s; }
+.float-el--1 { top: 5%; left: 15%; --speed: 12s; animation-delay: 0s; }
+.float-el--2 { top: 0%; right: 20%; --speed: 13s; animation-delay: 1s; }
+.float-el--3 { bottom: 10%; right: 10%; --speed: 11s; animation-delay: 2s; }
+.float-el--4 { bottom: 5%; left: 20%; --speed: 15s; animation-delay: 0.5s; }
+.float-el--5 { top: 40%; right: 5%; --speed: 12s; animation-delay: 3s; }
 
 @keyframes float-orbit {
   0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-  25% { transform: translateY(-10px) rotate(5deg) scale(1.1); }
-  50% { transform: translateY(-5px) rotate(-5deg) scale(0.95); }
-  75% { transform: translateY(-12px) rotate(3deg) scale(1.05); }
+  25% { transform: translateY(-5px) rotate(2deg) scale(1.04); }
+  50% { transform: translateY(-3px) rotate(-2deg) scale(0.98); }
+  75% { transform: translateY(-6px) rotate(1deg) scale(1.02); }
 }
 
 /* Light rays from book */
@@ -971,15 +973,15 @@ onMounted(() => {
 }
 
 .btn-login:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 36px rgba(99, 102, 241, 0.55);
+  transform: translateY(-1px) scale(1.005);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.45);
 }
 
 .btn-login:active:not(:disabled) { transform: translateY(0) scale(0.99); }
 .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-arrow { transition: transform 0.3s; font-size: 16px; }
-.btn-login:hover .btn-arrow { transform: translateX(5px); }
+.btn-login:hover .btn-arrow { transform: translateX(3px); }
 
 .btn-shimmer {
   position: absolute;
@@ -1070,7 +1072,7 @@ onMounted(() => {
 
 .role-chip:hover {
   border-color: rgba(99, 102, 241, 0.2);
-  transform: translateY(-3px);
+  transform: translateY(-1px);
   color: #c7d2fe;
 }
 
@@ -1081,7 +1083,7 @@ onMounted(() => {
   background: rgba(99, 102, 241, 0.1);
   color: #a5b4fc;
   box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2), inset 0 0 0 1px rgba(99, 102, 241, 0.1);
-  transform: translateY(-3px);
+  transform: translateY(-1px);
 }
 
 .role-chip.active .role-chip__glow { opacity: 1; }
