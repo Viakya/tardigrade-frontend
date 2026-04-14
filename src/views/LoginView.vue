@@ -1,5 +1,5 @@
 <template>
-  <div class="login-page" @mousemove="onMouse" @mouseleave="resetMouse">
+  <div class="login-page reduced-motion">
     <!-- Aurora background -->
     <div class="aurora">
       <div class="aurora__band aurora__band--1"></div>
@@ -20,19 +20,10 @@
       }"></span>
     </div>
 
-    <!-- Torch spotlight that follows cursor -->
-    <div class="torch" :style="{ '--tx': torchPos.x + 'px', '--ty': torchPos.y + 'px' }"></div>
-
     <!-- Main card -->
     <div
       class="login-shell"
       ref="shellRef"
-      :style="{
-        '--mx': mousePos.x + 'px',
-        '--my': mousePos.y + 'px',
-        '--rx': tilt.x + 'deg',
-        '--ry': tilt.y + 'deg',
-      }"
     >
       <div class="shell__glow-border"></div>
       <div class="shell__inner">
@@ -228,32 +219,6 @@ const isGoogleEnabled = computed(() => !!googleClientId && googleClientId.trim()
 const googleError = ref('')
 let googleRenderAttempted = false
 const GOOGLE_SCRIPT_ID = 'google-identity-script'
-
-/* ── Mouse tracking ── */
-const mousePos = reactive({ x: 0, y: 0 })
-const torchPos = reactive({ x: 0, y: 0 })
-const tilt = reactive({ x: 0, y: 0 })
-
-function onMouse(e: MouseEvent) {
-  // Torch follows cursor on entire page
-  torchPos.x = e.clientX
-  torchPos.y = e.clientY
-
-  if (!shellRef.value) return
-  const rect = shellRef.value.getBoundingClientRect()
-  mousePos.x = e.clientX - rect.left
-  mousePos.y = e.clientY - rect.top
-  // Softer tilt for better stability and less motion
-  const cx = rect.width / 2, cy = rect.height / 2
-  const maxTilt = 2.2
-  tilt.x = ((e.clientY - rect.top - cy) / cy) * -maxTilt
-  tilt.y = ((e.clientX - rect.left - cx) / cx) * maxTilt
-}
-
-function resetMouse() {
-  tilt.x = 0
-  tilt.y = 0
-}
 
 /* ── Data ── */
 const roles = [
@@ -492,6 +457,10 @@ onUnmounted(() => {
   width: min(1100px, 100%);
   border-radius: 24px;
   padding: 1px;
+  --mx: 50%;
+  --my: 50%;
+  --rx: 0deg;
+  --ry: 0deg;
   transform: perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));
   transition: transform 0.2s ease-out;
   animation: shell-enter 1s cubic-bezier(0.16, 1, 0.3, 1);
@@ -966,6 +935,32 @@ onUnmounted(() => {
   font-size: 12px;
   color: #fca5a5;
   text-align: center;
+}
+
+.login-page.reduced-motion .aurora__band,
+.login-page.reduced-motion .star,
+.login-page.reduced-motion .shell__glow-border::before,
+.login-page.reduced-motion .logo-core,
+.login-page.reduced-motion .logo-pulse,
+.login-page.reduced-motion .book-3d,
+.login-page.reduced-motion .book-page,
+.login-page.reduced-motion .float-el,
+.login-page.reduced-motion .ray,
+.login-page.reduced-motion .hero-particles,
+.login-page.reduced-motion .h-particle,
+.login-page.reduced-motion .btn-shimmer,
+.login-page.reduced-motion .spinner,
+.login-page.reduced-motion .anim-up {
+  animation: none !important;
+  transform: none !important;
+}
+
+.login-page.reduced-motion * {
+  transition: none !important;
+}
+
+.login-page.reduced-motion .shell__glow-border {
+  background: radial-gradient(350px circle at 50% 50%, rgba(99, 102, 241, 0.25), transparent 60%);
 }
   inset: 0;
   background: radial-gradient(circle at 50% 120%, rgba(99, 102, 241, 0.1), transparent 60%);
