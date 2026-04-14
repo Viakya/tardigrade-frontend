@@ -6,6 +6,10 @@
         <div class="avatar">{{ initials }}</div>
         <h2>{{ authStore.user?.full_name }}</h2>
         <span class="role-badge">Student</span>
+        <button class="theme-toggle-btn" type="button" @click="toggleTheme">
+          <span class="theme-toggle-icon">{{ isDarkTheme ? '☀️' : '🌙' }}</span>
+          <span class="theme-toggle-text">{{ isDarkTheme ? 'Light' : 'Dark' }}</span>
+        </button>
       </div>
       <nav class="sidebar-nav">
         <a :class="['nav-item', { active: activeSection === 'overview' }]" @click="activeSection = 'overview'">
@@ -225,11 +229,6 @@
             <h1>👤 My Profile</h1>
             <p class="breadcrumb">Home / Profile</p>
           </header>
-          <div class="profile-controls">
-            <button class="theme-toggle" @click="toggleTheme">
-              {{ isDarkTheme ? '☀️ Switch to Light' : '🌙 Switch to Dark' }}
-            </button>
-          </div>
           <div class="card" v-if="studentProfile">
             <div class="profile-avatar-row">
               <div class="avatar-lg">{{ initials }}</div>
@@ -1868,7 +1867,41 @@ onUnmounted(() => stopExamTimer())
   display: flex; align-items: center; justify-content: center;
   font-size: 24px; font-weight: 800; color: #1e1b4b; margin: 0 auto 12px;
 }
+
+.sidebar-header h2 {
+  margin: 0 0 6px;
+  color: var(--sidebar-text-active);
+  font-size: 16px;
+  font-weight: 700;
+}
 .role-badge { display: inline-block; padding: 3px 12px; background: rgba(52,211,153,0.15); color: var(--accent-student); border-radius: var(--radius-full); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+.theme-toggle-btn {
+  margin-top: var(--space-sm);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.theme-toggle-btn:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-active);
+}
+
+.theme-toggle-icon {
+  font-size: 16px;
+}
 
 .toast-stack {
   position: fixed;

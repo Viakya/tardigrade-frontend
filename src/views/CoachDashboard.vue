@@ -1454,6 +1454,14 @@ function showToast(message: string, type: string = 'success') {
 }
 .nav-icon { font-size: 1.1rem; }
 
+.sidebar-header h2 {
+  color: var(--sidebar-text-active);
+}
+
+.sidebar-header p {
+  color: var(--sidebar-text);
+}
+
 .theme-toggle-btn {
   margin-top: var(--space-sm);
   width: 100%;
@@ -1594,6 +1602,8 @@ function showToast(message: string, type: string = 'success') {
 }
 .resource-head { display: flex; justify-content: space-between; font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); }
 .resource-title { margin: 0.6rem 0 0.4rem; font-size: 1rem; }
+.resource-title { color: var(--text-primary); }
+.portal-row strong { color: var(--text-primary); }
 .resource-desc { color: var(--text-secondary); font-size: 0.85rem; }
 .resource-embed { width: 100%; aspect-ratio: 16 / 9; margin: 0.6rem 0; border-radius: 10px; overflow: hidden; }
 .resource-embed iframe { width: 100%; height: 100%; }
