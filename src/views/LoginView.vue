@@ -846,7 +846,7 @@ onMounted(() => {
   padding: 44px 36px;
 }
 
-.form-content { width: 100%; max-width: 380px; }
+.form-content { width: 100%; max-width: 400px; }
 
 .form-header { margin-bottom: 24px; }
 
@@ -882,13 +882,13 @@ onMounted(() => {
   80% { transform: translateX(5px); }
 }
 
-.login-form { display: flex; flex-direction: column; gap: 16px; }
+.login-form { display: flex; flex-direction: column; gap: 18px; }
 
 .field label {
   display: block;
   color: #94a3b8;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   margin-bottom: 8px;
 }
 
@@ -896,7 +896,8 @@ onMounted(() => {
   position: relative;
   display: flex;
   align-items: center;
-  border-radius: 12px;
+  min-height: 52px;
+  border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.12);
   background: rgba(15, 23, 42, 0.5);
   transition: all 0.3s;
@@ -920,20 +921,21 @@ onMounted(() => {
 
 .input-wrap.focused .input-glow { opacity: 1; }
 
-.input-icon { position: absolute; left: 14px; font-size: 14px; z-index: 1; pointer-events: none; }
+.input-icon { position: absolute; left: 16px; font-size: 16px; z-index: 1; pointer-events: none; }
 
 .input-wrap input {
   width: 100%;
-  padding: 13px 14px 13px 42px;
+  padding: 15px 16px 15px 48px;
   border: none;
   background: transparent;
   color: #e2e8f0;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
   font-family: inherit;
   outline: none;
 }
 
-.input-wrap input::placeholder { color: #475569; }
+.input-wrap input::placeholder { color: #64748b; font-size: 14px; font-weight: 500; }
 
 .eye-btn {
   position: absolute;
@@ -941,9 +943,9 @@ onMounted(() => {
   background: rgba(30, 41, 59, 0.5);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.2s;
   z-index: 1;
 }
