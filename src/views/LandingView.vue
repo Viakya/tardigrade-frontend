@@ -15,7 +15,7 @@ const showCursor = ref(true)
 let typeTimer: number | undefined
 
 function typeLoop() {
-  const text = headlines[activeHeadline.value]
+  const text = headlines[activeHeadline.value] ?? ''
   let i = 0
   const typeSpeed = 55
   const deleteSpeed = 30
