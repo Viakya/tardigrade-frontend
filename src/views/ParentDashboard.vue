@@ -1694,8 +1694,6 @@ function handleLogout() {
   }
 }
 @media (max-width: 768px) {
-  .sidebar { width: 100%; height: auto; position: relative; }
-  .main-content { margin-left: 0; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .children-grid { grid-template-columns: 1fr; }
   .trend-bars { grid-template-columns: repeat(3, minmax(84px, 1fr)); }
