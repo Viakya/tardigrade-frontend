@@ -1168,6 +1168,13 @@ onUnmounted(() => {
 }
 
 /* ━━ Responsive ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 1100px) {
+  .login-shell { max-width: 920px; }
+  .hero-panel { padding: 32px 28px; }
+  .form-panel { padding: 32px 28px; }
+  .book-scene { width: 220px; height: 160px; }
+}
+
 @media (max-width: 900px) {
   .shell__inner { grid-template-columns: 1fr; }
   .hero-panel { padding: 28px 24px; border-right: none; border-bottom: 1px solid rgba(148, 163, 184, 0.06); }
@@ -1178,10 +1185,22 @@ onUnmounted(() => {
   .book-scene { width: 180px; height: 130px; }
 }
 
+@media (max-width: 700px) {
+  .login-page { padding: 16px; }
+  .login-shell { max-width: 100%; }
+  .hero-panel { text-align: center; }
+  .trust-row { justify-content: center; }
+  .form-header h2 { font-size: 22px; }
+  .role-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 480px) {
   .login-page { padding: 8px; cursor: auto; }
   .torch { display: none; }
   .hero-panel, .form-panel { padding: 20px 18px; }
   .trust-row { flex-wrap: wrap; gap: 6px; }
+  .role-grid { grid-template-columns: 1fr; }
+  .btn-login { font-size: 14px; }
+  .input-wrap input { font-size: 15px; }
 }
 </style>
