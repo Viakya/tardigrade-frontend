@@ -2358,6 +2358,17 @@ onUnmounted(() => stopExamTimer())
     display: block;
   }
 
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
   .sidebar {
     width: 260px;
     height: 100vh;
