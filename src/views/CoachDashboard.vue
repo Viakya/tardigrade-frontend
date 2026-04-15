@@ -1705,8 +1705,8 @@ function showToast(message: string, type: string = 'success') {
   .dashboard-container { flex-direction: column; }
   .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 30; }
   .sidebar-open .sidebar { transform: translateX(0); }
-  .sidebar-nav { display: flex; flex-wrap: wrap; gap: 8px; }
-  .nav-item { flex: 1 1 160px; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+  .nav-item { width: 100%; }
   .main-content { margin-left: 0; padding: 16px; }
   .content-header { flex-direction: column; align-items: flex-start; gap: 8px; }
   .portal-layout { grid-template-columns: 1fr; }
