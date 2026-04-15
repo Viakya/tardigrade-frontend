@@ -630,8 +630,9 @@ onMounted(async () => {
   .admin-shell { flex-direction: column; }
   .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 30; }
   .sidebar-open .sidebar { transform: translateX(0); }
-  .sidebar-nav { display: flex; flex-wrap: wrap; gap: 8px; }
-  .nav-item { flex: 1 1 160px; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+  .nav-item { width: 100%; }
+  .sidebar-backdrop { display: block; }
   .content { margin-left: 0; padding: var(--space-md); }
   .content-header { flex-direction: column; align-items: flex-start; gap: 8px; }
   .header-actions { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
