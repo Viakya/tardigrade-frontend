@@ -627,7 +627,7 @@ onMounted(async () => {
 }
 
 @media (max-width: 900px) {
-  .admin-shell { flex-direction: column; }
+  .admin-shell { display: block; grid-template-columns: 1fr; }
   .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 30; }
   .sidebar-open .sidebar { transform: translateX(0); }
   .sidebar-nav { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
