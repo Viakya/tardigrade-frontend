@@ -6741,7 +6741,20 @@ watch(activeSection, (newSection) => {
   border: 1px solid rgba(96, 165, 250, 0.42);
 }
 
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
 .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  text-align: left;
   border-left: 3px solid transparent;
   border-radius: 10px;
   margin: 3px 8px;
