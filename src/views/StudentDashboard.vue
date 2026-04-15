@@ -1,7 +1,8 @@
 <template>
-  <div class="dashboard-container" :class="{ 'exam-active': activeSection === 'exam' }">
+  <div class="dashboard-container" :class="{ 'exam-active': activeSection === 'exam', 'sidebar-open': isSidebarOpen }">
+    <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
     <!-- SIDEBAR -->
-    <aside class="sidebar" v-if="activeSection !== 'exam'">
+    <aside :class="['sidebar', { open: isSidebarOpen }]" v-if="activeSection !== 'exam'">
       <div class="sidebar-header">
         <div class="avatar">{{ initials }}</div>
         <h2>{{ authStore.user?.full_name }}</h2>
@@ -11,7 +12,7 @@
           <span class="theme-toggle-text">{{ isDarkTheme ? 'Light' : 'Dark' }}</span>
         </button>
       </div>
-      <nav class="sidebar-nav">
+  <nav class="sidebar-nav" @click="closeSidebar">
         <a :class="['nav-item', { active: activeSection === 'overview' }]" @click="activeSection = 'overview'">
           <span>📊</span> Overview
         </a>
@@ -39,6 +40,7 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content" :class="{ 'exam-content': activeSection === 'exam' }">
+      <button v-if="activeSection !== 'exam'" class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
       <div class="toast-stack" v-if="toasts.length">
         <div v-for="toast in toasts" :key="toast.id" :class="['toast-item', `toast-${toast.type}`]">
           <span>{{ toast.message }}</span>
@@ -1017,6 +1019,7 @@ import apiClient from '@/services/api'
 const router = useRouter()
 const authStore = useAuthStore()
 const isDarkTheme = ref(false)
+const isSidebarOpen = ref(false)
 
 const activeSection = ref('overview')
 const pageLoading = ref(false)
@@ -1072,6 +1075,14 @@ const markedForReview = ref<Set<string>>(new Set())
 const visitedQuestionKeys = ref<Set<string>>(new Set())
 const examSecondsLeft = ref(0)
 let examTimer: ReturnType<typeof setInterval> | null = null
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
 
 function questionKeyFrom(q: any, index: number) {
   return q?.id != null ? String(q.id) : `idx_${index}`
@@ -1903,6 +1914,27 @@ onUnmounted(() => stopExamTimer())
   font-size: 16px;
 }
 
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 20;
+}
+
 .toast-stack {
   position: fixed;
   top: 16px;
@@ -2322,6 +2354,64 @@ onUnmounted(() => stopExamTimer())
 }
 
 @media (max-width: 900px) {
+  .dashboard-container {
+    display: block;
+  }
+
+  .sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 30;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-self: flex-start;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stats-grid,
+  .overview-grid,
+  .fee-mini-grid,
+  .fee-overview-grid,
+  .attend-summary-grid,
+  .test-summary-grid,
+  .portal-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .trend-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
   .exam-screen-header {
     grid-template-columns: 1fr;
   }
