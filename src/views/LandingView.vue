@@ -473,6 +473,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 28px;
   z-index: 1;
+  flex-wrap: wrap;
 }
 
 .nav__link {
@@ -1177,6 +1178,28 @@ onUnmounted(() => {
 }
 
 /* ── Responsive ───────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero {
+    gap: 40px;
+    padding: 80px 28px 60px;
+  }
+
+  .hero__body {
+    max-width: 100%;
+  }
+
+  .hero__visual {
+    min-height: 360px;
+  }
+
+  .stats-section,
+  .features-section,
+  .testimonials-section {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+}
+
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1189,6 +1212,10 @@ onUnmounted(() => {
   }
 
   .nav__link { display: none; }
+
+  .nav {
+    gap: 16px;
+  }
 
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
@@ -1208,6 +1235,22 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
+  .navbar__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav__cta {
+    width: 100%;
+    justify-content: center;
+  }
+
   .hero__title {
     font-size: 2rem;
   }
@@ -1216,8 +1259,23 @@ onUnmounted(() => {
     flex-direction: column;
   }
 
+  .hero__actions .btn {
+    width: 100%;
+  }
+
   .hero__card-stack {
-    height: 300px;
+    height: auto;
+    min-height: 260px;
+  }
+
+  .float-card {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin-bottom: 16px;
+    animation: none;
   }
 
   .float-card {
@@ -1238,6 +1296,22 @@ onUnmounted(() => {
 
   .stat-block__number {
     font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-row {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+
+  .feature-grid,
+  .testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-section {
+    padding: 42px 20px;
   }
 }
 </style>
