@@ -219,6 +219,7 @@ const isGoogleEnabled = computed(() => !!googleClientId && googleClientId.trim()
 const googleError = ref('')
 let googleRenderAttempted = false
 const GOOGLE_SCRIPT_ID = 'google-identity-script'
+const isMobileLike = () => window.matchMedia('(max-width: 900px)').matches
 
 /* ── Data ── */
 const roles = [
@@ -266,8 +267,11 @@ const handleSubmit = async () => {
   } catch { /* error in store */ }
 }
 
-const handleGoogleCredential = async (response: { credential: string }) => {
-  if (!response?.credential) return
+const handleGoogleCredential = async (response: { credential?: string }) => {
+  if (!response?.credential) {
+    googleError.value = 'Google sign-in did not return a valid credential. Please try again.'
+    return
+  }
   try {
     const success = await authStore.loginWithGoogle(response.credential)
     if (success) redirectByRole()
@@ -308,10 +312,21 @@ async function renderGoogleButton() {
     if (!google?.accounts?.id) {
       throw new Error('Google Identity Services unavailable')
     }
-    google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential })
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredential,
+      ux_mode: 'popup',
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      itp_support: true,
+    })
     const buttonWidth = Math.min(360, googleButtonRef.value.clientWidth || 360)
     google.accounts.id.renderButton(googleButtonRef.value, { theme: 'outline', size: 'large', width: buttonWidth })
-    google.accounts.id.prompt()
+
+    // On smaller/mobile screens, popup sign-in is more reliable than One Tap prompt.
+    if (!isMobileLike()) {
+      google.accounts.id.prompt()
+    }
   } catch (err) {
     console.error('Failed to render Google sign-in button:', err)
     googleError.value = 'Google Sign-In is temporarily unavailable. Please try again.'
