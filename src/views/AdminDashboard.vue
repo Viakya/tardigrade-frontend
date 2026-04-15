@@ -655,6 +655,12 @@ onMounted(async () => {
   font-weight: 600;
   margin-bottom: var(--space-sm);
 }
+
+@media (max-width: 900px) {
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+}
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
