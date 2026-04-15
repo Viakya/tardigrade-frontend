@@ -1,7 +1,8 @@
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container" :class="{ 'sidebar-open': isSidebarOpen }">
+    <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside :class="['sidebar', { open: isSidebarOpen }]">
       <div class="sidebar-header">
         <h2>👨‍👩‍👧 Parent Portal</h2>
         <p>{{ authStore.user?.full_name }}</p>
@@ -15,7 +16,7 @@
           <span class="theme-toggle-text">{{ isDarkTheme ? 'Light' : 'Dark' }}</span>
         </button>
       </div>
-      <nav class="sidebar-nav">
+  <nav class="sidebar-nav" @click="closeSidebar">
         <a href="#" :class="['nav-item', { active: activeSection === 'dashboard' }]" @click.prevent="activeSection = 'dashboard'">
           <span>📊</span> Dashboard
         </a>
@@ -37,6 +38,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
+      <button class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
       <!-- Loading State -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
@@ -802,6 +804,7 @@ const authStore = useAuthStore()
 
 const THEME_KEY = 'tardigrade-theme'
 const isDarkTheme = ref(false)
+const isSidebarOpen = ref(false)
 
 // State
 const activeSection = ref('dashboard')
@@ -847,6 +850,14 @@ const weeklyDigest = ref<any | null>(null)
 const showQuizModal = ref(false)
 const selectedQuiz = ref<any>(null)
 const optionLabels = ['A', 'B', 'C', 'D']
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
 
 function getOptionLabel(idx: number | string) {
   return optionLabels[Number(idx)] ?? ''
@@ -1597,6 +1608,91 @@ function handleLogout() {
 .option-label { font-weight: 600; color: var(--text-secondary); }
 .quiz-meta { margin-top: 8px; font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap; }
 .quiz-explanation { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 20;
+}
+
+@media (max-width: 900px) {
+  .dashboard-container {
+    display: block;
+  }
+
+  .sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 30;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-self: flex-start;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stats-grid,
+  .children-grid,
+  .quick-actions,
+  .digest-grid,
+  .trend-bars,
+  .quiz-options,
+  .fee-summary,
+  .detail-grid,
+  .modal-stats {
+    grid-template-columns: 1fr;
+  }
+}
 @media (max-width: 768px) {
   .sidebar { width: 100%; height: auto; position: relative; }
   .main-content { margin-left: 0; }
