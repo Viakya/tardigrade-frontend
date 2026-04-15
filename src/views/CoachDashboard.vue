@@ -1734,6 +1734,13 @@ function showToast(message: string, type: string = 'success') {
   margin-bottom: 12px;
   color: var(--text-secondary);
 }
+
+@media (max-width: 900px) {
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-self: flex-start;
+  }
+}
 .sidebar-backdrop {
   position: fixed;
   inset: 0;
