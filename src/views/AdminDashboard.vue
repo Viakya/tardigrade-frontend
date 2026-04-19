@@ -1,5 +1,6 @@
 <template>
-  <div class="admin-shell" :class="{ 'sidebar-open': isSidebarOpen, 'theme-light': isLightTheme }">
+  <div>
+    <div class="admin-shell" :class="{ 'sidebar-open': isSidebarOpen, 'theme-light': isLightTheme }">
     <div v-if="isSidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -16,7 +17,7 @@
           :class="['nav-item', { active: table.name === selectedTableName }]"
           @click="selectTable(table.name)"
         >
-          <span>🗂️</span>
+          <span><i class="fa-solid fa-table-list" aria-hidden="true"></i></span>
           {{ table.label }}
         </button>
       </nav>
@@ -24,7 +25,7 @@
     </aside>
 
     <main class="content">
-      <button class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
+      <button class="mobile-menu-btn" @click="toggleSidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu</button>
       <header class="content-header">
         <div>
           <h1>{{ selectedTable?.label || 'Database' }}</h1>
@@ -36,7 +37,7 @@
             :title="isLightTheme ? 'Switch to dark theme' : 'Switch to light theme'"
             @click="toggleTheme"
           >
-            {{ isLightTheme ? '🌙' : '☀️' }}
+            <i :class="['fa-solid', isLightTheme ? 'fa-moon' : 'fa-sun']" aria-hidden="true"></i>
           </button>
           <button class="btn-secondary" @click="refreshRows" :disabled="loading">
             Refresh
@@ -47,7 +48,8 @@
         </div>
       </header>
 
-      <div v-if="error" class="error-alert">⚠️ {{ error }}</div>
+      <div v-if="error" class="error-alert"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ error }}</div>
+      <div v-if="success" class="success-alert"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> {{ success }}</div>
 
       <div v-if="loading" class="loading-state">Loading rows…</div>
 
@@ -68,7 +70,7 @@
               </td>
               <td class="actions-col">
                 <button class="btn-link" @click="openEdit(row)">Edit</button>
-                <button class="btn-link danger" @click="deleteRow(row)">Delete</button>
+                <button class="btn-link danger" @click="openDeleteConfirm(row)">Delete</button>
               </td>
             </tr>
           </tbody>
@@ -123,6 +125,27 @@
         </div>
       </form>
     </div>
+    </div>
+
+    <div v-if="deleteConfirmOpen" class="modal-backdrop" @click.self="closeDeleteConfirm">
+      <div class="modal-card delete-modal">
+        <header>
+          <h3>Confirm Delete</h3>
+          <button class="btn-link" @click="closeDeleteConfirm">Close</button>
+        </header>
+        <p class="delete-copy">
+          Are you sure you want to delete this row from
+          <strong>{{ selectedTable?.label || selectedTable?.name }}</strong>?
+        </p>
+        <p class="delete-copy delete-copy-muted">{{ deletePreview }}</p>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" @click="closeDeleteConfirm">Cancel</button>
+          <button class="btn-danger" type="button" @click="deleteRow" :disabled="saving">
+            {{ saving ? 'Deleting…' : 'Yes, Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -153,6 +176,7 @@ const rows = ref<Record<string, any>[]>([])
 const loading = ref(false)
 const saving = ref(false)
 const error = ref<string | null>(null)
+const success = ref<string | null>(null)
 const page = ref(1)
 const perPage = ref(25)
 const total = ref(0)
@@ -161,6 +185,9 @@ const editorOpen = ref(false)
 const editorMode = ref<'create' | 'edit'>('create')
 const editorData = ref<Record<string, any>>({})
 const editorKey = ref<Record<string, any>>({})
+const deleteConfirmOpen = ref(false)
+const deleteKey = ref<Record<string, any>>({})
+const deletePreview = ref('')
 
 const selectedTable = computed(() => tables.value.find((t) => t.name === selectedTableName.value))
 const isUsersTable = computed(() => selectedTableName.value === 'users')
@@ -237,6 +264,7 @@ const refreshRows = () => {
 
 const openCreate = () => {
   if (!selectedTable.value) return
+  success.value = null
   editorMode.value = 'create'
   editorData.value = {}
   editorKey.value = {}
@@ -248,6 +276,7 @@ const openCreate = () => {
 
 const openEdit = (row: Record<string, any>) => {
   if (!selectedTable.value) return
+  success.value = null
   editorMode.value = 'edit'
   const normalized = normalizeRow(row)
   const filtered: Record<string, any> = {}
@@ -267,6 +296,7 @@ const saveRow = async () => {
   if (!selectedTable.value) return
   saving.value = true
   error.value = null
+  success.value = null
   try {
     const payload = { ...editorData.value }
     if (isUsersTable.value) {
@@ -281,8 +311,10 @@ const saveRow = async () => {
 
     if (editorMode.value === 'create') {
       await adminService.createRow(selectedTable.value.name, payload)
+      success.value = 'Row added successfully.'
     } else {
       await adminService.updateRow(selectedTable.value.name, editorKey.value, payload)
+      success.value = 'Row updated successfully.'
     }
     editorOpen.value = false
     await loadRows()
@@ -293,24 +325,62 @@ const saveRow = async () => {
   }
 }
 
-const deleteRow = async (row: Record<string, any>) => {
+const openDeleteConfirm = (row: Record<string, any>) => {
   if (!selectedTable.value) return
-  const key = buildKey(row)
-  if (!Object.keys(key).length) return
-  if (!confirm('Delete this row?')) return
+  success.value = null
+  error.value = null
+  const key = buildKey(row, true)
+  if (!Object.keys(key).length) {
+    error.value = 'Delete is not available for this row because primary key is missing.'
+    return
+  }
+  deleteKey.value = key
+  deletePreview.value = selectedTable.value.primary_key
+    .map((pk) => `${pk}: ${String(row[pk] ?? '-')}`)
+    .join(' | ')
+  deleteConfirmOpen.value = true
+}
+
+const closeDeleteConfirm = () => {
+  deleteConfirmOpen.value = false
+  deleteKey.value = {}
+  deletePreview.value = ''
+}
+
+const deleteRow = async () => {
+  if (!selectedTable.value) return
+  if (!Object.keys(deleteKey.value).length) {
+    error.value = 'Missing key fields for delete.'
+    return
+  }
+  saving.value = true
+  error.value = null
+  success.value = null
   try {
-    await adminService.deleteRow(selectedTable.value.name, key)
+    const response = await adminService.deleteRow(selectedTable.value.name, deleteKey.value)
+    if (response?.data?.deleted === false) {
+      success.value = response?.data?.reason || 'Row was already inactive.'
+    } else {
+      success.value = 'Row deleted successfully.'
+    }
+    closeDeleteConfirm()
     await loadRows()
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'Failed to delete row'
+  } finally {
+    saving.value = false
   }
 }
 
-const buildKey = (row: Record<string, any>) => {
+const buildKey = (row: Record<string, any>, allowIdFallback = false) => {
   const key: Record<string, any> = {}
   selectedTable.value?.primary_key.forEach((pk) => {
     key[pk] = row[pk]
   })
+  const hasAnyKeyValue = Object.values(key).some((value) => value !== undefined && value !== null && value !== '')
+  if (!hasAnyKeyValue && allowIdFallback && row.id !== undefined && row.id !== null) {
+    return { id: row.id }
+  }
   return key
 }
 
@@ -443,6 +513,11 @@ onMounted(async () => {
   opacity: 0.9;
 }
 
+.nav-item span i {
+  width: 16px;
+  text-align: center;
+}
+
 .nav-item:not(.active) {
   color: #1f2937;
 }
@@ -516,10 +591,48 @@ onMounted(async () => {
   color: #ef4444;
 }
 
+.btn-danger {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: #dc2626;
+  color: white;
+}
+
+.delete-modal {
+  width: min(560px, 92vw);
+}
+
+.delete-copy {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.delete-copy-muted {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 .error-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 16px;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-md);
+}
+
+.success-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: var(--radius-sm);
   margin-bottom: var(--space-md);
 }
@@ -536,9 +649,10 @@ onMounted(async () => {
 
 .table-wrapper {
   background: var(--bg-card);
-  border-radius: var(--radius-sm);
+  border-radius: 14px;
   border: 1px solid var(--border-light);
   overflow-x: auto;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .data-table {
@@ -549,14 +663,52 @@ onMounted(async () => {
 
 .data-table th,
 .data-table td {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border-light);
   text-align: left;
   font-size: var(--font-size-sm);
+  vertical-align: middle;
+}
+
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background: #fcfdff;
+}
+
+.data-table tbody tr:hover {
+  background: #f1f5f9;
 }
 
 .actions-col {
   white-space: nowrap;
+}
+
+.actions-col .btn-link {
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.actions-col .btn-link:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.actions-col .btn-link.danger:hover {
+  background: rgba(239, 68, 68, 0.12);
 }
 
 .pagination {
@@ -688,6 +840,9 @@ onMounted(async () => {
 
 /* ── Premium Dark SaaS Theme ── */
 .admin-shell:not(.theme-light) {
+  --admin-neon-cyan: rgba(56, 189, 248, 0.9);
+  --admin-neon-blue: rgba(59, 130, 246, 0.86);
+  --admin-neon-magenta: rgba(232, 121, 249, 0.78);
   background:
     radial-gradient(900px 520px at -10% -15%, rgba(59, 130, 246, 0.18), transparent 55%),
     radial-gradient(820px 460px at 110% 0%, rgba(20, 184, 166, 0.16), transparent 52%),
@@ -736,6 +891,67 @@ onMounted(async () => {
   box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.28);
 }
 
+.admin-shell:not(.theme-light) .sidebar {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-shell:not(.theme-light) .sidebar::before {
+  content: '';
+  position: absolute;
+  top: 90px;
+  bottom: 84px;
+  right: -1px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.76), rgba(232, 121, 249, 0.62));
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.34), 0 0 14px rgba(232, 121, 249, 0.2);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.admin-shell:not(.theme-light) .nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-shell:not(.theme-light) .nav-item::before,
+.admin-shell:not(.theme-light) .nav-item::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.admin-shell:not(.theme-light) .nav-item > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-shell:not(.theme-light) .nav-item::before {
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.94), rgba(232, 121, 249, 0.84));
+}
+
+.admin-shell:not(.theme-light) .nav-item::after {
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  box-shadow: inset 0 0 14px rgba(56, 189, 248, 0.08), 0 0 10px rgba(232, 121, 249, 0.08);
+}
+
+.admin-shell:not(.theme-light) .nav-item:hover::before,
+.admin-shell:not(.theme-light) .nav-item:hover::after,
+.admin-shell:not(.theme-light) .nav-item.active::before,
+.admin-shell:not(.theme-light) .nav-item.active::after {
+  opacity: 1;
+}
+
 .admin-shell:not(.theme-light) .btn-logout {
   background: rgba(239, 68, 68, 0.7);
 }
@@ -781,10 +997,20 @@ onMounted(async () => {
   color: #fda4af;
 }
 
+.admin-shell:not(.theme-light) .btn-danger {
+  background: #dc2626;
+}
+
 .admin-shell:not(.theme-light) .error-alert {
   background: rgba(239, 68, 68, 0.16);
   border-color: rgba(248, 113, 113, 0.36);
   color: #fda4af;
+}
+
+.admin-shell:not(.theme-light) .success-alert {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(52, 211, 153, 0.36);
+  color: #86efac;
 }
 
 .admin-shell:not(.theme-light) .loading-state,
@@ -797,10 +1023,134 @@ onMounted(async () => {
 .admin-shell:not(.theme-light) .table-wrapper {
   background: rgba(15, 23, 42, 0.62);
   border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 12px 26px rgba(2, 6, 23, 0.35);
+}
+
+.admin-shell:not(.theme-light) .loading-state,
+.admin-shell:not(.theme-light) .empty-state,
+.admin-shell:not(.theme-light) .table-wrapper,
+.admin-shell:not(.theme-light) .modal-card,
+.admin-shell:not(.theme-light) .error-alert,
+.admin-shell:not(.theme-light) .success-alert {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.admin-shell:not(.theme-light) .loading-state::before,
+.admin-shell:not(.theme-light) .empty-state::before,
+.admin-shell:not(.theme-light) .table-wrapper::before,
+.admin-shell:not(.theme-light) .modal-card::before,
+.admin-shell:not(.theme-light) .error-alert::before,
+.admin-shell:not(.theme-light) .success-alert::before,
+.admin-shell:not(.theme-light) .loading-state::after,
+.admin-shell:not(.theme-light) .empty-state::after,
+.admin-shell:not(.theme-light) .table-wrapper::after,
+.admin-shell:not(.theme-light) .modal-card::after,
+.admin-shell:not(.theme-light) .error-alert::after,
+.admin-shell:not(.theme-light) .success-alert::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.admin-shell:not(.theme-light) .loading-state > *,
+.admin-shell:not(.theme-light) .empty-state > *,
+.admin-shell:not(.theme-light) .table-wrapper > *,
+.admin-shell:not(.theme-light) .modal-card > *,
+.admin-shell:not(.theme-light) .error-alert > *,
+.admin-shell:not(.theme-light) .success-alert > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-shell:not(.theme-light) .loading-state::before,
+.admin-shell:not(.theme-light) .empty-state::before,
+.admin-shell:not(.theme-light) .table-wrapper::before,
+.admin-shell:not(.theme-light) .modal-card::before,
+.admin-shell:not(.theme-light) .error-alert::before,
+.admin-shell:not(.theme-light) .success-alert::before {
+  inset: -1px;
+  padding: 1px;
+  background: linear-gradient(140deg, var(--admin-neon-cyan), rgba(56, 189, 248, 0.58) 52%, var(--admin-neon-magenta));
+  opacity: 0.58;
+  animation: adminNeonBreathe 5.8s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.admin-shell:not(.theme-light) .loading-state::after,
+.admin-shell:not(.theme-light) .empty-state::after,
+.admin-shell:not(.theme-light) .table-wrapper::after,
+.admin-shell:not(.theme-light) .modal-card::after,
+.admin-shell:not(.theme-light) .error-alert::after,
+.admin-shell:not(.theme-light) .success-alert::after {
+  left: 18%;
+  right: 18%;
+  bottom: -8px;
+  height: 14px;
+  background: radial-gradient(ellipse at center, rgba(232, 121, 249, 0.62) 0%, rgba(56, 189, 248, 0.2) 58%, transparent 90%);
+  filter: blur(7px);
+  opacity: 0.68;
+  animation: adminNeonPulse 5.8s ease-in-out infinite;
+}
+
+.admin-shell:not(.theme-light) .data-table tbody tr td {
+  border-top-color: rgba(56, 189, 248, 0.12);
+  border-bottom-color: rgba(232, 121, 249, 0.14);
+}
+
+.admin-shell:not(.theme-light) .data-table tbody tr:hover td {
+  background: rgba(59, 130, 246, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.16);
+}
+
+@keyframes adminNeonBreathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    opacity: 0.74;
+    transform: translateZ(0) scale(1.002);
+  }
+}
+
+@keyframes adminNeonPulse {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: translateZ(0) scaleX(0.98);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateZ(0) scaleX(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell:not(.theme-light) .loading-state::before,
+  .admin-shell:not(.theme-light) .empty-state::before,
+  .admin-shell:not(.theme-light) .table-wrapper::before,
+  .admin-shell:not(.theme-light) .modal-card::before,
+  .admin-shell:not(.theme-light) .error-alert::before,
+  .admin-shell:not(.theme-light) .success-alert::before,
+  .admin-shell:not(.theme-light) .loading-state::after,
+  .admin-shell:not(.theme-light) .empty-state::after,
+  .admin-shell:not(.theme-light) .table-wrapper::after,
+  .admin-shell:not(.theme-light) .modal-card::after,
+  .admin-shell:not(.theme-light) .error-alert::after,
+  .admin-shell:not(.theme-light) .success-alert::after {
+    animation: none !important;
+  }
 }
 
 .admin-shell:not(.theme-light) .data-table th {
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(30, 41, 59, 0.98);
   color: #9eb2cb;
   border-bottom-color: rgba(148, 163, 184, 0.24);
 }
@@ -816,6 +1166,14 @@ onMounted(async () => {
 
 .admin-shell:not(.theme-light) .data-table tbody tr:hover td {
   background: rgba(59, 130, 246, 0.12);
+}
+
+.admin-shell:not(.theme-light) .actions-col .btn-link:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.admin-shell:not(.theme-light) .actions-col .btn-link.danger:hover {
+  background: rgba(248, 113, 113, 0.2);
 }
 
 .admin-shell:not(.theme-light) .pagination {

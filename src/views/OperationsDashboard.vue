@@ -10,28 +10,28 @@
       </div>
       <nav class="sidebar-nav" @click="closeSidebarUi">
         <a :class="['nav-item', { active: activeSection === 'dashboard' }]" @click="activeSection = 'dashboard'">
-          <span>📊</span> Dashboard
+          <span><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span> Dashboard
         </a>
         <a :class="['nav-item', { active: activeSection === 'batches' }]" @click="activeSection = 'batches'">
-          <span>📚</span> Batches
+          <span><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span> Batches
         </a>
         <a :class="['nav-item', { active: activeSection === 'students' }]" @click="activeSection = 'students'">
-          <span>👥</span> Students
+          <span><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></span> Students
         </a>
         <a :class="['nav-item', { active: activeSection === 'teachers' }]" @click="activeSection = 'teachers'">
-          <span>👨‍🏫</span> Teachers
+          <span><i class="fa-solid fa-user-tie" aria-hidden="true"></i></span> Teachers
         </a>
         <a :class="['nav-item', { active: activeSection === 'users' }]" @click="activeSection = 'users'">
-          <span>👤</span> Users
+          <span><i class="fa-solid fa-users" aria-hidden="true"></i></span> Users
         </a>
         <a :class="['nav-item', { active: activeSection === 'fees' }]" @click="activeSection = 'fees'">
-          <span>💰</span> Fee Management
+          <span><i class="fa-solid fa-wallet" aria-hidden="true"></i></span> Fee Management
         </a>
         <a :class="['nav-item', { active: activeSection === 'salary' }]" @click="activeSection = 'salary'">
-          <span>💵</span> Salary Management
+          <span><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i></span> Salary Management
         </a>
         <a :class="['nav-item', { active: activeSection === 'reports' }]" @click="activeSection = 'reports'">
-          <span>📈</span> Reports
+          <span><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span> Reports
         </a>
       </nav>
       <button @click="handleLogout" class="btn-logout">Logout</button>
@@ -42,7 +42,9 @@
 
       <header class="director-topbar">
         <div class="topbar-search-wrap">
-          <button class="sidebar-toggle" @click="toggleSidebarUi" aria-label="Toggle menu">☰</button>
+          <button class="sidebar-toggle" @click="toggleSidebarUi" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          </button>
           <input
             v-model="topSearch"
             type="text"
@@ -58,10 +60,12 @@
             :title="isLightTheme ? 'Switch to dark theme' : 'Switch to light theme'"
             @click="toggleTheme"
           >
-            {{ isLightTheme ? '🌙' : '☀️' }}
+            <i :class="['fa-solid', isLightTheme ? 'fa-moon' : 'fa-sun']" aria-hidden="true"></i>
           </button>
           <div class="notification-wrap">
-            <button class="topbar-icon-btn" title="Notifications" @click="toggleNotifications">🔔</button>
+            <button class="topbar-icon-btn" title="Notifications" @click="toggleNotifications">
+              <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            </button>
             <span v-if="notificationItems.length" class="notif-count">{{ notificationItems.length > 9 ? '9+' : notificationItems.length }}</span>
             <div v-if="showNotifications" class="notification-panel">
               <div class="notification-head">
@@ -82,7 +86,9 @@
               </div>
             </div>
           </div>
-          <button class="topbar-icon-btn" title="Shortcuts">⚡</button>
+          <button class="topbar-icon-btn" title="Shortcuts">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          </button>
           <div class="topbar-profile">
             <span class="profile-dot"></span>
             <span>{{ authStore.user?.full_name || 'Director' }}</span>
@@ -100,7 +106,7 @@
         <!-- Dashboard Statistics Cards -->
         <div class="dashboard-stats">
           <div class="dash-stat-card blue">
-            <div class="stat-icon">👥</div>
+            <div class="stat-icon"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></div>
             <div class="stat-content">
               <h3>Total Students</h3>
               <p class="stat-number">{{ dashboardStats.totalStudents }}</p>
@@ -109,7 +115,7 @@
           </div>
 
           <div class="dash-stat-card purple">
-            <div class="stat-icon">📚</div>
+            <div class="stat-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></div>
             <div class="stat-content">
               <h3>Active Batches</h3>
               <p class="stat-number">{{ dashboardStats.activeBatches }}</p>
@@ -118,7 +124,7 @@
           </div>
 
           <div class="dash-stat-card green">
-            <div class="stat-icon">💰</div>
+            <div class="stat-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div>
             <div class="stat-content">
               <h3>Total Revenue</h3>
               <p class="stat-number">₹{{ dashboardStats.totalRevenue.toLocaleString() }}</p>
@@ -127,7 +133,7 @@
           </div>
 
           <div class="dash-stat-card orange">
-            <div class="stat-icon">⚠️</div>
+            <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div>
             <div class="stat-content">
               <h3>Pending Fees</h3>
               <p class="stat-number">₹{{ dashboardStats.totalOutstanding.toLocaleString() }}</p>
@@ -136,7 +142,7 @@
           </div>
 
           <div class="dash-stat-card cyan">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"><i class="fa-solid fa-check-circle" aria-hidden="true"></i></div>
             <div class="stat-content">
               <h3>Attendance %</h3>
               <p class="stat-number">{{ dashboardStats.attendancePercentage }}%</p>
@@ -149,7 +155,7 @@
         <div class="dashboard-grid">
           <div class="dashboard-card full-width">
             <div class="card-header">
-              <h3>📈 Trend Analytics</h3>
+              <h3><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Trend Analytics</h3>
             </div>
             <div class="analytics-grid">
               <div class="mini-chart-card">
@@ -196,7 +202,7 @@
           <!-- Recent Fee Payments -->
           <div class="dashboard-card">
             <div class="card-header">
-              <h3>💵 Recent Fee Payments</h3>
+              <h3><i class="fa-solid fa-money-bill-trend-up" aria-hidden="true"></i> Recent Fee Payments</h3>
               <button @click="activeSection = 'fees'" class="view-all-btn">View All →</button>
             </div>
             <div class="activity-list">
@@ -219,7 +225,7 @@
           <!-- Recent Salary Payments -->
           <div class="dashboard-card">
             <div class="card-header">
-              <h3>💼 Recent Salary Payments</h3>
+              <h3><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Recent Salary Payments</h3>
               <button @click="activeSection = 'salary'" class="view-all-btn">View All →</button>
             </div>
             <div class="activity-list">
@@ -242,7 +248,7 @@
           <!-- Recently Enrolled Students -->
           <div class="dashboard-card">
             <div class="card-header">
-              <h3>🎓 Recently Enrolled</h3>
+              <h3><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Recently Enrolled</h3>
               <button @click="activeSection = 'students'" class="view-all-btn">View All →</button>
             </div>
             <div class="activity-list">
@@ -264,7 +270,7 @@
           <!-- Batches Overview -->
           <div class="dashboard-card">
             <div class="card-header">
-              <h3>📖 Batches Overview</h3>
+              <h3><i class="fa-solid fa-book-open" aria-hidden="true"></i> Batches Overview</h3>
               <button @click="activeSection = 'batches'" class="view-all-btn">View All →</button>
             </div>
             <div class="activity-list">
@@ -356,7 +362,7 @@
           <!-- Financial Summary -->
           <div class="dashboard-card full-width">
             <div class="card-header">
-              <h3>📊 Financial Summary</h3>
+              <h3><i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Financial Summary</h3>
             </div>
             <div class="financial-overview">
               <div class="financial-metric">
@@ -387,7 +393,7 @@
           <!-- AI Insights -->
           <div class="dashboard-card full-width">
             <div class="card-header">
-              <h3>🤖 AI Insights</h3>
+              <h3><i class="fa-solid fa-robot" aria-hidden="true"></i> AI Insights</h3>
               <button @click="loadOpsAiInsights(new Date().getFullYear())" class="view-all-btn" :disabled="opsAiLoading">
                 {{ opsAiInsights ? 'Refresh AI →' : 'Generate Insights →' }}
               </button>
@@ -432,7 +438,7 @@
 
           <div class="dashboard-card full-width">
             <div class="card-header">
-              <h3>💳 Fee Risk Prediction</h3>
+              <h3><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Fee Risk Prediction</h3>
               <button @click="loadFeeRiskPrediction(new Date().getFullYear())" class="view-all-btn" :disabled="feeRiskLoading">
                 {{ feeRiskInsights ? 'Refresh Prediction →' : 'Generate Prediction →' }}
               </button>
@@ -475,31 +481,31 @@
           <!-- Quick Actions -->
           <div class="dashboard-card full-width">
             <div class="card-header">
-              <h3>⚡ Quick Actions</h3>
+              <h3><i class="fa-solid fa-bolt" aria-hidden="true"></i> Quick Actions</h3>
             </div>
             <div class="quick-actions">
               <button @click="activeSection = 'students'" class="action-btn primary">
-                <span class="action-icon">➕</span>
+                <span class="action-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                 View Students
               </button>
               <button @click="activeSection = 'batches'" class="action-btn success">
-                <span class="action-icon">📚</span>
+                <span class="action-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
                 View Batches
               </button>
               <button @click="activeSection = 'fees'" class="action-btn info">
-                <span class="action-icon">💰</span>
+                <span class="action-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
                 Fee Payments
               </button>
               <button @click="activeSection = 'salary'" class="action-btn warning">
-                <span class="action-icon">💼</span>
+                <span class="action-icon"><i class="fa-solid fa-briefcase" aria-hidden="true"></i></span>
                 Salary Payments
               </button>
               <button @click="activeSection = 'teachers'" class="action-btn secondary">
-                <span class="action-icon">👨‍🏫</span>
+                <span class="action-icon"><i class="fa-solid fa-user-tie" aria-hidden="true"></i></span>
                 View Teachers
               </button>
               <button @click="loadDashboardData" class="action-btn refresh">
-                <span class="action-icon">🔄</span>
+                <span class="action-icon"><i class="fa-solid fa-rotate" aria-hidden="true"></i></span>
                 Refresh Dashboard
               </button>
             </div>
@@ -569,7 +575,7 @@
                   <td>{{ batch.teachers?.length ?? 0 }}</td>
                   <td class="actions-cell">
                     <button class="btn-icon edit" @click="openEditModal(batch)" title="Edit">✏️</button>
-                    <button class="btn-icon delete" @click="confirmDelete(batch)" title="Delete">🗑️</button>
+                    <button class="btn-icon delete" @click="confirmDelete(batch)" title="Delete"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                   </td>
                 </tr>
               </tbody>
@@ -681,7 +687,7 @@
                   </td>
                   <td class="actions-cell">
                     <button class="btn-icon edit" @click="openEditStudentModal(student)" title="Edit">✏️</button>
-                    <button class="btn-icon delete" @click="confirmDeleteStudent(student)" title="Delete">🗑️</button>
+                    <button class="btn-icon delete" @click="confirmDeleteStudent(student)" title="Delete"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                   </td>
                 </tr>
               </tbody>
@@ -780,7 +786,7 @@
                   <td>{{ teacher.batches?.length ?? 0 }}</td>
                   <td class="actions-cell">
                     <button class="btn-icon edit" @click="openEditTeacherModal(teacher)" title="Edit">✏️</button>
-                    <button class="btn-icon delete" @click="confirmDeleteTeacher(teacher)" title="Delete">🗑️</button>
+                    <button class="btn-icon delete" @click="confirmDeleteTeacher(teacher)" title="Delete"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                   </td>
                 </tr>
               </tbody>
@@ -862,7 +868,7 @@
                   <td>{{ formatDate(user.created_at) }}</td>
                   <td class="actions-cell">
                     <button class="btn-icon edit" @click="openEditUserModal(user)" title="Edit">✏️</button>
-                    <button class="btn-icon delete" @click="confirmDeleteUser(user)" title="Delete">🗑️</button>
+                    <button class="btn-icon delete" @click="confirmDeleteUser(user)" title="Delete"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                   </td>
                 </tr>
               </tbody>
@@ -1169,7 +1175,7 @@
           </button>
         </header>
 
-        <div class="content-section">
+        <div class="content-section reports-panel reports-export-panel">
           <h2 style="margin-bottom: 12px;">Professional Export Center</h2>
           <div class="reports-export-grid">
             <button class="export-card" @click="downloadResultsExcel" :disabled="exportingResults">
@@ -1185,7 +1191,7 @@
           <p v-if="reportsError" class="state-msg error" style="margin-top: 12px;">{{ reportsError }}</p>
         </div>
 
-        <div class="content-section">
+        <div class="content-section reports-panel reports-calendar-panel">
           <div class="row-between" style="margin-bottom: 12px;">
             <div>
               <h2 style="margin: 0;">Calendar / Schedule API</h2>
@@ -1201,7 +1207,7 @@
           <div v-if="calendarLoading" class="state-msg">Loading calendar events...</div>
           <div v-else-if="calendarError" class="state-msg error">{{ calendarError }}</div>
           <div v-else-if="calendarEvents.length === 0" class="empty-state">No calendar events in this date window.</div>
-          <div v-else class="calendar-shell">
+          <div v-else class="calendar-shell reports-calendar-shell">
             <div class="calendar-toolbar">
               <div>
                 <h3 class="calendar-title">{{ calendarTitle }}</h3>
@@ -1293,7 +1299,7 @@
           <button class="modal-close" @click="closeModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="modalError" class="form-error">⚠️ {{ modalError }}</div>
+          <div v-if="modalError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ modalError }}</div>
 
           <div class="form-grid">
             <div class="form-field">
@@ -1368,7 +1374,7 @@
           <button class="modal-close" @click="closeTeacherModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="teacherModalError" class="form-error">⚠️ {{ teacherModalError }}</div>
+          <div v-if="teacherModalError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ teacherModalError }}</div>
 
           <!-- User Selection (only for create) -->
           <div v-if="!isEditingTeacher" class="form-field">
@@ -1447,7 +1453,7 @@
           <button class="modal-close" @click="closeUserModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="userModalError" class="form-error">⚠️ {{ userModalError }}</div>
+          <div v-if="userModalError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ userModalError }}</div>
 
           <div class="form-grid">
             <div class="form-field">
@@ -1525,7 +1531,7 @@
           <button class="modal-close" @click="closeStudentModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="studentModalError" class="form-error">⚠️ {{ studentModalError }}</div>
+          <div v-if="studentModalError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ studentModalError }}</div>
 
           <!-- User Selection (only for create) -->
           <div v-if="!isEditingStudent" class="form-field">
@@ -1645,7 +1651,7 @@
             
             <!-- Student Basic Info -->
             <section class="profile-section">
-              <h3>👤 Personal Information</h3>
+              <h3><i class="fa-solid fa-user" aria-hidden="true"></i> Personal Information</h3>
               <div class="info-grid">
                 <div class="info-item">
                   <label>Student ID:</label>
@@ -1680,7 +1686,7 @@
 
             <!-- Batch & Fee Information -->
             <section class="profile-section" v-if="selectedStudentProfile.batch_id && batchDetails">
-              <h3>🎓 Batch & Fee Details</h3>
+              <h3><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Batch & Fee Details</h3>
               <div class="fee-summary">
                 <div class="fee-card">
                   <label>Batch Name:</label>
@@ -1728,7 +1734,7 @@
             <!-- Payment History -->
             <section class="profile-section">
               <div class="section-header">
-                <h3>💰 Payment History</h3>
+                <h3><i class="fa-solid fa-wallet" aria-hidden="true"></i> Payment History</h3>
                 <button class="btn-primary btn-sm" @click="openAddPaymentModal" v-if="selectedStudentProfile.batch_id">
                   + Add Payment
                 </button>
@@ -1769,7 +1775,7 @@
                         <td>{{ payment.receiver_name || '—' }}</td>
                         <td class="actions-cell">
                           <button class="btn-icon edit" @click="openEditPaymentModal(payment)" title="Edit">✏️</button>
-                          <button class="btn-icon delete" @click="confirmDeletePayment(payment)" title="Delete">🗑️</button>
+                          <button class="btn-icon delete" @click="confirmDeletePayment(payment)" title="Delete"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                         </td>
                       </tr>
                       <!-- Expandable Details Row -->
@@ -1835,7 +1841,7 @@
                   </button>
                   <button class="btn-cancel btn-sm" @click="showConnectParentDropdown = false">Cancel</button>
                 </div>
-                <div v-if="connectParentError" class="form-error" style="margin-top: 8px;">⚠️ {{ connectParentError }}</div>
+                <div v-if="connectParentError" class="form-error" style="margin-top: 8px;"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ connectParentError }}</div>
                 <div v-if="availableParents.length === 0" class="empty-state" style="margin-top: 8px;">
                   No available parent users to connect. Create a user with the 'parent' role first.
                 </div>
@@ -1845,7 +1851,7 @@
               <div v-if="selectedStudentProfile?.parents && selectedStudentProfile.parents.length > 0" class="parent-list">
                 <div v-for="parent in selectedStudentProfile.parents" :key="parent.id" class="parent-card">
                   <div class="parent-info">
-                    <span class="parent-icon">👤</span>
+                    <span class="parent-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
                     <div>
                       <div class="parent-name">{{ parent.full_name }}</div>
                       <div class="parent-email">{{ parent.email }}</div>
@@ -1878,7 +1884,7 @@
           <button class="modal-close" @click="closePaymentModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="paymentModalError" class="form-error">⚠️ {{ paymentModalError }}</div>
+          <div v-if="paymentModalError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ paymentModalError }}</div>
           
           <div class="form-grid">
             <div class="form-field">
@@ -1945,7 +1951,7 @@
     <div v-if="showTeacherProfile" class="modal-overlay" @click.self="closeTeacherProfile">
       <div class="modal modal-lg profile-modal">
         <div class="modal-header">
-          <h2>👨‍🏫 Teacher Profile</h2>
+          <h2><i class="fa-solid fa-user-tie" aria-hidden="true"></i> Teacher Profile</h2>
           <button class="modal-close" @click="closeTeacherProfile">✕</button>
         </div>
         <div class="modal-body">
@@ -2000,7 +2006,7 @@
 
             <!-- Salary Summary -->
             <section class="profile-section">
-              <h3>💰 Salary Summary</h3>
+              <h3><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Salary Summary</h3>
               <div class="fee-status-grid">
                 <div class="status-card paid">
                   <div class="status-label">Total Salary Paid</div>
@@ -2057,7 +2063,7 @@
                         <td>{{ salary.payer_name || '—' }}</td>
                         <td class="actions-cell">
                           <button class="btn-icon edit" @click="openEditSalaryModal(salary)" title="Edit">✏️</button>
-                          <button class="btn-icon delete" @click="confirmDeleteSalary(salary)" title="Delete">🗑️</button>
+                          <button class="btn-icon delete" @click="confirmDeleteSalary(salary)" title="Delete"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                         </td>
                       </tr>
                       <!-- Expandable Details Row -->
@@ -2103,7 +2109,7 @@
           <button class="modal-close" @click="closeSalaryModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="salaryModalError" class="form-error">⚠️ {{ salaryModalError }}</div>
+          <div v-if="salaryModalError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ salaryModalError }}</div>
           
           <div class="form-grid">
             <div class="form-field">
@@ -2170,7 +2176,7 @@
     <div v-if="showBatchProfile" class="modal-overlay" @click.self="closeBatchProfile">
       <div class="modal modal-lg profile-modal">
         <div class="modal-header">
-          <h2>📚 Batch Profile</h2>
+          <h2><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Batch Profile</h2>
           <button class="modal-close" @click="closeBatchProfile">✕</button>
         </div>
         <div class="modal-body">
@@ -2217,7 +2223,7 @@
 
             <!-- Financial Summary -->
             <section class="profile-section">
-              <h3>💰 Financial Summary</h3>
+              <h3><i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Financial Summary</h3>
               <div class="financial-grid">
                 <div class="finance-card">
                   <div class="finance-label">Total Students</div>
@@ -2250,7 +2256,7 @@
             <!-- Teachers Section -->
             <section class="profile-section">
               <div class="section-header">
-                <h3>👨‍🏫 Assigned Teachers ({{ selectedBatchProfile.teachers.length }})</h3>
+                <h3><i class="fa-solid fa-user-tie" aria-hidden="true"></i> Assigned Teachers ({{ selectedBatchProfile.teachers.length }})</h3>
                 <button class="btn-primary btn-sm" @click="openAssignTeacherModal">
                   + Assign Teacher
                 </button>
@@ -2281,7 +2287,7 @@
                       <td>{{ teacher.phone_number || '—' }}</td>
                       <td>{{ teacher.specialization || '—' }}</td>
                       <td class="actions-cell">
-                        <button class="btn-icon delete" @click="confirmRemoveTeacher(teacher)" title="Remove from Batch">🗑️</button>
+                        <button class="btn-icon delete" @click="confirmRemoveTeacher(teacher)" title="Remove from Batch"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                       </td>
                     </tr>
                   </tbody>
@@ -2291,7 +2297,7 @@
 
             <!-- Students Section -->
             <section class="profile-section">
-              <h3>🎓 Enrolled Students ({{ selectedBatchProfile.students.length }})</h3>
+              <h3><i class="fa-solid fa-user-graduate" aria-hidden="true"></i> Enrolled Students ({{ selectedBatchProfile.students.length }})</h3>
               <div v-if="selectedBatchProfile.students.length === 0" class="empty-state">
                 <p>No students enrolled in this batch.</p>
               </div>
@@ -2336,7 +2342,7 @@
           <button class="modal-close" @click="closeAssignTeacherModal">✕</button>
         </div>
         <div class="modal-body">
-          <div v-if="assignTeacherError" class="form-error">⚠️ {{ assignTeacherError }}</div>
+          <div v-if="assignTeacherError" class="form-error"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ assignTeacherError }}</div>
           
           <p class="modal-info">
             Select a teacher to assign to <strong>{{ selectedBatchProfile?.batch.batch_name }}</strong>
@@ -3353,6 +3359,8 @@ async function loadDashboardData() {
       upcomingEventsRes,
       riskSummaryRes,
       nudgesRes,
+      activeVsInactiveRes,
+      batchStrengthRes,
     ] = await Promise.all([
       apiClient.get('/students?page=1&per_page=100'),
       apiClient.get('/batches?page=1&per_page=100'),
@@ -3366,6 +3374,8 @@ async function loadDashboardData() {
       apiClient.get(`/calendar/events?start_date=${calendarStart}&end_date=${calendarEnd}`),
       apiClient.get('/reports/risk-summary?days=30'),
       apiClient.get('/reports/smart-nudges?limit=8'),
+      apiClient.get('/reports/active-vs-inactive'),
+      apiClient.get('/reports/batch-strength?include_inactive_students=true'),
     ])
 
     const unwrap = (res: any) => res?.data?.data ?? res?.data ?? {}
@@ -3382,17 +3392,22 @@ async function loadDashboardData() {
     const upcomingEventsData = unwrap(upcomingEventsRes)
     const riskSummaryData = unwrap(riskSummaryRes)
     const nudgesData = unwrap(nudgesRes)
+    const activeVsInactiveData = unwrap(activeVsInactiveRes)
+    const batchStrengthData = unwrap(batchStrengthRes)
 
     const students = studentsData.students || []
     const batches = batchesData.batches || []
     const allFees = feesData.fee_payments || []
     const allSalaries = salariesData.salaries || []
     const teachers = teachersData.teachers || []
+    const batchStrengthRows = Array.isArray(batchStrengthData.batch_strength) ? batchStrengthData.batch_strength : []
 
     // Calculate statistics
-    dashboardStats.value.totalStudents = students.length
-    dashboardStats.value.activeStudents = students.filter((s: any) => s.is_active).length
-    dashboardStats.value.activeBatches = batches.filter((b: any) => b.is_active).length
+    const studentsStatus = activeVsInactiveData?.students || {}
+    const batchesStatus = activeVsInactiveData?.batches || {}
+    dashboardStats.value.totalStudents = Number(studentsStatus.total ?? students.length)
+    dashboardStats.value.activeStudents = Number(studentsStatus.active ?? students.filter((s: any) => s.is_active).length)
+    dashboardStats.value.activeBatches = Number(batchesStatus.active ?? batches.filter((b: any) => b.is_active).length)
     dashboardStats.value.totalTeachers = teachers.length
 
     // Calculate financial metrics
@@ -3456,14 +3471,44 @@ async function loadDashboardData() {
       .sort((a: any, b: any) => new Date(b.enrollment_date).getTime() - new Date(a.enrollment_date).getTime())
       .slice(0, 5)
 
-    // Batches overview (top 5 by student count)
+    const studentsByBatchId = new Map<number, number>()
+    if (batchStrengthRows.length > 0) {
+      batchStrengthRows.forEach((row: any) => {
+        const batchId = Number(row.batch_id)
+        if (!Number.isFinite(batchId)) return
+        const activeStudents = Number(row.active_students ?? row.total_students ?? 0)
+        studentsByBatchId.set(batchId, activeStudents)
+      })
+    } else {
+      students.forEach((student: any) => {
+        const batchId = Number(student.batch_id)
+        if (!Number.isFinite(batchId)) return
+        studentsByBatchId.set(batchId, (studentsByBatchId.get(batchId) || 0) + 1)
+      })
+    }
+
+    const teachersByBatchId = new Map<number, number>()
+    teachers.forEach((teacher: any) => {
+      const assignedBatches = Array.isArray(teacher?.batches) ? teacher.batches : []
+      assignedBatches.forEach((batch: any) => {
+        const batchId = Number(batch?.id)
+        if (!Number.isFinite(batchId)) return
+        teachersByBatchId.set(batchId, (teachersByBatchId.get(batchId) || 0) + 1)
+      })
+    })
+
+    // Batches overview (top 5 by actual student count)
     batchesOverview.value = batches
-      .map((b: any) => ({
-        ...b,
-        name: b.batch_name,
-        student_count: b.students?.length || 0,
-        teacher_count: b.teachers?.length || 0
-      }))
+      .map((b: any) => {
+        const batchId = Number(b.id)
+        const studentCount = Number.isFinite(batchId) ? (studentsByBatchId.get(batchId) || 0) : 0
+        return {
+          ...b,
+          name: b.batch_name,
+          student_count: studentCount,
+          teacher_count: teachersByBatchId.get(batchId) || b.teachers?.length || 0
+        }
+      })
       .sort((a: any, b: any) => b.student_count - a.student_count)
       .slice(0, 5)
 
@@ -3484,13 +3529,35 @@ async function loadDashboardData() {
       dashboardStats.value.attendancePercentage = 0
     }
 
-    const batchCounts = new Map<string, number>()
-    students.forEach((student: any) => {
-      const name = student.batch?.batch_name || 'Unassigned'
-      batchCounts.set(name, (batchCounts.get(name) || 0) + 1)
+    const batchNameById = new Map<number, string>()
+    batches.forEach((batch: any) => {
+      const batchId = Number(batch.id)
+      if (!Number.isFinite(batchId)) return
+      batchNameById.set(batchId, batch.batch_name || `Batch ${batchId}`)
     })
+
+    const batchCounts = new Map<string, number>()
+    batchNameById.forEach((name) => {
+      batchCounts.set(name, 0)
+    })
+    let unassignedCount = 0
+    students.forEach((student: any) => {
+      const batchId = Number(student.batch_id)
+      if (!Number.isFinite(batchId)) {
+        unassignedCount += 1
+      }
+    })
+
+    batchNameById.forEach((name, batchId) => {
+      batchCounts.set(name, studentsByBatchId.get(batchId) || 0)
+    })
+
+    if (unassignedCount > 0) {
+      batchCounts.set('Unassigned', unassignedCount)
+    }
+
     batchDistribution.value = Array.from(batchCounts.entries())
-      .map(([name, count]) => ({ name, count }))
+      .map(([name, count]) => ({ name, count: Number(count) || 0 }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 6)
 
@@ -5169,6 +5236,28 @@ watch(activeSection, (newSection) => {
   gap: 14px;
 }
 
+.reports-calendar-shell {
+  gap: 16px;
+}
+
+.reports-calendar-shell .calendar-toolbar {
+  padding: 2px 2px 0;
+}
+
+.reports-calendar-shell .calendar-title {
+  font-size: 22px;
+  letter-spacing: 0.01em;
+}
+
+.reports-calendar-shell .event-sub {
+  font-size: 13px;
+}
+
+.reports-calendar-shell .legend-pill {
+  padding: 5px 10px;
+  font-size: 11.5px;
+}
+
 .calendar-toolbar {
   display: flex;
   align-items: center;
@@ -5227,6 +5316,10 @@ watch(activeSection, (newSection) => {
   background: #fff;
 }
 
+.reports-calendar-shell .month-grid-wrap {
+  border-radius: 14px;
+}
+
 .weekday-row {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -5242,6 +5335,12 @@ watch(activeSection, (newSection) => {
   color: #4b6486;
 }
 
+.reports-calendar-shell .weekday-cell {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .month-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -5255,6 +5354,11 @@ watch(activeSection, (newSection) => {
   background: #fff;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.reports-calendar-shell .day-cell {
+  min-height: 126px;
+  padding: 9px 8px;
 }
 
 .day-cell:hover {
@@ -5286,6 +5390,15 @@ watch(activeSection, (newSection) => {
   font-weight: 700;
 }
 
+.reports-calendar-shell .day-cell-head {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.reports-calendar-shell .day-cell-head span:first-child {
+  font-weight: 800;
+}
+
 .day-dot {
   width: 7px;
   height: 7px;
@@ -5299,6 +5412,10 @@ watch(activeSection, (newSection) => {
   gap: 4px;
 }
 
+.reports-calendar-shell .day-events {
+  gap: 3px;
+}
+
 .event-chip {
   display: block;
   font-size: 11px;
@@ -5310,6 +5427,13 @@ watch(activeSection, (newSection) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.reports-calendar-shell .event-chip {
+  font-size: 10.5px;
+  line-height: 1.22;
+  border-radius: 999px;
+  padding: 3px 7px;
 }
 
 .chip-test {
@@ -5332,6 +5456,10 @@ watch(activeSection, (newSection) => {
   color: #5b6f8f;
 }
 
+.reports-calendar-shell .event-more {
+  font-size: 10.5px;
+}
+
 .event-more-btn {
   font-size: 11px;
   color: #1f5fc9;
@@ -5342,6 +5470,11 @@ watch(activeSection, (newSection) => {
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.reports-calendar-shell .event-more-btn {
+  font-size: 10.5px;
+  text-underline-offset: 1px;
 }
 
 .event-more-btn:hover {
@@ -5400,6 +5533,20 @@ watch(activeSection, (newSection) => {
   .day-cell {
     min-height: 88px;
     padding: 6px;
+  }
+
+  .reports-calendar-shell .day-cell {
+    min-height: 96px;
+    padding: 6px;
+  }
+
+  .reports-calendar-shell .calendar-title {
+    font-size: 18px;
+  }
+
+  .reports-calendar-shell .event-chip {
+    font-size: 10px;
+    padding: 2px 6px;
   }
 
   .calendar-event-card {
@@ -5883,6 +6030,10 @@ watch(activeSection, (newSection) => {
   background: rgba(79, 70, 229, 0.12);
   border-radius: 50%;
 }
+
+.parent-icon i {
+  font-size: 16px;
+}
 .parent-name {
   font-weight: 600;
   font-size: 14px;
@@ -6321,6 +6472,10 @@ watch(activeSection, (newSection) => {
   color: var(--text-primary);
 }
 
+.card-header h3 i {
+  margin-right: 8px;
+}
+
 .view-all-btn {
   background: none;
   border: none;
@@ -6623,6 +6778,11 @@ watch(activeSection, (newSection) => {
   font-size: 16px;
 }
 
+.action-icon i {
+  width: 16px;
+  text-align: center;
+}
+
 .action-btn.primary {
   background: var(--brand-gradient);
   color: white;
@@ -6723,7 +6883,28 @@ watch(activeSection, (newSection) => {
     radial-gradient(220px 140px at 10% 0%, rgba(56, 189, 248, 0.2), transparent 75%);
   backdrop-filter: blur(18px);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
   z-index: 45;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 84px;
+  bottom: 88px;
+  right: -1px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(34, 238, 255, 0.68), rgba(34, 238, 255, 0.08));
+  box-shadow: 0 0 14px rgba(34, 238, 255, 0.45);
+  pointer-events: none;
+}
+
+.sidebar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(300px 200px at 0% 40%, rgba(34, 238, 255, 0.1), transparent 70%);
+  pointer-events: none;
 }
 
 .sidebar-header {
@@ -6759,19 +6940,63 @@ watch(activeSection, (newSection) => {
   border-radius: 10px;
   margin: 3px 8px;
   color: #b8c5d9;
+  position: relative;
+  overflow: hidden;
   transition: all 180ms ease;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(34, 238, 255, 0.78);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(34, 238, 255, 0.18);
+  box-shadow: inset 0 0 16px rgba(34, 238, 255, 0.05), 0 0 12px rgba(34, 238, 255, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.nav-item span i {
+  width: 16px;
+  text-align: center;
 }
 
 .nav-item:hover {
   background: rgba(59, 130, 246, 0.12);
   color: #eef5ff;
+  text-shadow: 0 0 8px rgba(34, 238, 255, 0.24);
+}
+
+.nav-item:hover::before,
+.nav-item:hover::after {
+  opacity: 1;
 }
 
 .nav-item.active {
   color: #f7fbff;
   background: linear-gradient(90deg, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0.05));
-  border-left-color: #60a5fa;
-  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.28), 0 0 18px rgba(56, 189, 248, 0.15);
+  border-left-color: #22eeff;
+  box-shadow: inset 0 0 0 1px rgba(34, 238, 255, 0.46), 0 0 16px rgba(34, 238, 255, 0.25), 0 0 26px rgba(34, 238, 255, 0.16);
+  text-shadow: 0 0 10px rgba(34, 238, 255, 0.35);
+}
+
+.nav-item.active::before,
+.nav-item.active::after {
+  opacity: 1;
 }
 
 .btn-logout {
@@ -6848,6 +7073,116 @@ watch(activeSection, (newSection) => {
   box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
 }
 
+.dashboard-container:not(.theme-light) .content-section:not(.reports-panel),
+.dashboard-container:not(.theme-light) .table-wrap,
+.dashboard-container:not(.theme-light) .modal,
+.dashboard-container:not(.theme-light) .summary-card,
+.dashboard-container:not(.theme-light) .profile-section,
+.dashboard-container:not(.theme-light) .finance-card,
+.dashboard-container:not(.theme-light) .status-card,
+.dashboard-container:not(.theme-light) .nudge-item,
+.dashboard-container:not(.theme-light) .activity-item,
+.dashboard-container:not(.theme-light) .calendar-event-card,
+.dashboard-container:not(.theme-light) .selected-day-panel,
+.dashboard-container:not(.theme-light) .month-grid-wrap,
+.dashboard-container:not(.theme-light) .teacher-select-list,
+.dashboard-container:not(.theme-light) .connect-parent-form,
+.dashboard-container:not(.theme-light) .parent-card {
+  --neon-cyan: rgba(34, 238, 255, 0.86);
+  --neon-magenta: rgba(232, 84, 255, 0.78);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(34, 238, 255, 0.26);
+  box-shadow: 0 10px 28px rgba(2, 6, 23, 0.4), 0 0 14px rgba(34, 238, 255, 0.1);
+}
+
+.dashboard-container:not(.theme-light) .content-section:not(.reports-panel)::before,
+.dashboard-container:not(.theme-light) .table-wrap::before,
+.dashboard-container:not(.theme-light) .modal::before,
+.dashboard-container:not(.theme-light) .summary-card::before,
+.dashboard-container:not(.theme-light) .profile-section::before,
+.dashboard-container:not(.theme-light) .finance-card::before,
+.dashboard-container:not(.theme-light) .status-card::before,
+.dashboard-container:not(.theme-light) .nudge-item::before,
+.dashboard-container:not(.theme-light) .activity-item::before,
+.dashboard-container:not(.theme-light) .calendar-event-card::before,
+.dashboard-container:not(.theme-light) .selected-day-panel::before,
+.dashboard-container:not(.theme-light) .month-grid-wrap::before,
+.dashboard-container:not(.theme-light) .teacher-select-list::before,
+.dashboard-container:not(.theme-light) .connect-parent-form::before,
+.dashboard-container:not(.theme-light) .parent-card::before,
+.dashboard-container:not(.theme-light) .content-section:not(.reports-panel)::after,
+.dashboard-container:not(.theme-light) .table-wrap::after,
+.dashboard-container:not(.theme-light) .modal::after,
+.dashboard-container:not(.theme-light) .summary-card::after,
+.dashboard-container:not(.theme-light) .profile-section::after,
+.dashboard-container:not(.theme-light) .finance-card::after,
+.dashboard-container:not(.theme-light) .status-card::after,
+.dashboard-container:not(.theme-light) .nudge-item::after,
+.dashboard-container:not(.theme-light) .activity-item::after,
+.dashboard-container:not(.theme-light) .calendar-event-card::after,
+.dashboard-container:not(.theme-light) .selected-day-panel::after,
+.dashboard-container:not(.theme-light) .month-grid-wrap::after,
+.dashboard-container:not(.theme-light) .teacher-select-list::after,
+.dashboard-container:not(.theme-light) .connect-parent-form::after,
+.dashboard-container:not(.theme-light) .parent-card::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.dashboard-container:not(.theme-light) .content-section:not(.reports-panel)::before,
+.dashboard-container:not(.theme-light) .table-wrap::before,
+.dashboard-container:not(.theme-light) .modal::before,
+.dashboard-container:not(.theme-light) .summary-card::before,
+.dashboard-container:not(.theme-light) .profile-section::before,
+.dashboard-container:not(.theme-light) .finance-card::before,
+.dashboard-container:not(.theme-light) .status-card::before,
+.dashboard-container:not(.theme-light) .nudge-item::before,
+.dashboard-container:not(.theme-light) .activity-item::before,
+.dashboard-container:not(.theme-light) .calendar-event-card::before,
+.dashboard-container:not(.theme-light) .selected-day-panel::before,
+.dashboard-container:not(.theme-light) .month-grid-wrap::before,
+.dashboard-container:not(.theme-light) .teacher-select-list::before,
+.dashboard-container:not(.theme-light) .connect-parent-form::before,
+.dashboard-container:not(.theme-light) .parent-card::before {
+  inset: -1px;
+  padding: 1px;
+  background: linear-gradient(180deg, var(--neon-cyan) 0%, rgba(34, 238, 255, 0.55) 80%, rgba(232, 84, 255, 0.78) 100%);
+  opacity: 0.58;
+  animation: neonBreathe 5.8s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.dashboard-container:not(.theme-light) .content-section:not(.reports-panel)::after,
+.dashboard-container:not(.theme-light) .table-wrap::after,
+.dashboard-container:not(.theme-light) .modal::after,
+.dashboard-container:not(.theme-light) .summary-card::after,
+.dashboard-container:not(.theme-light) .profile-section::after,
+.dashboard-container:not(.theme-light) .finance-card::after,
+.dashboard-container:not(.theme-light) .status-card::after,
+.dashboard-container:not(.theme-light) .nudge-item::after,
+.dashboard-container:not(.theme-light) .activity-item::after,
+.dashboard-container:not(.theme-light) .calendar-event-card::after,
+.dashboard-container:not(.theme-light) .selected-day-panel::after,
+.dashboard-container:not(.theme-light) .month-grid-wrap::after,
+.dashboard-container:not(.theme-light) .teacher-select-list::after,
+.dashboard-container:not(.theme-light) .connect-parent-form::after,
+.dashboard-container:not(.theme-light) .parent-card::after {
+  left: 20%;
+  right: 20%;
+  bottom: -8px;
+  height: 14px;
+  background: radial-gradient(ellipse at center, var(--neon-magenta) 0%, rgba(232, 84, 255, 0.16) 60%, transparent 90%);
+  filter: blur(7px);
+  opacity: 0.62;
+  animation: magentaBreathe 5.8s ease-in-out infinite;
+}
+
 .content-header h1,
 .card-header h3,
 .stat-number,
@@ -6877,11 +7212,291 @@ watch(activeSection, (newSection) => {
   color: #97a8c1;
 }
 
-.dash-stat-card {
-  border: 1px solid rgba(148, 163, 184, 0.22);
-  border-left-width: 4px;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.66));
-  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.42);
+.dashboard-container:not(.theme-light) .reports-panel {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(34, 238, 255, 0.34);
+  background: linear-gradient(180deg, rgba(10, 22, 40, 0.92), rgba(7, 15, 30, 0.84));
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.42), 0 0 18px rgba(34, 238, 255, 0.12);
+}
+
+.dashboard-container:not(.theme-light) .reports-panel::before,
+.dashboard-container:not(.theme-light) .reports-panel::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel::before {
+  inset: -1px;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(34, 238, 255, 0.92), rgba(34, 238, 255, 0.6) 78%, rgba(232, 84, 255, 0.85));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.75;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel::after {
+  left: 22%;
+  right: 22%;
+  bottom: -8px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(232, 84, 255, 0.8), rgba(232, 84, 255, 0.22) 58%, transparent 90%);
+  filter: blur(8px);
+  opacity: 0.85;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel h2,
+.dashboard-container:not(.theme-light) .reports-panel h3,
+.dashboard-container:not(.theme-light) .reports-panel .calendar-title {
+  color: #f3f8ff;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel .calendar-helper-line,
+.dashboard-container:not(.theme-light) .reports-panel .event-sub,
+.dashboard-container:not(.theme-light) .reports-panel .state-msg {
+  color: #b5c5dd;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel .form-input[type='date'] {
+  color-scheme: dark;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel .export-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(34, 238, 255, 0.38);
+  background: linear-gradient(160deg, rgba(8, 26, 50, 0.9), rgba(7, 17, 33, 0.86));
+  box-shadow: inset 0 0 0 1px rgba(34, 238, 255, 0.08), 0 10px 22px rgba(2, 6, 23, 0.34);
+}
+
+.dashboard-container:not(.theme-light) .reports-panel .export-card strong {
+  color: #f1f7ff;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel .export-card span {
+  color: #a9bdd9;
+}
+
+.dashboard-container:not(.theme-light) .reports-panel .export-card:hover:not(:disabled) {
+  border-color: rgba(34, 238, 255, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(34, 238, 255, 0.16), 0 14px 28px rgba(2, 6, 23, 0.42), 0 0 16px rgba(34, 238, 255, 0.2);
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .month-grid-wrap {
+  border-color: rgba(34, 238, 255, 0.28);
+  background: rgba(10, 18, 34, 0.86);
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .weekday-row {
+  background: rgba(22, 38, 65, 0.88);
+  border-bottom-color: rgba(148, 163, 184, 0.26);
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .weekday-cell {
+  color: #9db7da;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .day-cell {
+  background: rgba(11, 24, 44, 0.78);
+  border-color: rgba(64, 94, 132, 0.34);
+  color: #dbe8fb;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .day-cell:hover {
+  background: rgba(18, 38, 66, 0.88);
+  border-color: rgba(34, 238, 255, 0.45);
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .day-cell.muted {
+  background: rgba(8, 16, 30, 0.72);
+  color: #5f789d;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .day-cell.today {
+  border-color: rgba(34, 238, 255, 0.68);
+  background: linear-gradient(180deg, rgba(18, 50, 84, 0.78), rgba(11, 24, 44, 0.88));
+  box-shadow: inset 0 0 0 1px rgba(34, 238, 255, 0.32), 0 0 14px rgba(34, 238, 255, 0.16);
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .day-cell.selected {
+  background: linear-gradient(180deg, rgba(24, 62, 102, 0.68), rgba(14, 32, 58, 0.88));
+  border-color: rgba(96, 165, 250, 0.66);
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-chip {
+  background: rgba(30, 46, 73, 0.78);
+  color: #dbe8fb;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .chip-test {
+  background: rgba(59, 130, 246, 0.2);
+  color: #bfdbfe;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .chip-quiz {
+  background: rgba(139, 92, 246, 0.22);
+  color: #d8b4fe;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .chip-class {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-more {
+  color: #9cb0cd;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-more-btn {
+  color: #7dc9ff;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-more-btn:hover {
+  color: #a7ddff;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .selected-day-panel {
+  border-color: rgba(34, 238, 255, 0.26);
+  background: linear-gradient(180deg, rgba(11, 24, 44, 0.86), rgba(8, 17, 32, 0.88));
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .calendar-event-card {
+  border-color: rgba(64, 94, 132, 0.36);
+  background: linear-gradient(180deg, rgba(14, 32, 58, 0.88), rgba(10, 22, 40, 0.9));
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .calendar-event-card h3 {
+  color: #f1f7ff;
+}
+
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-time,
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-type,
+.dashboard-container:not(.theme-light) .reports-calendar-shell .event-sub {
+  color: #a9bdd9;
+}
+
+.dash-stat-card,
+.dashboard-card {
+  --neon-cyan: rgba(34, 238, 255, 0.96);
+  --neon-cyan-soft: rgba(34, 238, 255, 0.45);
+  --neon-magenta: rgba(232, 84, 255, 0.9);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(34, 238, 255, 0.5);
+  background: linear-gradient(180deg, rgba(10, 26, 46, 0.9), rgba(8, 17, 36, 0.78));
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.42), 0 0 20px rgba(34, 238, 255, 0.12);
+}
+
+.dash-stat-card::before,
+.dash-stat-card::after,
+.dashboard-card::before,
+.dashboard-card::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.dash-stat-card::before,
+.dashboard-card::before {
+  inset: -1px;
+  padding: 1.2px;
+  background: linear-gradient(180deg, var(--neon-cyan) 0%, rgba(34, 238, 255, 0.9) 78%, rgba(232, 84, 255, 0.95) 100%);
+  box-shadow: 0 0 10px rgba(34, 238, 255, 0.55), 0 0 24px rgba(34, 238, 255, 0.2);
+  animation: neonBreathe 4.8s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.dash-stat-card::after,
+.dashboard-card::after {
+  left: 14%;
+  right: 14%;
+  bottom: -6px;
+  height: 18px;
+  background: radial-gradient(ellipse at center, var(--neon-magenta) 0%, rgba(232, 84, 255, 0.3) 55%, transparent 90%);
+  filter: blur(8px);
+  opacity: 0.9;
+  animation: magentaBreathe 4.8s ease-in-out infinite;
+}
+
+.dash-stat-card:nth-child(2)::before,
+.dash-stat-card:nth-child(2)::after,
+.dash-stat-card:nth-child(4)::before,
+.dash-stat-card:nth-child(4)::after,
+.dashboard-grid .dashboard-card:nth-child(odd)::before,
+.dashboard-grid .dashboard-card:nth-child(odd)::after {
+  animation-delay: 0.5s;
+}
+
+@keyframes neonBreathe {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: translateZ(0) scale(1);
+    box-shadow: 0 0 8px rgba(34, 238, 255, 0.45), 0 0 18px rgba(34, 238, 255, 0.14);
+  }
+  50% {
+    opacity: 1;
+    transform: translateZ(0) scale(1.002);
+    box-shadow: 0 0 14px rgba(34, 238, 255, 0.68), 0 0 28px rgba(34, 238, 255, 0.26);
+  }
+}
+
+@keyframes magentaBreathe {
+  0%,
+  100% {
+    opacity: 0.64;
+    transform: translateZ(0) scaleX(0.98);
+  }
+  50% {
+    opacity: 0.94;
+    transform: translateZ(0) scaleX(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-stat-card::before,
+  .dash-stat-card::after,
+  .dashboard-card::before,
+  .dashboard-card::after,
+  .dashboard-container:not(.theme-light) .content-section:not(.reports-panel)::before,
+  .dashboard-container:not(.theme-light) .table-wrap::before,
+  .dashboard-container:not(.theme-light) .modal::before,
+  .dashboard-container:not(.theme-light) .summary-card::before,
+  .dashboard-container:not(.theme-light) .profile-section::before,
+  .dashboard-container:not(.theme-light) .finance-card::before,
+  .dashboard-container:not(.theme-light) .status-card::before,
+  .dashboard-container:not(.theme-light) .nudge-item::before,
+  .dashboard-container:not(.theme-light) .activity-item::before,
+  .dashboard-container:not(.theme-light) .calendar-event-card::before,
+  .dashboard-container:not(.theme-light) .selected-day-panel::before,
+  .dashboard-container:not(.theme-light) .month-grid-wrap::before,
+  .dashboard-container:not(.theme-light) .teacher-select-list::before,
+  .dashboard-container:not(.theme-light) .connect-parent-form::before,
+  .dashboard-container:not(.theme-light) .parent-card::before,
+  .dashboard-container:not(.theme-light) .content-section:not(.reports-panel)::after,
+  .dashboard-container:not(.theme-light) .table-wrap::after,
+  .dashboard-container:not(.theme-light) .modal::after,
+  .dashboard-container:not(.theme-light) .summary-card::after,
+  .dashboard-container:not(.theme-light) .profile-section::after,
+  .dashboard-container:not(.theme-light) .finance-card::after,
+  .dashboard-container:not(.theme-light) .status-card::after,
+  .dashboard-container:not(.theme-light) .nudge-item::after,
+  .dashboard-container:not(.theme-light) .activity-item::after,
+  .dashboard-container:not(.theme-light) .calendar-event-card::after,
+  .dashboard-container:not(.theme-light) .selected-day-panel::after,
+  .dashboard-container:not(.theme-light) .month-grid-wrap::after,
+  .dashboard-container:not(.theme-light) .teacher-select-list::after,
+  .dashboard-container:not(.theme-light) .connect-parent-form::after,
+  .dashboard-container:not(.theme-light) .parent-card::after {
+    animation: none !important;
+  }
 }
 
 .dash-stat-card:hover,
@@ -6890,7 +7505,7 @@ watch(activeSection, (newSection) => {
 .action-btn:hover,
 .export-card:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(2, 6, 23, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
+  box-shadow: 0 16px 34px rgba(2, 6, 23, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2), 0 0 24px rgba(34, 238, 255, 0.22);
 }
 
 .card-header,
@@ -7008,12 +7623,42 @@ watch(activeSection, (newSection) => {
   border-bottom: 1px solid rgba(148, 163, 184, 0.14);
 }
 
+.dashboard-container:not(.theme-light) .data-table tbody tr td {
+  border-top: 1px solid rgba(34, 238, 255, 0.08);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dashboard-container:not(.theme-light) .data-table tbody tr td:first-child {
+  border-left: 1px solid rgba(34, 238, 255, 0.16);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.dashboard-container:not(.theme-light) .data-table tbody tr td:last-child {
+  border-right: 1px solid rgba(34, 238, 255, 0.16);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
 .data-table tbody tr:nth-child(even) {
   background: rgba(15, 23, 42, 0.24);
 }
 
 .data-table tbody tr:hover {
   background: rgba(59, 130, 246, 0.16);
+}
+
+.dashboard-container:not(.theme-light) .data-table tbody tr:hover td {
+  border-top-color: rgba(34, 238, 255, 0.24);
+  border-bottom-color: rgba(34, 238, 255, 0.24);
+  box-shadow: inset 0 0 0 1px rgba(34, 238, 255, 0.08), 0 0 12px rgba(34, 238, 255, 0.08);
+}
+
+.dashboard-container:not(.theme-light) .data-table tbody tr:hover td:first-child,
+.dashboard-container:not(.theme-light) .data-table tbody tr:hover td:last-child {
+  border-left-color: rgba(34, 238, 255, 0.32);
+  border-right-color: rgba(34, 238, 255, 0.32);
 }
 
 /* CRITICAL: Override global main.css rule that sets td bg to white on hover */

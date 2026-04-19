@@ -45,9 +45,27 @@ export const adminService = {
   },
 
   async deleteRow(tableName: string, key: Record<string, any>): Promise<ApiResponse<any>> {
-    const response = await apiClient.delete<ApiResponse<any>>(`/admin/tables/${tableName}/rows`, {
-      data: { key }
-    })
-    return response.data
+    try {
+      const response = await apiClient.delete<ApiResponse<any>>(`/admin/tables/${tableName}/rows`, {
+        data: { key }
+      })
+      return response.data
+    } catch (error: any) {
+      const detail = String(error?.response?.data?.message || '').toLowerCase()
+      const canRetryWithRawKey =
+        error?.response?.status === 400 ||
+        detail.includes('missing key') ||
+        detail.includes('invalid json')
+
+      if (!canRetryWithRawKey) {
+        throw error
+      }
+
+      // Some intermediaries strip DELETE bodies with nested objects; retry with raw key payload.
+      const fallbackResponse = await apiClient.delete<ApiResponse<any>>(`/admin/tables/${tableName}/rows`, {
+        data: key
+      })
+      return fallbackResponse.data
+    }
   }
 }

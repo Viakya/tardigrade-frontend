@@ -4,7 +4,7 @@
     <!-- Sidebar -->
     <aside :class="['sidebar', { open: isSidebarOpen }]">
       <div class="sidebar-header">
-        <h2>👨‍👩‍👧 Parent Portal</h2>
+        <h2><i class="fa-solid fa-people-roof" aria-hidden="true"></i> Parent Portal</h2>
         <p>{{ authStore.user?.full_name }}</p>
         <button
           class="theme-toggle-btn"
@@ -12,33 +12,33 @@
           :title="isDarkTheme ? 'Switch to light theme' : 'Switch to dark theme'"
           @click="toggleTheme"
         >
-          <span class="theme-toggle-icon">{{ isDarkTheme ? '☀️' : '🌙' }}</span>
+          <span class="theme-toggle-icon"><i :class="['fa-solid', isDarkTheme ? 'fa-sun' : 'fa-moon']" aria-hidden="true"></i></span>
           <span class="theme-toggle-text">{{ isDarkTheme ? 'Light' : 'Dark' }}</span>
         </button>
       </div>
   <nav class="sidebar-nav" @click="closeSidebar">
         <a href="#" :class="['nav-item', { active: activeSection === 'dashboard' }]" @click.prevent="activeSection = 'dashboard'">
-          <span>📊</span> Dashboard
+          <span><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span> Dashboard
         </a>
         <a href="#" :class="['nav-item', { active: activeSection === 'children' }]" @click.prevent="activeSection = 'children'">
-          <span>👶</span> My Children
+          <span><i class="fa-solid fa-child-reaching" aria-hidden="true"></i></span> My Children
         </a>
         <a href="#" :class="['nav-item', { active: activeSection === 'attendance' }]" @click.prevent="activeSection = 'attendance'">
-          <span>✅</span> Attendance
+          <span><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span> Attendance
         </a>
         <a href="#" :class="['nav-item', { active: activeSection === 'results' }]" @click.prevent="activeSection = 'results'">
-          <span>🧠</span> Quizzes & Results
+          <span><i class="fa-solid fa-brain" aria-hidden="true"></i></span> Quizzes & Results
         </a>
         <a href="#" :class="['nav-item', { active: activeSection === 'fees' }]" @click.prevent="activeSection = 'fees'">
-          <span>💰</span> Fee Status
+          <span><i class="fa-solid fa-wallet" aria-hidden="true"></i></span> Fee Status
         </a>
       </nav>
-      <button @click="handleLogout" class="btn-logout">🚪 Logout</button>
+      <button @click="handleLogout" class="btn-logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-      <button class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
+      <button class="mobile-menu-btn" @click="toggleSidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu</button>
       <!-- Loading State -->
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div>
@@ -47,42 +47,42 @@
 
       <!-- Error State -->
       <div v-else-if="error" class="error-state">
-        <p>❌ {{ error }}</p>
+        <p><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> {{ error }}</p>
         <button @click="loadDashboard" class="btn-retry">Try Again</button>
       </div>
 
       <!-- Dashboard Section -->
       <template v-else-if="activeSection === 'dashboard'">
         <header class="content-header">
-          <h1>👋 Welcome, {{ authStore.user?.full_name }}!</h1>
+          <h1><i class="fa-solid fa-hand-sparkles" aria-hidden="true"></i> Welcome, {{ authStore.user?.full_name }}!</h1>
           <p class="breadcrumb">Parent Portal / Dashboard</p>
         </header>
 
         <!-- Stats Grid -->
         <div class="stats-grid">
           <div class="stat-card pink">
-            <div class="stat-icon">👶</div>
+            <div class="stat-icon"><i class="fa-solid fa-child-reaching" aria-hidden="true"></i></div>
             <div class="stat-info">
               <h3>Children</h3>
               <p class="stat-value">{{ dashboardData?.total_children || 0 }}</p>
             </div>
           </div>
           <div class="stat-card green">
-            <div class="stat-icon">✅</div>
+            <div class="stat-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
             <div class="stat-info">
               <h3>Avg Attendance</h3>
               <p class="stat-value">{{ dashboardData?.average_attendance || 0 }}%</p>
             </div>
           </div>
           <div class="stat-card blue">
-            <div class="stat-icon">🧠</div>
+            <div class="stat-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></div>
             <div class="stat-info">
               <h3>Recent Quizzes</h3>
               <p class="stat-value">{{ dashboardData?.recent_quizzes_count || 0 }}</p>
             </div>
           </div>
           <div :class="['stat-card', (dashboardData?.total_pending_fees || 0) > 0 ? 'orange' : 'green']">
-            <div class="stat-icon">💰</div>
+            <div class="stat-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div>
             <div class="stat-info">
               <h3>Pending Fees</h3>
               <p class="stat-value">₹{{ (dashboardData?.total_pending_fees || 0).toLocaleString() }}</p>
@@ -92,11 +92,11 @@
 
         <!-- Children Overview Cards -->
         <div class="section-title">
-          <h2>👨‍👩‍👧‍👦 Your Children</h2>
+          <h2><i class="fa-solid fa-people-group" aria-hidden="true"></i> Your Children</h2>
         </div>
 
         <div v-if="!dashboardData?.children?.length" class="empty-state">
-          <p>😔 No children linked to your account yet.</p>
+          <p><i class="fa-regular fa-face-frown" aria-hidden="true"></i> No children linked to your account yet.</p>
           <p class="sub">Please contact the administration to link your children.</p>
         </div>
 
@@ -138,7 +138,7 @@
         </div>
 
         <div class="section-title" style="margin-top: 30px;">
-          <h2>🤖 Weekly AI Digest</h2>
+          <h2><i class="fa-solid fa-robot" aria-hidden="true"></i> Weekly AI Digest</h2>
         </div>
 
         <div class="weekly-digest-card">
@@ -158,7 +158,7 @@
             <div class="spinner small"></div>
             <span>Generating weekly digest...</span>
           </div>
-          <div v-else-if="digestError" class="warning-text">⚠️ {{ digestError }}</div>
+          <div v-else-if="digestError" class="warning-text"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ digestError }}</div>
           <div v-else-if="weeklyDigest" class="digest-grid">
             <div class="digest-col">
               <h4>Week Snapshot</h4>
@@ -192,22 +192,22 @@
 
         <!-- Quick Actions -->
         <div class="section-title" style="margin-top: 30px;">
-          <h2>⚡ Quick Actions</h2>
+          <h2><i class="fa-solid fa-bolt" aria-hidden="true"></i> Quick Actions</h2>
         </div>
 
         <div class="quick-actions">
           <div class="action-card" @click="activeSection = 'attendance'">
-            <span class="action-icon">📅</span>
+            <span class="action-icon"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></span>
             <h4>Check Attendance</h4>
             <p>View daily attendance records</p>
           </div>
           <div class="action-card" @click="activeSection = 'results'">
-            <span class="action-icon">🧠</span>
+            <span class="action-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></span>
             <h4>Quiz Results</h4>
             <p>Check practice & graded quiz progress</p>
           </div>
           <div class="action-card" @click="activeSection = 'fees'">
-            <span class="action-icon">💳</span>
+            <span class="action-icon"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span>
             <h4>Fee Status</h4>
             <p>View payments & pending dues</p>
           </div>
@@ -217,12 +217,12 @@
       <!-- Children Section -->
       <template v-else-if="activeSection === 'children'">
         <header class="content-header">
-          <h1>👶 My Children</h1>
+          <h1><i class="fa-solid fa-child-reaching" aria-hidden="true"></i> My Children</h1>
           <p class="breadcrumb">Parent Portal / My Children</p>
         </header>
 
         <div v-if="!dashboardData?.children?.length" class="empty-state">
-          <p>😔 No children linked to your account.</p>
+          <p><i class="fa-regular fa-face-frown" aria-hidden="true"></i> No children linked to your account.</p>
         </div>
 
         <div v-else class="children-detailed-list">
@@ -238,17 +238,17 @@
 
             <div class="detail-grid">
               <div class="detail-item">
-                <span class="detail-label">📚 Batch</span>
+                <span class="detail-label"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Batch</span>
                 <span class="detail-value">{{ child.batch_name || 'Not assigned' }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">✅ Attendance Rate</span>
+                <span class="detail-label"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Attendance Rate</span>
                 <span :class="['detail-value', child.attendance_rate >= 75 ? 'text-green' : 'text-orange']">
                   {{ child.attendance_rate }}%
                 </span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">🧠 Quiz Average</span>
+                <span class="detail-label"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Quiz Average</span>
                 <span :class="['detail-value', child.quiz_average >= 60 ? 'text-green' : 'text-orange']">
                   {{ child.quiz_average }}%
                 </span>
@@ -258,11 +258,11 @@
                 <span class="detail-value">₹{{ child.total_fee.toLocaleString() }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">💵 Paid</span>
+                <span class="detail-label"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Paid</span>
                 <span class="detail-value text-green">₹{{ child.fee_paid.toLocaleString() }}</span>
               </div>
               <div class="detail-item">
-                <span class="detail-label">⏳ Pending</span>
+                <span class="detail-label"><i class="fa-regular fa-hourglass-half" aria-hidden="true"></i> Pending</span>
                 <span :class="['detail-value', child.pending_fee > 0 ? 'text-orange' : 'text-green']">
                   {{ child.pending_fee > 0 ? '₹' + child.pending_fee.toLocaleString() : 'Fully Paid ✓' }}
                 </span>
@@ -275,7 +275,7 @@
 
             <!-- Teachers Section -->
             <div v-if="childTeachers[child.id]?.length" class="teachers-section">
-              <h4>👨‍🏫 Teachers</h4>
+              <h4><i class="fa-solid fa-user-tie" aria-hidden="true"></i> Teachers</h4>
               <div class="teachers-list">
                 <div v-for="teacher in childTeachers[child.id]" :key="teacher.id" class="teacher-chip">
                   <span class="teacher-name">{{ teacher.name }}</span>
@@ -296,7 +296,7 @@
       <!-- Attendance Section -->
       <template v-else-if="activeSection === 'attendance'">
         <header class="content-header">
-          <h1>✅ Attendance Records</h1>
+          <h1><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Attendance Records</h1>
           <p class="breadcrumb">Parent Portal / Attendance</p>
         </header>
 
@@ -319,7 +319,7 @@
         </div>
 
         <div v-if="!selectedChildId" class="empty-state">
-          <p>👆 Please select a child to view attendance records.</p>
+          <p><i class="fa-solid fa-hand-point-up" aria-hidden="true"></i> Please select a child to view attendance records.</p>
         </div>
 
         <div v-else-if="loadingAttendance" class="loading-inline">
@@ -328,7 +328,7 @@
         </div>
 
         <div v-else-if="attendanceError" class="empty-state">
-          <p>⚠️ {{ attendanceError }}</p>
+          <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ attendanceError }}</p>
         </div>
 
         <div v-else-if="attendanceData">
@@ -368,13 +368,13 @@
               ></div>
             </div>
             <p v-if="attendanceData.attendance_rate < 75" class="warning-text">
-              ⚠️ Attendance is below 75%. Please ensure regular attendance.
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Attendance is below 75%. Please ensure regular attendance.
             </p>
           </div>
 
           <div class="trend-card">
             <div class="trend-header">
-              <h3>📈 Attendance Trend</h3>
+              <h3><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Attendance Trend</h3>
               <div class="trend-pills">
                 <span class="trend-pill">Latest <strong>{{ attendanceTrend.latestLabel }}: {{ attendanceTrend.latest }}%</strong></span>
                 <span class="trend-pill">Best <strong>{{ attendanceTrend.bestLabel }}: {{ attendanceTrend.best }}%</strong></span>
@@ -434,7 +434,7 @@
       <!-- Quizzes & Results Section -->
       <template v-else-if="activeSection === 'results'">
         <header class="content-header">
-          <h1>🧠 Quizzes & Results</h1>
+          <h1><i class="fa-solid fa-brain" aria-hidden="true"></i> Quizzes & Results</h1>
           <p class="breadcrumb">Parent Portal / Quizzes & Results</p>
         </header>
 
@@ -449,7 +449,7 @@
         </div>
 
         <div v-if="!selectedChildId" class="empty-state">
-          <p>👆 Please select a child to view quiz results.</p>
+          <p><i class="fa-solid fa-hand-point-up" aria-hidden="true"></i> Please select a child to view quiz results.</p>
         </div>
 
         <div v-else-if="loadingQuizResults" class="loading-inline">
@@ -458,7 +458,7 @@
         </div>
 
         <div v-else-if="quizError" class="empty-state">
-          <p>⚠️ {{ quizError }}</p>
+          <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ quizError }}</p>
         </div>
 
         <div v-else-if="quizResults">
@@ -483,7 +483,7 @@
 
           <div class="trend-card">
             <div class="trend-header">
-              <h3>📈 Quiz Performance Trend</h3>
+              <h3><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Quiz Performance Trend</h3>
               <div class="trend-pills">
                 <span class="trend-pill">Latest <strong>{{ quizTrend.latestLabel }}: {{ quizTrend.latest }}%</strong></span>
                 <span class="trend-pill">Best <strong>{{ quizTrend.bestLabel }}: {{ quizTrend.best }}%</strong></span>
@@ -507,7 +507,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>✅ Practice Assignments</h3></div>
+            <div class="card-head"><h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Practice Assignments</h3></div>
             <div v-if="practiceQuizzes.length === 0" class="empty-state small">
               <p>No practice assignments yet.</p>
             </div>
@@ -537,7 +537,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>🎯 Graded Assignments</h3></div>
+            <div class="card-head"><h3><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Graded Assignments</h3></div>
             <div v-if="gradedQuizzes.length === 0" class="empty-state small">
               <p>No graded assignments yet.</p>
             </div>
@@ -575,7 +575,7 @@
       <!-- Fee Status Section -->
       <template v-else-if="activeSection === 'fees'">
         <header class="content-header">
-          <h1>💰 Fee Status</h1>
+          <h1><i class="fa-solid fa-wallet" aria-hidden="true"></i> Fee Status</h1>
           <p class="breadcrumb">Parent Portal / Fee Status</p>
         </header>
 
@@ -591,7 +591,7 @@
         </div>
 
         <div v-if="!selectedChildId" class="empty-state">
-          <p>👆 Please select a child to view fee status.</p>
+          <p><i class="fa-solid fa-hand-point-up" aria-hidden="true"></i> Please select a child to view fee status.</p>
         </div>
 
         <div v-else-if="loadingFees" class="loading-inline">
@@ -600,7 +600,7 @@
         </div>
 
         <div v-else-if="feeError" class="empty-state">
-          <p>⚠️ {{ feeError }}</p>
+          <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ feeError }}</p>
         </div>
 
         <div v-else-if="feeData">
@@ -658,7 +658,7 @@
 
           <!-- Discount Info -->
           <div v-if="feeData.discount_percent > 0" class="discount-info">
-            🎉 Discount Applied: <strong>{{ feeData.discount_percent }}%</strong>
+            <i class="fa-solid fa-tag" aria-hidden="true"></i> Discount Applied: <strong>{{ feeData.discount_percent }}%</strong>
           </div>
 
           <!-- Progress Bar -->
@@ -677,7 +677,7 @@
 
           <!-- Payment History -->
           <div class="section-title">
-            <h3>📋 Payment History</h3>
+            <h3><i class="fa-solid fa-receipt" aria-hidden="true"></i> Payment History</h3>
           </div>
 
           <div v-if="!feeData.payments.length" class="empty-state small">
@@ -1326,6 +1326,216 @@ function handleLogout() {
 /* Parent accent */
 .nav-item.active {
   border-left-color: var(--accent-parent);
+}
+
+[data-theme='dark'] .dashboard-container {
+  --parent-neon-cyan: rgba(56, 189, 248, 0.9);
+  --parent-neon-pink: rgba(244, 114, 182, 0.86);
+  --parent-neon-soft: rgba(56, 189, 248, 0.22);
+}
+
+[data-theme='dark'] .nav-item.active {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.24), rgba(244, 114, 182, 0.18));
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.32), 0 0 14px rgba(56, 189, 248, 0.18), 0 0 18px rgba(244, 114, 182, 0.12);
+  color: #eef9ff;
+}
+
+[data-theme='dark'] .sidebar {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .sidebar::before {
+  content: '';
+  position: absolute;
+  top: 84px;
+  bottom: 82px;
+  right: -1px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.72), rgba(244, 114, 182, 0.64));
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.34), 0 0 12px rgba(244, 114, 182, 0.22);
+  pointer-events: none;
+}
+
+[data-theme='dark'] .stat-card,
+[data-theme='dark'] .child-card,
+[data-theme='dark'] .weekly-digest-card,
+[data-theme='dark'] .digest-col,
+[data-theme='dark'] .action-card,
+[data-theme='dark'] .child-detail-card,
+[data-theme='dark'] .detail-item,
+[data-theme='dark'] .filter-bar,
+[data-theme='dark'] .summary-card,
+[data-theme='dark'] .fee-card,
+[data-theme='dark'] .progress-section,
+[data-theme='dark'] .trend-card,
+[data-theme='dark'] .trend-board,
+[data-theme='dark'] .table-container,
+[data-theme='dark'] .modal-content,
+[data-theme='dark'] .quiz-question {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .stat-card::before,
+[data-theme='dark'] .child-card::before,
+[data-theme='dark'] .weekly-digest-card::before,
+[data-theme='dark'] .digest-col::before,
+[data-theme='dark'] .action-card::before,
+[data-theme='dark'] .child-detail-card::before,
+[data-theme='dark'] .detail-item::before,
+[data-theme='dark'] .filter-bar::before,
+[data-theme='dark'] .summary-card::before,
+[data-theme='dark'] .fee-card::before,
+[data-theme='dark'] .progress-section::before,
+[data-theme='dark'] .trend-card::before,
+[data-theme='dark'] .trend-board::before,
+[data-theme='dark'] .table-container::before,
+[data-theme='dark'] .modal-content::before,
+[data-theme='dark'] .quiz-question::before,
+[data-theme='dark'] .stat-card::after,
+[data-theme='dark'] .child-card::after,
+[data-theme='dark'] .weekly-digest-card::after,
+[data-theme='dark'] .digest-col::after,
+[data-theme='dark'] .action-card::after,
+[data-theme='dark'] .child-detail-card::after,
+[data-theme='dark'] .detail-item::after,
+[data-theme='dark'] .filter-bar::after,
+[data-theme='dark'] .summary-card::after,
+[data-theme='dark'] .fee-card::after,
+[data-theme='dark'] .progress-section::after,
+[data-theme='dark'] .trend-card::after,
+[data-theme='dark'] .trend-board::after,
+[data-theme='dark'] .table-container::after,
+[data-theme='dark'] .modal-content::after,
+[data-theme='dark'] .quiz-question::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .stat-card::before,
+[data-theme='dark'] .child-card::before,
+[data-theme='dark'] .weekly-digest-card::before,
+[data-theme='dark'] .digest-col::before,
+[data-theme='dark'] .action-card::before,
+[data-theme='dark'] .child-detail-card::before,
+[data-theme='dark'] .detail-item::before,
+[data-theme='dark'] .filter-bar::before,
+[data-theme='dark'] .summary-card::before,
+[data-theme='dark'] .fee-card::before,
+[data-theme='dark'] .progress-section::before,
+[data-theme='dark'] .trend-card::before,
+[data-theme='dark'] .trend-board::before,
+[data-theme='dark'] .table-container::before,
+[data-theme='dark'] .modal-content::before,
+[data-theme='dark'] .quiz-question::before {
+  inset: -1px;
+  padding: 1px;
+  background: linear-gradient(140deg, var(--parent-neon-cyan), rgba(56, 189, 248, 0.6) 56%, var(--parent-neon-pink));
+  opacity: 0.58;
+  animation: parentNeonBreathe 5.6s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+[data-theme='dark'] .stat-card::after,
+[data-theme='dark'] .child-card::after,
+[data-theme='dark'] .weekly-digest-card::after,
+[data-theme='dark'] .digest-col::after,
+[data-theme='dark'] .action-card::after,
+[data-theme='dark'] .child-detail-card::after,
+[data-theme='dark'] .detail-item::after,
+[data-theme='dark'] .filter-bar::after,
+[data-theme='dark'] .summary-card::after,
+[data-theme='dark'] .fee-card::after,
+[data-theme='dark'] .progress-section::after,
+[data-theme='dark'] .trend-card::after,
+[data-theme='dark'] .trend-board::after,
+[data-theme='dark'] .table-container::after,
+[data-theme='dark'] .modal-content::after,
+[data-theme='dark'] .quiz-question::after {
+  left: 18%;
+  right: 18%;
+  bottom: -8px;
+  height: 14px;
+  background: radial-gradient(ellipse at center, rgba(244, 114, 182, 0.62) 0%, rgba(56, 189, 248, 0.2) 58%, transparent 90%);
+  filter: blur(7px);
+  opacity: 0.66;
+  animation: parentNeonPulse 5.6s ease-in-out infinite;
+}
+
+[data-theme='dark'] .data-table tbody tr td {
+  border-top-color: rgba(56, 189, 248, 0.12);
+  border-bottom-color: rgba(244, 114, 182, 0.14);
+}
+
+[data-theme='dark'] .data-table tbody tr:hover td {
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.18);
+}
+
+@keyframes parentNeonBreathe {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: translateZ(0) scale(1.002);
+  }
+}
+
+@keyframes parentNeonPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateZ(0) scaleX(0.98);
+  }
+  50% {
+    opacity: 0.78;
+    transform: translateZ(0) scaleX(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='dark'] .stat-card::before,
+  [data-theme='dark'] .child-card::before,
+  [data-theme='dark'] .weekly-digest-card::before,
+  [data-theme='dark'] .digest-col::before,
+  [data-theme='dark'] .action-card::before,
+  [data-theme='dark'] .child-detail-card::before,
+  [data-theme='dark'] .detail-item::before,
+  [data-theme='dark'] .filter-bar::before,
+  [data-theme='dark'] .summary-card::before,
+  [data-theme='dark'] .fee-card::before,
+  [data-theme='dark'] .progress-section::before,
+  [data-theme='dark'] .trend-card::before,
+  [data-theme='dark'] .trend-board::before,
+  [data-theme='dark'] .table-container::before,
+  [data-theme='dark'] .modal-content::before,
+  [data-theme='dark'] .quiz-question::before,
+  [data-theme='dark'] .stat-card::after,
+  [data-theme='dark'] .child-card::after,
+  [data-theme='dark'] .weekly-digest-card::after,
+  [data-theme='dark'] .digest-col::after,
+  [data-theme='dark'] .action-card::after,
+  [data-theme='dark'] .child-detail-card::after,
+  [data-theme='dark'] .detail-item::after,
+  [data-theme='dark'] .filter-bar::after,
+  [data-theme='dark'] .summary-card::after,
+  [data-theme='dark'] .fee-card::after,
+  [data-theme='dark'] .progress-section::after,
+  [data-theme='dark'] .trend-card::after,
+  [data-theme='dark'] .trend-board::after,
+  [data-theme='dark'] .table-container::after,
+  [data-theme='dark'] .modal-content::after,
+  [data-theme='dark'] .quiz-question::after {
+    animation: none !important;
+  }
 }
 
 .theme-toggle-btn {

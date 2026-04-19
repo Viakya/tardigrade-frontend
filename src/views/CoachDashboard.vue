@@ -15,25 +15,25 @@
           :title="isDarkTheme ? 'Switch to light theme' : 'Switch to dark theme'"
           @click="toggleTheme"
         >
-          <span class="theme-toggle-icon">{{ isDarkTheme ? '☀️' : '🌙' }}</span>
+          <span class="theme-toggle-icon"><i :class="['fa-solid', isDarkTheme ? 'fa-sun' : 'fa-moon']" aria-hidden="true"></i></span>
           <span class="theme-toggle-text">{{ isDarkTheme ? 'Light' : 'Dark' }}</span>
         </button>
       </div>
       <nav class="sidebar-nav">
         <a href="#" @click.prevent="setView('overview')" :class="['nav-item', { active: currentView === 'overview' }]">
-          <span class="nav-icon">📊</span> Dashboard
+          <span class="nav-icon"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span> Dashboard
         </a>
         <a href="#" @click.prevent="setView('batches')" :class="['nav-item', { active: currentView === 'batches' || currentView === 'students' }]">
-          <span class="nav-icon">👥</span> My Batches
+          <span class="nav-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></span> My Batches
         </a>
         <a href="#" @click.prevent="setView('resources')" :class="['nav-item', { active: currentView === 'resources' }]">
-          <span class="nav-icon">📌</span> Batch Portal
+          <span class="nav-icon"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span> Batch Portal
         </a>
         <a href="#" @click.prevent="setView('attendance')" :class="['nav-item', { active: currentView === 'attendance' }]">
-          <span class="nav-icon">📋</span> Attendance
+          <span class="nav-icon"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span> Attendance
         </a>
         <a href="#" @click.prevent="setView('quizzes')" :class="['nav-item', { active: currentView === 'quizzes' }]">
-          <span class="nav-icon">🧠</span> Quizzes
+          <span class="nav-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></span> Quizzes
         </a>
       </nav>
       <div class="sidebar-section" v-if="batches.length">
@@ -49,12 +49,12 @@
           <small>Year {{ batch.year }}</small>
         </button>
       </div>
-      <button @click="handleLogout" class="btn-logout">🚪 Logout</button>
+      <button @click="handleLogout" class="btn-logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Logout</button>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main-content">
-      <button class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
+      <button class="mobile-menu-btn" @click="toggleSidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu</button>
       <header class="content-header">
         <div>
           <h1>{{ viewTitle }}</h1>
@@ -65,14 +65,14 @@
             <span v-if="currentView === 'attendance' && selectedBatch"> / Attendance</span>
           </p>
         </div>
-        <div class="header-date">📅 {{ todayFormatted }}</div>
+        <div class="header-date"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> {{ todayFormatted }}</div>
       </header>
 
       <div v-if="loading" class="loading-state">
         <div class="spinner"></div><p>Loading...</p>
       </div>
       <div v-else-if="error" class="error-state">
-        <p>⚠️ {{ error }}</p>
+        <p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ error }}</p>
         <button @click="loadDashboard" class="btn-retry">Retry</button>
       </div>
 
@@ -81,28 +81,28 @@
         <div v-if="currentView === 'overview'">
           <div class="stats-grid">
             <div class="stat-card" style="--accent:#667eea">
-              <div class="stat-icon">👥</div>
+              <div class="stat-icon"><i class="fa-solid fa-users" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>My Batches</h3>
                 <p class="stat-value">{{ summary.stats?.batches_count || 0 }}</p>
               </div>
             </div>
             <div class="stat-card" style="--accent:#f093fb">
-              <div class="stat-icon">📚</div>
+              <div class="stat-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Total Students</h3>
                 <p class="stat-value">{{ summary.stats?.total_students || 0 }}</p>
               </div>
             </div>
             <div class="stat-card" style="--accent:#4facfe">
-              <div class="stat-icon">📝</div>
+              <div class="stat-icon"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Quizzes</h3>
                 <p class="stat-value">{{ summary.stats?.recent_quizzes || 0 }}</p>
               </div>
             </div>
             <div class="stat-card" style="--accent:#43e97b">
-              <div class="stat-icon">✅</div>
+              <div class="stat-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Today's Attendance</h3>
                 <p class="stat-value">{{ summary.stats?.today_attendance_rate || 0 }}%</p>
@@ -116,17 +116,17 @@
               <button @click="setView('batches')" class="btn-link">View all →</button>
             </div>
             <div v-if="batches.length === 0" class="empty-state">
-              <p>🎓 No batches assigned yet</p>
+              <p><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> No batches assigned yet</p>
             </div>
             <div v-else class="batches-grid">
               <div v-for="batch in batches" :key="batch.id" class="batch-card" @click="openBatch(batch)">
                 <div class="batch-card-top">
                   <span class="batch-year-badge">{{ batch.year }}</span>
-                  <span class="batch-student-count">👤 {{ batch.student_count }}</span>
+                  <span class="batch-student-count"><i class="fa-solid fa-user" aria-hidden="true"></i> {{ batch.student_count }}</span>
                 </div>
                 <h3>{{ batch.batch_name }}</h3>
                 <div class="batch-card-bottom">
-                  <button @click.stop="quickAttendance(batch)" class="btn-mini-primary">🎯 Attendance</button>
+                  <button @click.stop="quickAttendance(batch)" class="btn-mini-primary"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Attendance</button>
                 </div>
               </div>
             </div>
@@ -149,7 +149,7 @@
             </div>
 
             <div v-if="coachAiLoading" class="empty-state"><p>Generating coach insights...</p></div>
-            <div v-else-if="coachAiError" class="error-state"><p>⚠️ {{ coachAiError }}</p></div>
+            <div v-else-if="coachAiError" class="error-state"><p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ coachAiError }}</p></div>
             <div v-else-if="coachAiInsights" class="coach-ai-grid">
               <div class="coach-ai-col">
                 <h4>Summary</h4>
@@ -181,7 +181,7 @@
             <h2>Upcoming Quizzes</h2>
             <div class="upcoming-tests">
               <div v-for="quiz in summary.upcoming_quizzes" :key="quiz.id" class="upcoming-test-item">
-                <div class="test-badge">🧠</div>
+                <div class="test-badge"><i class="fa-solid fa-brain" aria-hidden="true"></i></div>
                 <div>
                   <strong>{{ quiz.title }}</strong>
                   <p>{{ quiz.batch_name }} · {{ formatDate(quiz.open_at || quiz.created_at) }}</p>
@@ -199,7 +199,7 @@
             <div v-else class="batches-list">
               <div v-for="batch in batches" :key="batch.id" class="batch-row">
                 <div class="batch-row-info">
-                  <div class="batch-row-icon">📚</div>
+                  <div class="batch-row-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></div>
                   <div>
                     <h3>{{ batch.batch_name }}</h3>
                     <p>Year {{ batch.year }} · {{ batch.student_count }} students</p>
@@ -209,8 +209,8 @@
                   </div>
                 </div>
                 <div class="batch-row-actions">
-                  <button @click="openBatch(batch)" class="btn-secondary">👁 View Students</button>
-                  <button @click="quickAttendance(batch)" class="btn-primary">🎯 Attendance</button>
+                  <button @click="openBatch(batch)" class="btn-secondary"><i class="fa-regular fa-eye" aria-hidden="true"></i> View Students</button>
+                  <button @click="quickAttendance(batch)" class="btn-primary"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Attendance</button>
                 </div>
               </div>
             </div>
@@ -229,14 +229,14 @@
             </div>
 
             <div class="search-bar">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
               <input
                 v-model="studentSearch"
                 type="text"
                 placeholder="Search by name, email, phone, ID…"
                 class="search-input"
               />
-              <button v-if="studentSearch" @click="studentSearch = ''" class="clear-search">✕</button>
+              <button v-if="studentSearch" @click="studentSearch = ''" class="clear-search"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
 
             <div v-if="loadingStudents" class="loading-state"><div class="spinner"></div></div>
@@ -290,7 +290,7 @@
           <div class="section-card">
             <div class="section-header">
               <div>
-                <h2>📌 Batch Portal Resources</h2>
+                <h2><i class="fa-solid fa-thumbtack" aria-hidden="true"></i> Batch Portal Resources</h2>
                 <p class="sub-text">Share videos, articles, and links with this batch.</p>
               </div>
               <button @click="loadBatchResources" class="btn-secondary" :disabled="loadingResources">Refresh</button>
@@ -314,7 +314,7 @@
             </div>
 
             <div v-if="loadingResources" class="loading-state"><div class="spinner"></div></div>
-            <div v-else-if="resourceError" class="empty-state"><p>⚠️ {{ resourceError }}</p></div>
+            <div v-else-if="resourceError" class="empty-state"><p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ resourceError }}</p></div>
             <div v-else-if="batchResources.length === 0" class="empty-state"><p>No resources yet.</p></div>
             <div v-else class="resource-grid">
               <div v-for="res in batchResources" :key="res.id" class="resource-card">
@@ -345,7 +345,7 @@
         <!-- ============ ATTENDANCE (gamified) ============ -->
         <div v-if="currentView === 'attendance'">
           <div v-if="!selectedBatch" class="section-card">
-            <h2>🎯 Mark Attendance</h2>
+            <h2><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Mark Attendance</h2>
             <p class="sub-text">Choose a batch to mark attendance</p>
             <div class="batches-grid" style="margin-top:1rem">
               <div
@@ -356,7 +356,7 @@
               >
                 <div class="batch-card-top">
                   <span class="batch-year-badge">{{ batch.year }}</span>
-                  <span class="batch-student-count">👤 {{ batch.student_count }}</span>
+                  <span class="batch-student-count"><i class="fa-solid fa-user" aria-hidden="true"></i> {{ batch.student_count }}</span>
                 </div>
                 <h3>{{ batch.batch_name }}</h3>
                 <p class="batch-sub">Click to start attendance</p>
@@ -368,37 +368,37 @@
             <div class="section-card attendance-header-card">
               <div class="attendance-top">
                 <div>
-                  <h2>📋 {{ selectedBatch.batch_name }}</h2>
+                  <h2><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> {{ selectedBatch.batch_name }}</h2>
                   <p class="sub-text">{{ attendanceStudents.length }} students</p>
                 </div>
                 <div class="attendance-controls">
                   <input type="date" v-model="attendanceDate" class="date-picker" />
-                  <button @click="loadAttendanceForBatch" class="btn-secondary" :disabled="attendanceLoading">🔄 Load</button>
+                  <button @click="loadAttendanceForBatch" class="btn-secondary" :disabled="attendanceLoading"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Load</button>
                   <button @click="selectedBatch = null" class="btn-outline">← Change Batch</button>
                 </div>
               </div>
 
               <div class="progress-section">
                 <div class="progress-stats">
-                  <span class="progress-stat present">✅ Present: {{ presentCount }}</span>
-                  <span class="progress-stat absent">❌ Absent: {{ absentCount }}</span>
-                  <span class="progress-stat late">⏰ Late: {{ lateCount }}</span>
-                  <span class="progress-stat unmarked">⬜ Unmarked: {{ unmarkedCount }}</span>
+                  <span class="progress-stat present"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Present: {{ presentCount }}</span>
+                  <span class="progress-stat absent"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Absent: {{ absentCount }}</span>
+                  <span class="progress-stat late"><i class="fa-regular fa-clock" aria-hidden="true"></i> Late: {{ lateCount }}</span>
+                  <span class="progress-stat unmarked"><i class="fa-regular fa-square" aria-hidden="true"></i> Unmarked: {{ unmarkedCount }}</span>
                 </div>
                 <div class="progress-bar-track">
                   <div class="progress-bar-fill" :style="{ width: markedPercent + '%', background: progressColor }"></div>
                 </div>
                 <p class="progress-label">
                   {{ markedCount }} / {{ attendanceStudents.length }} marked
-                  <span v-if="markedCount === attendanceStudents.length && attendanceStudents.length > 0" class="congrats">🎉 All done!</span>
+                  <span v-if="markedCount === attendanceStudents.length && attendanceStudents.length > 0" class="congrats"><i class="fa-solid fa-party-horn" aria-hidden="true"></i> All done!</span>
                 </p>
               </div>
 
               <div class="bulk-actions">
                 <span class="bulk-label">Mark all as:</span>
-                <button @click="markAll('present')" class="btn-bulk present">✅ Present</button>
-                <button @click="markAll('absent')" class="btn-bulk absent">❌ Absent</button>
-                <button @click="resetAll" class="btn-bulk reset">🔄 Reset</button>
+                <button @click="markAll('present')" class="btn-bulk present"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Present</button>
+                <button @click="markAll('absent')" class="btn-bulk absent"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Absent</button>
+                <button @click="resetAll" class="btn-bulk reset"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset</button>
               </div>
             </div>
 
@@ -414,14 +414,14 @@
                   <div class="att-avatar" :class="'avatar-' + (student.status || 'unmarked')">
                     {{ initials(student.full_name) }}
                   </div>
-                  <div class="att-status-badge" v-if="student.status">{{ statusEmoji(student.status) }}</div>
+                  <div class="att-status-badge" v-if="student.status"><i :class="statusIconClass(student.status)" aria-hidden="true"></i></div>
                 </div>
                 <div class="att-card-name">{{ student.full_name }}</div>
                 <div class="att-card-buttons">
-                  <button @click="setStatus(student, 'present')" :class="['att-btn', 'btn-present', { active: student.status === 'present' }]" title="Present">✅</button>
-                  <button @click="setStatus(student, 'absent')" :class="['att-btn', 'btn-absent', { active: student.status === 'absent' }]" title="Absent">❌</button>
-                  <button @click="setStatus(student, 'late')" :class="['att-btn', 'btn-late', { active: student.status === 'late' }]" title="Late">⏰</button>
-                  <button @click="setStatus(student, 'excused')" :class="['att-btn', 'btn-excused', { active: student.status === 'excused' }]" title="Excused">🏥</button>
+                  <button @click="setStatus(student, 'present')" :class="['att-btn', 'btn-present', { active: student.status === 'present' }]" title="Present"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></button>
+                  <button @click="setStatus(student, 'absent')" :class="['att-btn', 'btn-absent', { active: student.status === 'absent' }]" title="Absent"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+                  <button @click="setStatus(student, 'late')" :class="['att-btn', 'btn-late', { active: student.status === 'late' }]" title="Late"><i class="fa-regular fa-clock" aria-hidden="true"></i></button>
+                  <button @click="setStatus(student, 'excused')" :class="['att-btn', 'btn-excused', { active: student.status === 'excused' }]" title="Excused"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i></button>
                 </div>
                 <input v-model="student.remarks" type="text" placeholder="Remarks…" class="att-remarks-input" />
               </div>
@@ -431,8 +431,8 @@
               <div class="save-bar-inner">
                 <span class="save-info">{{ markedCount }} / {{ attendanceStudents.length }} marked</span>
                 <button @click="saveAttendance" class="btn-save-attendance" :disabled="savingAttendance || markedCount === 0">
-                  <span v-if="savingAttendance">⏳ Saving…</span>
-                  <span v-else>💾 Save Attendance</span>
+                  <span v-if="savingAttendance"><i class="fa-regular fa-hourglass-half" aria-hidden="true"></i> Saving...</span>
+                  <span v-else><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Save Attendance</span>
                 </button>
               </div>
             </div>
@@ -442,7 +442,7 @@
         <!-- ============ BATCH PORTAL ============ -->
         <div v-if="currentView === 'resources'">
           <div v-if="!selectedBatch" class="section-card">
-            <h2>📌 Batch Portal</h2>
+            <h2><i class="fa-solid fa-thumbtack" aria-hidden="true"></i> Batch Portal</h2>
             <p class="sub-text">Select a batch from the sidebar to view resources.</p>
           </div>
 
@@ -450,7 +450,7 @@
             <div class="section-card">
               <div class="section-header">
                 <div>
-                  <h2>📌 {{ selectedBatch.batch_name }} — Portal</h2>
+                  <h2><i class="fa-solid fa-thumbtack" aria-hidden="true"></i> {{ selectedBatch.batch_name }} — Portal</h2>
                   <p class="sub-text">Share videos, articles, and links with this batch.</p>
                 </div>
                 <button @click="loadBatchResources" class="btn-secondary" :disabled="loadingResources">Refresh</button>
@@ -474,7 +474,7 @@
               </div>
 
               <div v-if="loadingResources" class="loading-state"><div class="spinner"></div></div>
-              <div v-else-if="resourceError" class="empty-state"><p>⚠️ {{ resourceError }}</p></div>
+              <div v-else-if="resourceError" class="empty-state"><p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ resourceError }}</p></div>
               <div v-else class="portal-layout">
                 <div class="portal-list">
                   <div v-if="batchResources.length === 0" class="empty-state"><p>No resources yet.</p></div>
@@ -550,7 +550,7 @@
           <div class="section-card">
             <div class="section-header">
               <div>
-                <h2>🧠 AI Quizzes</h2>
+                <h2><i class="fa-solid fa-brain" aria-hidden="true"></i> AI Quizzes</h2>
                 <p class="sub-text">Generate, edit, and publish quizzes for a batch.</p>
               </div>
               <select v-model.number="quizViewBatchId" class="input" @change="quizViewBatchId && loadQuizzes(quizViewBatchId)">
@@ -622,7 +622,7 @@
             <div class="section-divider"></div>
             <div v-if="quizViewBatchId" class="section-card" style="margin-bottom: 14px;">
               <div class="section-header">
-                <h2>📊 Quiz Reports & Rankings</h2>
+                <h2><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Quiz Reports & Rankings</h2>
                 <button class="btn-secondary" @click="quizViewBatchId && loadQuizPerformance(quizViewBatchId)">Refresh</button>
               </div>
               <p v-if="quizPerformanceError" class="muted-note" style="margin-bottom: 10px; color: var(--color-warning);">
@@ -677,7 +677,7 @@
             </div>
 
             <div v-if="loadingQuizzes" class="loading-state"><div class="spinner"></div></div>
-            <div v-else-if="quizError" class="empty-state"><p>⚠️ {{ quizError }}</p></div>
+            <div v-else-if="quizError" class="empty-state"><p><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> {{ quizError }}</p></div>
             <div v-else class="quiz-list">
               <div v-for="quiz in quizzes" :key="quiz.id" class="portal-row" @click="openQuiz(quiz)">
                 <div>
@@ -712,7 +712,7 @@
     <Transition name="modal">
       <div v-if="showStudentModal" class="modal-overlay" @click.self="closeStudentModal">
         <div class="modal-container">
-          <button class="modal-close" @click="closeStudentModal">✕</button>
+          <button class="modal-close" @click="closeStudentModal"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
           <div v-if="loadingProfile" class="modal-loading"><div class="spinner"></div><p>Loading profile…</p></div>
           <div v-else-if="studentProfile">
             <div class="profile-header">
@@ -720,7 +720,7 @@
               <div>
                 <h2>{{ studentProfile.student.full_name }}</h2>
                 <p>{{ studentProfile.student.email }}</p>
-                <p v-if="studentProfile.student.phone_number">📞 {{ studentProfile.student.phone_number }}</p>
+                <p v-if="studentProfile.student.phone_number"><i class="fa-solid fa-phone" aria-hidden="true"></i> {{ studentProfile.student.phone_number }}</p>
                 <span class="batch-tag">{{ studentProfile.batch.batch_name }} · {{ studentProfile.batch.year }}</span>
               </div>
             </div>
@@ -739,7 +739,7 @@
 
             <div class="profile-tabs">
               <button v-for="tab in ['attendance', 'info']" :key="tab" :class="['profile-tab', { active: profileTab === tab }]" @click="profileTab = tab">
-                {{ { attendance: '📅 Attendance', info: 'ℹ️ Info' }[tab] }}
+                {{ { attendance: 'Attendance', info: 'Info' }[tab] }}
               </button>
             </div>
 
@@ -747,15 +747,15 @@
               <div v-if="profileTab === 'attendance'">
                 <div class="attendance-history-grid">
                   <div v-for="rec in studentProfile.attendance.recent" :key="rec.date" class="att-history-chip" :class="'chip-' + rec.status" :title="rec.date + (rec.remarks ? ' — ' + rec.remarks : '')">
-                    <span class="chip-emoji">{{ statusEmoji(rec.status) }}</span>
+                    <span class="chip-emoji"><i :class="statusIconClass(rec.status)" aria-hidden="true"></i></span>
                     <span class="chip-date">{{ shortDate(rec.date) }}</span>
                   </div>
                 </div>
                 <div class="att-legend">
-                  <span class="chip-present">✅ Present</span>
-                  <span class="chip-absent">❌ Absent</span>
-                  <span class="chip-late">⏰ Late</span>
-                  <span class="chip-excused">🏥 Excused</span>
+                  <span class="chip-present"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Present</span>
+                  <span class="chip-absent"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> Absent</span>
+                  <span class="chip-late"><i class="fa-regular fa-clock" aria-hidden="true"></i> Late</span>
+                  <span class="chip-excused"><i class="fa-solid fa-notes-medical" aria-hidden="true"></i> Excused</span>
                 </div>
               </div>
 
@@ -1362,7 +1362,7 @@ async function saveAttendance() {
       attendance: toSave.map(s => ({ student_id: s.student_id, status: s.status, remarks: s.remarks || '' })),
     })
     if (res.data.success) {
-      showToast(`✅ Attendance saved! ${res.data.data.created} new, ${res.data.data.updated} updated.`, 'success')
+      showToast(`Attendance saved! ${res.data.data.created} new, ${res.data.data.updated} updated.`, 'success')
     }
   } catch (err: any) {
     showToast(err.response?.data?.message || 'Failed to save attendance', 'error')
@@ -1409,9 +1409,14 @@ function getYoutubeEmbedUrl(url: string) {
 function shortDate(dateStr: string) {
   const d = new Date(dateStr); return `${d.getDate()}/${d.getMonth() + 1}`
 }
-function statusEmoji(status: string) {
-  const map: Record<string, string> = { present: '✅', absent: '❌', late: '⏰', excused: '🏥' }
-  return map[status] || '⬜'
+function statusIconClass(status: string) {
+  const map: Record<string, string> = {
+    present: 'fa-solid fa-circle-check',
+    absent: 'fa-solid fa-circle-xmark',
+    late: 'fa-regular fa-clock',
+    excused: 'fa-solid fa-notes-medical',
+  }
+  return map[status] || 'fa-regular fa-square'
 }
 function attendancePillClass(rate: number) {
   if (rate >= 80) return 'pill-green'; if (rate >= 60) return 'pill-yellow'; return 'pill-red'
@@ -1428,7 +1433,107 @@ function showToast(message: string, type: string = 'success') {
 <style scoped>
 /* Coach accent (inherits shared sidebar from main.css) */
 .nav-item.active {
-  border-left-color: var(--accent-coach);
+  border-left-color: #22eeaa;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.26), rgba(34, 197, 94, 0.2));
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.42), 0 0 18px rgba(56, 189, 248, 0.24), 0 0 24px rgba(34, 197, 94, 0.14);
+  color: #f0fcff;
+  animation: coachNavElectricFlicker 3.8s linear infinite;
+}
+
+.sidebar {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 88px;
+  bottom: 84px;
+  right: -1px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.78), rgba(34, 197, 94, 0.66));
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45), 0 0 16px rgba(34, 197, 94, 0.28);
+  pointer-events: none;
+}
+
+.nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 17%;
+  bottom: 17%;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.95), rgba(34, 197, 94, 0.85));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  box-shadow: inset 0 0 18px rgba(56, 189, 248, 0.08), 0 0 14px rgba(34, 197, 94, 0.08);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.nav-item:hover::before,
+.nav-item:hover::after,
+.nav-item.active::before,
+.nav-item.active::after {
+  opacity: 1;
+}
+
+.nav-item.active::before {
+  animation: coachNavRailFlicker 2.6s linear infinite;
+}
+
+.nav-item.active::after {
+  animation: coachNavRailFlicker 2.6s linear infinite reverse;
+}
+
+.nav-item:hover {
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.3), 0 0 8px rgba(34, 197, 94, 0.16);
+}
+
+@keyframes coachNavElectricFlicker {
+  0%,
+  10%,
+  12%,
+  55%,
+  100% {
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.42), 0 0 18px rgba(56, 189, 248, 0.24), 0 0 24px rgba(34, 197, 94, 0.14);
+    filter: brightness(1);
+  }
+  11%,
+  56% {
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.62), 0 0 24px rgba(56, 189, 248, 0.34), 0 0 30px rgba(34, 197, 94, 0.22);
+    filter: brightness(1.07);
+  }
+}
+
+@keyframes coachNavRailFlicker {
+  0%,
+  7%,
+  9%,
+  60%,
+  100% {
+    opacity: 1;
+  }
+  8%,
+  61% {
+    opacity: 0.62;
+  }
 }
 
 .avatar-ring {
@@ -1501,6 +1606,174 @@ function showToast(message: string, type: string = 'success') {
 
 /* ── Coach-specific overrides ── */
 .sub-text { color: var(--text-muted); margin: 0.25rem 0 0; font-size: var(--font-size-sm); }
+
+.dashboard-container {
+  --coach-neon-blue: rgba(56, 189, 248, 1);
+  --coach-neon-blue-soft: rgba(56, 189, 248, 0.34);
+  --coach-neon-green: rgba(34, 197, 94, 0.96);
+}
+
+.section-card,
+.stat-card,
+.batch-card,
+.batch-row,
+.students-table-wrap,
+.portal-detail,
+.resource-card,
+.coach-ai-col,
+.attendance-card,
+.quiz-question,
+.quiz-modal-content,
+.modal-container {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.section-card::before,
+.stat-card::before,
+.batch-card::before,
+.batch-row::before,
+.students-table-wrap::before,
+.portal-detail::before,
+.resource-card::before,
+.coach-ai-col::before,
+.attendance-card::before,
+.quiz-question::before,
+.quiz-modal-content::before,
+.modal-container::before,
+.section-card::after,
+.stat-card::after,
+.batch-card::after,
+.batch-row::after,
+.students-table-wrap::after,
+.portal-detail::after,
+.resource-card::after,
+.coach-ai-col::after,
+.attendance-card::after,
+.quiz-question::after,
+.quiz-modal-content::after,
+.modal-container::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.section-card::before,
+.stat-card::before,
+.batch-card::before,
+.batch-row::before,
+.students-table-wrap::before,
+.portal-detail::before,
+.resource-card::before,
+.coach-ai-col::before,
+.attendance-card::before,
+.quiz-question::before,
+.quiz-modal-content::before,
+.modal-container::before {
+  inset: -1px;
+  padding: 1.2px;
+  background: linear-gradient(130deg, var(--coach-neon-blue), rgba(56, 189, 248, 0.76) 52%, var(--coach-neon-green));
+  opacity: 0.74;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.34), 0 0 16px rgba(34, 197, 94, 0.24);
+  animation: coachNeonBreathe 4.8s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.section-card::after,
+.stat-card::after,
+.batch-card::after,
+.batch-row::after,
+.students-table-wrap::after,
+.portal-detail::after,
+.resource-card::after,
+.coach-ai-col::after,
+.attendance-card::after,
+.quiz-question::after,
+.quiz-modal-content::after,
+.modal-container::after {
+  left: 14%;
+  right: 14%;
+  bottom: -8px;
+  height: 18px;
+  background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.76) 0%, rgba(56, 189, 248, 0.26) 52%, transparent 90%);
+  filter: blur(8px);
+  opacity: 0.84;
+  animation: coachGreenPulse 4.8s ease-in-out infinite;
+}
+
+.section-card:hover::before,
+.stat-card:hover::before,
+.batch-card:hover::before,
+.batch-row:hover::before,
+.students-table-wrap:hover::before,
+.portal-detail:hover::before,
+.resource-card:hover::before,
+.coach-ai-col:hover::before,
+.attendance-card:hover::before,
+.quiz-question:hover::before {
+  opacity: 0.95;
+}
+
+@keyframes coachNeonBreathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    opacity: 0.76;
+    transform: translateZ(0) scale(1.002);
+  }
+}
+
+@keyframes coachGreenPulse {
+  0%,
+  100% {
+    opacity: 0.54;
+    transform: translateZ(0) scaleX(0.98);
+  }
+  50% {
+    opacity: 0.86;
+    transform: translateZ(0) scaleX(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-item.active,
+  .nav-item.active::before,
+  .nav-item.active::after,
+  .sidebar::before,
+  .section-card::before,
+  .stat-card::before,
+  .batch-card::before,
+  .batch-row::before,
+  .students-table-wrap::before,
+  .portal-detail::before,
+  .resource-card::before,
+  .coach-ai-col::before,
+  .attendance-card::before,
+  .quiz-question::before,
+  .quiz-modal-content::before,
+  .modal-container::before,
+  .section-card::after,
+  .stat-card::after,
+  .batch-card::after,
+  .batch-row::after,
+  .students-table-wrap::after,
+  .portal-detail::after,
+  .resource-card::after,
+  .coach-ai-col::after,
+  .attendance-card::after,
+  .quiz-question::after,
+  .quiz-modal-content::after,
+  .modal-container::after {
+    animation: none !important;
+  }
+}
 
 /* ── Stats (uses shared) ──  */
 

@@ -8,31 +8,31 @@
         <h2>{{ authStore.user?.full_name }}</h2>
         <span class="role-badge">Student</span>
         <button class="theme-toggle-btn" type="button" @click="toggleTheme">
-          <span class="theme-toggle-icon">{{ isDarkTheme ? '☀️' : '🌙' }}</span>
+          <span class="theme-toggle-icon"><i :class="['fa-solid', isDarkTheme ? 'fa-sun' : 'fa-moon']" aria-hidden="true"></i></span>
           <span class="theme-toggle-text">{{ isDarkTheme ? 'Light' : 'Dark' }}</span>
         </button>
       </div>
   <nav class="sidebar-nav" @click="closeSidebar">
         <a :class="['nav-item', { active: activeSection === 'overview' }]" @click="activeSection = 'overview'">
-          <span>📊</span> Overview
+          <span><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span> Overview
         </a>
         <a :class="['nav-item', { active: activeSection === 'profile' }]" @click="activeSection = 'profile'">
-          <span>👤</span> My Profile
+          <span><i class="fa-solid fa-user" aria-hidden="true"></i></span> My Profile
         </a>
         <a :class="['nav-item', { active: activeSection === 'batch' }]" @click="activeSection = 'batch'">
-          <span>📚</span> My Batch
+          <span><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span> My Batch
         </a>
         <a :class="['nav-item', { active: activeSection === 'fees' }]" @click="activeSection = 'fees'">
-          <span>💰</span> Fee Status
+          <span><i class="fa-solid fa-wallet" aria-hidden="true"></i></span> Fee Status
         </a>
         <a :class="['nav-item', { active: activeSection === 'resources' }]" @click="activeSection = 'resources'">
-          <span>📌</span> Batch Portal
+          <span><i class="fa-solid fa-thumbtack" aria-hidden="true"></i></span> Batch Portal
         </a>
         <a :class="['nav-item', { active: activeSection === 'quizzes' }]" @click="activeSection = 'quizzes'">
-          <span>🧠</span> Quizzes & Results
+          <span><i class="fa-solid fa-brain" aria-hidden="true"></i></span> Quizzes & Results
         </a>
         <a :class="['nav-item', { active: activeSection === 'attendance' }]" @click="activeSection = 'attendance'">
-          <span>✅</span> Attendance
+          <span><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span> Attendance
         </a>
       </nav>
       <button @click="handleLogout" class="btn-logout">Logout</button>
@@ -40,7 +40,7 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content" :class="{ 'exam-content': activeSection === 'exam' }">
-      <button v-if="activeSection !== 'exam'" class="mobile-menu-btn" @click="toggleSidebar">☰ Menu</button>
+      <button v-if="activeSection !== 'exam'" class="mobile-menu-btn" @click="toggleSidebar"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu</button>
       <div class="toast-stack" v-if="toasts.length">
         <div v-for="toast in toasts" :key="toast.id" :class="['toast-item', `toast-${toast.type}`]">
           <span>{{ toast.message }}</span>
@@ -54,7 +54,7 @@
         <p>Loading your dashboard…</p>
       </div>
       <div v-else-if="pageError" class="page-error">
-        <div class="error-icon">⚠️</div>
+        <div class="error-icon"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></div>
         <h2>Could not load your profile</h2>
         <p>{{ pageError }}</p>
         <button class="btn-primary" @click="loadAll">Retry</button>
@@ -65,13 +65,13 @@
         <!-- ── OVERVIEW ── -->
         <template v-if="activeSection === 'overview'">
           <header class="content-header">
-            <h1>Welcome back, {{ firstName }}! 👋</h1>
+            <h1><i class="fa-solid fa-hand-sparkles" aria-hidden="true"></i> Welcome back, {{ firstName }}!</h1>
             <p class="breadcrumb">Home / Overview</p>
           </header>
 
           <div class="stats-grid">
             <div class="stat-card green">
-              <div class="stat-icon">✅</div>
+              <div class="stat-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Attendance Rate</h3>
                 <p class="stat-value">{{ attendanceRate }}%</p>
@@ -79,7 +79,7 @@
               </div>
             </div>
             <div class="stat-card blue">
-              <div class="stat-icon">🧠</div>
+              <div class="stat-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Assignments Completed</h3>
                 <p class="stat-value">{{ completedAssignments }}</p>
@@ -87,7 +87,7 @@
               </div>
             </div>
             <div class="stat-card purple">
-              <div class="stat-icon">📈</div>
+              <div class="stat-icon"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Avg Quiz Score</h3>
                 <p class="stat-value">{{ overallAssignmentAverage }}%</p>
@@ -95,7 +95,7 @@
               </div>
             </div>
             <div :class="['stat-card', feeFullyPaid ? 'green' : 'orange']">
-              <div class="stat-icon">💰</div>
+              <div class="stat-icon"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div>
               <div class="stat-info">
                 <h3>Fee Status</h3>
                 <p class="stat-value">{{ feeFullyPaid ? 'Paid' : 'Pending' }}</p>
@@ -108,7 +108,7 @@
             <!-- Recent Attendance -->
             <div class="card">
               <div class="card-head">
-                <h3>🗓️ Recent Attendance</h3>
+                <h3><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Recent Attendance</h3>
                 <button class="link-btn" @click="activeSection = 'attendance'">View All →</button>
               </div>
               <div v-if="attendanceRecords.length === 0" class="empty-msg">No attendance records yet.</div>
@@ -125,7 +125,7 @@
             <!-- Recent Quiz Results -->
             <div class="card">
               <div class="card-head">
-                <h3>🧠 Recent Quiz Results</h3>
+                <h3><i class="fa-solid fa-brain" aria-hidden="true"></i> Recent Quiz Results</h3>
                 <button class="link-btn" @click="activeSection = 'quizzes'">View All →</button>
               </div>
               <div v-if="recentQuizResults.length === 0" class="empty-msg">No quiz submissions yet.</div>
@@ -145,7 +145,7 @@
             <!-- Fee Summary -->
             <div class="card">
               <div class="card-head">
-                <h3>💳 Fee Summary</h3>
+                <h3><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Fee Summary</h3>
                 <button class="link-btn" @click="activeSection = 'fees'">View All →</button>
               </div>
               <div class="fee-mini-grid">
@@ -173,7 +173,7 @@
             <!-- Batch Info -->
             <div class="card">
               <div class="card-head">
-                <h3>🎓 My Batch</h3>
+                <h3><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> My Batch</h3>
                 <button class="link-btn" @click="activeSection = 'batch'">Details →</button>
               </div>
               <div v-if="!studentProfile?.batch" class="empty-msg">No batch assigned yet.</div>
@@ -186,7 +186,7 @@
 
           <div class="card trend-card">
             <div class="card-head">
-              <h3>📈 Quiz Performance Trend</h3>
+              <h3><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Quiz Performance Trend</h3>
               <span class="trend-note">Last 6 months</span>
             </div>
             <div class="trend-insights">
@@ -228,7 +228,7 @@
         <!-- ── MY PROFILE ── -->
         <template v-if="activeSection === 'profile'">
           <header class="content-header">
-            <h1>👤 My Profile</h1>
+            <h1><i class="fa-solid fa-user" aria-hidden="true"></i> My Profile</h1>
             <p class="breadcrumb">Home / Profile</p>
           </header>
           <div class="card" v-if="studentProfile">
@@ -268,10 +268,10 @@
 
             <template v-if="studentProfile.parents?.length">
               <div class="section-divider"></div>
-              <h3 class="sub-heading">👨‍👩‍👧 Connected Parents</h3>
+              <h3 class="sub-heading"><i class="fa-solid fa-people-roof" aria-hidden="true"></i> Connected Parents</h3>
               <div class="parents-row">
                 <div v-for="p in studentProfile.parents" :key="p.id" class="parent-chip">
-                  <span>👤</span>
+                  <span><i class="fa-solid fa-user" aria-hidden="true"></i></span>
                   <div>
                     <div class="chip-name">{{ p.full_name }}</div>
                     <div class="chip-email">{{ p.email }}</div>
@@ -285,7 +285,7 @@
         <!-- ── MY BATCH ── -->
         <template v-if="activeSection === 'batch'">
           <header class="content-header">
-            <h1>📚 My Batch</h1>
+            <h1><i class="fa-solid fa-layer-group" aria-hidden="true"></i> My Batch</h1>
             <p class="breadcrumb">Home / Batch</p>
           </header>
           <div v-if="!studentProfile?.batch" class="card empty-full">
@@ -331,7 +331,7 @@
         <!-- ── FEE STATUS ── -->
         <template v-if="activeSection === 'fees'">
           <header class="content-header">
-            <h1>💰 Fee Status</h1>
+            <h1><i class="fa-solid fa-wallet" aria-hidden="true"></i> Fee Status</h1>
             <p class="breadcrumb">Home / Fees</p>
           </header>
 
@@ -353,7 +353,7 @@
               <div class="fee-ov-card" :class="remainingFee > 0 ? 'orange' : 'green'">
                 <div class="fov-label">Remaining</div>
                 <div class="fov-value">₹{{ remainingFee.toLocaleString() }}</div>
-                <div class="fov-sub">{{ feeFullyPaid ? '✅ Fully paid' : '⚠️ Pending' }}</div>
+                <div class="fov-sub">{{ feeFullyPaid ? 'Fully paid' : 'Pending' }}</div>
                 <div v-if="!feeFullyPaid" class="pay-input">
                   <span class="pay-label">Pay amount</span>
                   <input
@@ -447,7 +447,7 @@
         <!-- ── ATTENDANCE ── -->
         <template v-if="activeSection === 'attendance'">
           <header class="content-header">
-            <h1>✅ Attendance</h1>
+            <h1><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Attendance</h1>
             <p class="breadcrumb">Home / Attendance</p>
           </header>
 
@@ -485,13 +485,13 @@
               ></div>
             </div>
             <p class="prog-hint" :class="Number(attendanceRate) >= 75 ? 'hint-green' : 'hint-red'">
-              {{ Number(attendanceRate) >= 75 ? '✅ Good standing' : '⚠️ Below 75% — please improve attendance' }}
+              {{ Number(attendanceRate) >= 75 ? 'Good standing' : 'Below 75% - please improve attendance' }}
             </p>
           </div>
 
           <div class="card">
             <div class="card-head">
-              <h3>📋 All Attendance Records</h3>
+              <h3><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> All Attendance Records</h3>
               <div class="attend-controls">
                 <input v-model="attendanceSearchQuery" class="search-input" placeholder="Search date, remarks, batch" />
                 <select v-model="attendanceFilter" class="filter-select">
@@ -539,7 +539,7 @@
         <!-- ── BATCH PORTAL ── -->
         <template v-if="activeSection === 'resources'">
           <header class="content-header">
-            <h1>📌 Batch Portal</h1>
+            <h1><i class="fa-solid fa-thumbtack" aria-hidden="true"></i> Batch Portal</h1>
             <p class="breadcrumb">Home / Batch Portal</p>
           </header>
 
@@ -580,7 +580,7 @@
                 >
                   <div>
                     <strong>
-                      <span class="resource-icon">{{ resourceIcon(res.resource_type) }}</span>
+                      <span class="resource-icon"><i :class="resourceIconClass(res.resource_type)" aria-hidden="true"></i></span>
                       {{ res.title }}
                     </strong>
                     <p>{{ res.resource_type }} • {{ formatDate(res.created_at) }}</p>
@@ -592,7 +592,7 @@
                 <div v-if="!selectedResource" class="empty-msg">Select a resource to preview.</div>
                 <div v-else class="resource-preview">
                   <div class="resource-head">
-                    <span class="resource-type">{{ resourceIcon(selectedResource.resource_type) }} {{ selectedResource.resource_type }}</span>
+                    <span class="resource-type"><i :class="resourceIconClass(selectedResource.resource_type)" aria-hidden="true"></i> {{ selectedResource.resource_type }}</span>
                     <span class="resource-date">{{ formatDate(selectedResource.created_at) }}</span>
                   </div>
                   <h4 class="resource-title">{{ selectedResource.title }}</h4>
@@ -634,7 +634,7 @@
         <!-- ── QUIZZES ── -->
         <template v-if="activeSection === 'quizzes'">
           <header class="content-header">
-            <h1>🧠 Quizzes</h1>
+            <h1><i class="fa-solid fa-brain" aria-hidden="true"></i> Quizzes</h1>
             <p class="breadcrumb">Home / Quizzes</p>
           </header>
 
@@ -674,7 +674,7 @@
             <div v-else class="quiz-two-col">
               <div class="quiz-col">
                 <div class="quiz-group-head">
-                  <h4 class="quiz-group-title">🎯 Graded Quizzes</h4>
+                  <h4 class="quiz-group-title"><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Graded Quizzes</h4>
                   <span class="quiz-group-count">{{ filteredGradedAssignments.length }}</span>
                 </div>
                 <div v-if="filteredGradedAssignments.length === 0" class="empty-msg">No graded quizzes.</div>
@@ -711,7 +711,7 @@
 
               <div class="quiz-col">
                 <div class="quiz-group-head">
-                  <h4 class="quiz-group-title">🧪 Practice Quizzes</h4>
+                  <h4 class="quiz-group-title"><i class="fa-solid fa-flask" aria-hidden="true"></i> Practice Quizzes</h4>
                   <span class="quiz-group-count">{{ filteredPracticeAssignments.length }}</span>
                 </div>
                 <div v-if="filteredPracticeAssignments.length === 0" class="empty-msg">No practice quizzes.</div>
@@ -761,7 +761,7 @@
                 <div class="exam-student">Batch: {{ studentProfile?.batch?.batch_name || 'Not assigned' }}</div>
               </div>
               <div class="exam-head-right">
-                <div class="exam-timer">⏱ {{ formatExamTimer(examSecondsLeft) }}</div>
+                <div class="exam-timer"><i class="fa-regular fa-clock" aria-hidden="true"></i> {{ formatExamTimer(examSecondsLeft) }}</div>
                 <button class="btn-secondary" @click="exitExam">Back to Quizzes</button>
                 <button class="btn-primary" :disabled="submittingQuiz || !canSubmitQuiz" @click="submitQuiz">
                   {{ submittingQuiz ? 'Submitting…' : `Submit (${unansweredCount} unanswered)` }}
@@ -845,7 +845,7 @@
 
             <div v-if="latestQuizReport" class="quiz-report-card">
               <div class="card-head" style="margin-top: 0;">
-                <h3>📊 Instant Quiz Report</h3>
+                <h3><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Instant Quiz Report</h3>
               </div>
               <div class="quiz-report-grid">
                 <div><strong>Attempt:</strong> #{{ latestQuizReport.attempt_number }}</div>
@@ -862,7 +862,7 @@
               </div>
 
               <div v-if="latestQuizReport.ai_analysis" class="quiz-ai-analysis">
-                <h4>🤖 AI Performance Analysis</h4>
+                <h4><i class="fa-solid fa-robot" aria-hidden="true"></i> AI Performance Analysis</h4>
                 <p class="ai-source" v-if="latestQuizReport.ai_analysis.source">
                   Source: {{ latestQuizReport.ai_analysis.source === 'ai_model' ? 'Live AI model' : 'Rule-based fallback' }}
                 </p>
@@ -891,7 +891,7 @@
               </div>
 
               <div class="question-review" v-if="latestQuizReport.question_feedback?.length">
-                <h4>📝 Question-wise Review</h4>
+                <h4><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Question-wise Review</h4>
                 <div class="question-review-list">
                   <div
                     v-for="(item, idx) in latestQuizReport.question_feedback"
@@ -921,12 +921,12 @@
         <!-- ── QUIZZES & RESULTS ── -->
         <template v-if="activeSection === 'results'">
           <header class="content-header">
-            <h1>🧠 Quizzes & Results</h1>
+            <h1><i class="fa-solid fa-brain" aria-hidden="true"></i> Quizzes & Results</h1>
             <p class="breadcrumb">Home / Quizzes & Results</p>
           </header>
 
           <div class="card">
-            <div class="card-head"><h3>📌 Assignments Overview</h3></div>
+            <div class="card-head"><h3><i class="fa-solid fa-thumbtack" aria-hidden="true"></i> Assignments Overview</h3></div>
             <div class="test-summary-grid">
               <div class="test-sum-card t-blue">
                 <div class="tsm-num">{{ practiceAssignments.length }}</div>
@@ -948,7 +948,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>✅ Practice Assignments</h3></div>
+            <div class="card-head"><h3><i class="fa-solid fa-list-check" aria-hidden="true"></i> Practice Assignments</h3></div>
             <div v-if="loadingQuizzes" class="table-skeleton-wrap">
               <div v-for="i in 4" :key="`practice-result-skeleton-${i}`" class="table-skeleton-row"></div>
             </div>
@@ -973,7 +973,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>🎯 Graded Assignments</h3></div>
+            <div class="card-head"><h3><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Graded Assignments</h3></div>
             <div v-if="loadingQuizzes" class="table-skeleton-wrap">
               <div v-for="i in 4" :key="`graded-result-skeleton-${i}`" class="table-skeleton-row"></div>
             </div>
@@ -1812,14 +1812,14 @@ async function submitQuiz() {
   }
 }
 
-function resourceIcon(type: string | null | undefined) {
+function resourceIconClass(type: string | null | undefined) {
   const map: Record<string, string> = {
-    youtube: '▶️',
-    article: '📰',
-    link: '🔗',
-    tool: '🧰',
+    youtube: 'fa-brands fa-youtube',
+    article: 'fa-regular fa-newspaper',
+    link: 'fa-solid fa-link',
+    tool: 'fa-solid fa-toolbox',
   }
-  return map[(type || '').toLowerCase()] || '📌'
+  return map[(type || '').toLowerCase()] || 'fa-solid fa-thumbtack'
 }
 
 function dismissToast(id: number) {
@@ -1870,6 +1870,67 @@ onUnmounted(() => stopExamTimer())
 /* Student accent */
 .nav-item.active {
   border-left-color: var(--accent-student);
+  background: linear-gradient(90deg, rgba(251, 146, 60, 0.26), rgba(250, 204, 21, 0.2));
+  box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.38), 0 0 14px rgba(251, 146, 60, 0.2), 0 0 18px rgba(250, 204, 21, 0.14);
+  color: #fff7ed;
+}
+
+.sidebar {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 84px;
+  bottom: 80px;
+  right: -1px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.8), rgba(250, 204, 21, 0.72));
+  box-shadow: 0 0 14px rgba(251, 146, 60, 0.38), 0 0 14px rgba(250, 204, 21, 0.24);
+  pointer-events: none;
+}
+
+.nav-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before,
+.nav-item::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-item::before {
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(251, 146, 60, 0.95), rgba(250, 204, 21, 0.9));
+}
+
+.nav-item::after {
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(251, 146, 60, 0.28);
+  box-shadow: inset 0 0 14px rgba(251, 146, 60, 0.1), 0 0 12px rgba(250, 204, 21, 0.1);
+}
+
+.nav-item:hover::before,
+.nav-item:hover::after,
+.nav-item.active::before,
+.nav-item.active::after {
+  opacity: 1;
+}
+
+.nav-item:hover {
+  text-shadow: 0 0 8px rgba(251, 146, 60, 0.22), 0 0 8px rgba(250, 204, 21, 0.16);
 }
 
 .avatar {
@@ -2061,6 +2122,172 @@ onUnmounted(() => stopExamTimer())
 
 .dashboard-container.exam-active {
   grid-template-columns: 1fr;
+}
+
+.dashboard-container {
+  --student-neon-red: rgba(248, 113, 113, 0.96);
+  --student-neon-orange: rgba(251, 146, 60, 0.98);
+  --student-neon-yellow: rgba(250, 204, 21, 0.96);
+  --student-neon-red-soft: rgba(248, 113, 113, 0.2);
+}
+
+.card,
+.stat-card,
+.fee-ov-card,
+.attend-sum-card,
+.test-sum-card,
+.table-wrap,
+.portal-detail,
+.quiz-question,
+.quiz-report-card,
+.exam-question-panel,
+.exam-sidebar {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.card::before,
+.stat-card::before,
+.fee-ov-card::before,
+.attend-sum-card::before,
+.test-sum-card::before,
+.table-wrap::before,
+.portal-detail::before,
+.quiz-question::before,
+.quiz-report-card::before,
+.exam-question-panel::before,
+.exam-sidebar::before,
+.card::after,
+.stat-card::after,
+.fee-ov-card::after,
+.attend-sum-card::after,
+.test-sum-card::after,
+.table-wrap::after,
+.portal-detail::after,
+.quiz-question::after,
+.quiz-report-card::after,
+.exam-question-panel::after,
+.exam-sidebar::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.card::before,
+.stat-card::before,
+.fee-ov-card::before,
+.attend-sum-card::before,
+.test-sum-card::before,
+.table-wrap::before,
+.portal-detail::before,
+.quiz-question::before,
+.quiz-report-card::before,
+.exam-question-panel::before,
+.exam-sidebar::before {
+  inset: -1px;
+  padding: 1.1px;
+  background: linear-gradient(130deg, var(--student-neon-red), var(--student-neon-orange) 56%, var(--student-neon-yellow));
+  opacity: 0.6;
+  box-shadow: 0 0 12px rgba(248, 113, 113, 0.26), 0 0 16px rgba(250, 204, 21, 0.2);
+  animation: studentNeonBreathe 5.4s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.card::after,
+.stat-card::after,
+.fee-ov-card::after,
+.attend-sum-card::after,
+.test-sum-card::after,
+.table-wrap::after,
+.portal-detail::after,
+.quiz-question::after,
+.quiz-report-card::after,
+.exam-question-panel::after,
+.exam-sidebar::after {
+  left: 15%;
+  right: 15%;
+  bottom: -8px;
+  height: 16px;
+  background: radial-gradient(ellipse at center, rgba(251, 146, 60, 0.66) 0%, rgba(250, 204, 21, 0.36) 52%, transparent 88%);
+  filter: blur(8px);
+  opacity: 0.72;
+  animation: studentNeonPulse 5.4s ease-in-out infinite;
+}
+
+.card:hover::before,
+.stat-card:hover::before,
+.fee-ov-card:hover::before,
+.attend-sum-card:hover::before,
+.test-sum-card:hover::before,
+.table-wrap:hover::before,
+.portal-detail:hover::before,
+.quiz-question:hover::before,
+.quiz-report-card:hover::before {
+  opacity: 0.84;
+}
+
+[data-theme='dark'] .data-table tbody tr td {
+  border-top-color: rgba(248, 113, 113, 0.12);
+  border-bottom-color: rgba(250, 204, 21, 0.14);
+}
+
+[data-theme='dark'] .data-table tbody tr:hover td {
+  box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.2);
+}
+
+@keyframes studentNeonBreathe {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    opacity: 0.74;
+    transform: translateZ(0) scale(1.003);
+  }
+}
+
+@keyframes studentNeonPulse {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: translateZ(0) scaleX(0.98);
+  }
+  50% {
+    opacity: 0.82;
+    transform: translateZ(0) scaleX(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card::before,
+  .stat-card::before,
+  .fee-ov-card::before,
+  .attend-sum-card::before,
+  .test-sum-card::before,
+  .table-wrap::before,
+  .portal-detail::before,
+  .quiz-question::before,
+  .quiz-report-card::before,
+  .exam-question-panel::before,
+  .exam-sidebar::before,
+  .card::after,
+  .stat-card::after,
+  .fee-ov-card::after,
+  .attend-sum-card::after,
+  .test-sum-card::after,
+  .table-wrap::after,
+  .portal-detail::after,
+  .quiz-question::after,
+  .quiz-report-card::after,
+  .exam-question-panel::after,
+  .exam-sidebar::after {
+    animation: none !important;
+  }
 }
 
 .main-content.exam-content {
@@ -2908,8 +3135,7 @@ onUnmounted(() => stopExamTimer())
 [data-theme='dark'] .resource-desc,
 [data-theme='dark'] .fee-val,
 [data-theme='dark'] .batch-name,
-[data-theme='dark'] .cost-value,
-[data-theme='dark'] .asm-num {
+[data-theme='dark'] .cost-value {
   color: var(--text-primary);
 }
 
@@ -2918,12 +3144,21 @@ onUnmounted(() => stopExamTimer())
 [data-theme='dark'] .info-item label,
 [data-theme='dark'] .batch-year,
 [data-theme='dark'] .cost-label,
-[data-theme='dark'] .asm-label,
 [data-theme='dark'] .portal-row p,
 [data-theme='dark'] .resource-head,
 [data-theme='dark'] .resource-meta,
 [data-theme='dark'] .resource-hint {
   color: var(--text-muted);
+}
+
+[data-theme='dark'] .attend-sum-card .asm-num {
+  color: #0f172a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+[data-theme='dark'] .attend-sum-card .asm-label {
+  color: #334155;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 [data-theme='dark'] .fee-mini-item,
